@@ -45,6 +45,7 @@ import {
   FaLink,
   FaCalendarAlt,
   FaBuilding,
+  FaPaperPlane,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -77,6 +78,10 @@ export default function AdminPage() {
   const [gitTestStatus, setGitTestStatus] = useState(null)
   const [gitTesting, setGitTesting] = useState(false)
 
+  // Pittu AI Test Tool State
+  const [pittuTestQuery, setPittuTestQuery] = useState('')
+  const [pittuTestResponse, setPittuTestResponse] = useState('')
+
   // Quick Command Search (⌘K / Ctrl+K)
   const [commandOpen, setCommandOpen] = useState(false)
   const [commandQuery, setCommandQuery] = useState('')
@@ -96,6 +101,8 @@ export default function AdminPage() {
   const [newSkillNames, setNewSkillNames] = useState({})
   const [newSkillLevels, setNewSkillLevels] = useState({})
   const [newCatLabel, setNewCatLabel] = useState('')
+  const [newFaqQ, setNewFaqQ] = useState('')
+  const [newFaqA, setNewFaqA] = useState('')
 
   useEffect(() => {
     setKb(getActiveKnowledge())
@@ -193,6 +200,22 @@ export default function AdminPage() {
     } finally {
       setGitTesting(false)
     }
+  }
+
+  const handleTestPittu = (e) => {
+    e.preventDefault()
+    if (!pittuTestQuery.trim()) return
+    const q = pittuTestQuery.toLowerCase()
+    let answer = `I'm Pittu AI! Priyanshu Agarwal is an AI/ML Engineer and Full-Stack Developer studying B.Tech at NIMS University Jaipur.`
+    const foundFaq = (kb.faqs || []).find((f) => f.question.toLowerCase().includes(q) || q.includes(f.question.toLowerCase()))
+    if (foundFaq) {
+      answer = foundFaq.answer
+    } else if (q.includes('skill') || q.includes('python') || q.includes('react')) {
+      answer = `Priyanshu is proficient in Python (95%), React & Web Dev (90%), C++ (85%), SQL (85%), and Machine Learning (90%).`
+    } else if (q.includes('project') || q.includes('chopati')) {
+      answer = `Priyanshu built Agarwals Chopati (full-stack web app & Android mobile app), AI Machine Learning Labs, and Portfolio Studio!`
+    }
+    setPittuTestResponse(answer)
   }
 
   const hero = kb.hero || {
@@ -635,7 +658,7 @@ export default function AdminPage() {
 
         {/* Main Content Workspace */}
         <main className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-53px)] bg-[#0b0f19]">
-          {/* TAB: DASHBOARD OVERVIEW */}
+          {/* TAB 1: DASHBOARD OVERVIEW */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6 max-w-5xl">
               <div>
@@ -719,7 +742,233 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: GITHUB & OPEN SOURCE CMS */}
+          {/* TAB 2: SECTION SPACING & GAPS CMS */}
+          {activeTab === 'layout' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaLayerGroup className="text-indigo-400" /> Section Spacing & Gap Architecture
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Control section padding/gaps, toggle section visibility (Show/Hide), and re-order homepage flow</p>
+                </div>
+                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5">
+                  <FaSave /> Save Architecture
+                </button>
+              </div>
+
+              {/* Presets */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Global Spacing Presets</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 1, paddingBottomRem: 1 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'compact', sections: updatedSections } })
+                      triggerToast('Applied Ultra-Compact Preset')
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'compact'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-semibold">⚡ Ultra-Compact (Zero Gaps)</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">1rem padding. Tight continuous stream.</p>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 2.5, paddingBottomRem: 2.5 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'balanced', sections: updatedSections } })
+                      triggerToast('Applied Balanced Preset')
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'balanced'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-semibold">⚖️ Balanced Rhythm</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">2.5rem padding. Optimal spacing.</p>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 4.5, paddingBottomRem: 4.5 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'spacious', sections: updatedSections } })
+                      triggerToast('Applied Spacious Preset')
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'spacious'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-semibold">🌌 Spacious (Generous)</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">4.5rem padding. Generous vertical space.</p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Section Sequence & Padding Controls */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Homepage Sequence & Vertical Gap Controls</h3>
+                <div className="space-y-3">
+                  {layoutConfig.sections.map((sec, idx) => (
+                    <div key={sec.id} className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 space-y-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded bg-indigo-600/20 text-indigo-300 grid place-items-center text-xs font-bold font-mono">
+                            #{idx + 1}
+                          </span>
+                          <span className="font-bold text-xs text-white">{sec.name}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              const updated = [...layoutConfig.sections]
+                              updated[idx].enabled = !updated[idx].enabled
+                              setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                            }}
+                            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg border ${
+                              sec.enabled
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                            }`}
+                          >
+                            {sec.enabled ? <FaEye /> : <FaEyeSlash />}
+                            {sec.enabled ? 'Visible' : 'Hidden'}
+                          </button>
+
+                          <button
+                            disabled={idx === 0}
+                            onClick={() => {
+                              if (idx > 0) {
+                                const updated = [...layoutConfig.sections]
+                                const temp = updated[idx]
+                                updated[idx] = updated[idx - 1]
+                                updated[idx - 1] = temp
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }
+                            }}
+                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                          >
+                            <FaArrowUp />
+                          </button>
+                          <button
+                            disabled={idx === layoutConfig.sections.length - 1}
+                            onClick={() => {
+                              if (idx < layoutConfig.sections.length - 1) {
+                                const updated = [...layoutConfig.sections]
+                                const temp = updated[idx]
+                                updated[idx] = updated[idx + 1]
+                                updated[idx + 1] = temp
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }
+                            }}
+                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                          >
+                            <FaArrowDown />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: STATS COUNTER CARDS CMS */}
+          {activeTab === 'stats' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaChartBar className="text-indigo-400" /> Stats Counter Cards CMS
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Edit achievement counter numbers, suffixes (+, %), and card titles</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newStat = { id: `stat-${Date.now()}`, label: 'New Metric Title', value: 10, suffix: '+' }
+                    setKb({ ...kb, stats: [...stats, newStat] })
+                    triggerToast('Added stat card')
+                  }}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                >
+                  <FaPlus /> Add Stat Card
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {stats.map((stat, idx) => (
+                  <div key={stat.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded">Stat Card #{idx + 1}</span>
+                      <button
+                        onClick={() => {
+                          const updated = stats.filter((_, i) => i !== idx)
+                          setKb({ ...kb, stats: updated })
+                          triggerToast('Removed stat card')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1 text-xs"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Metric Title</label>
+                      <input
+                        type="text"
+                        value={stat.label}
+                        onChange={(e) => {
+                          const updated = [...stats]
+                          updated[idx].label = e.target.value
+                          setKb({ ...kb, stats: updated })
+                        }}
+                        className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Value Number</label>
+                        <input
+                          type="number"
+                          value={stat.value}
+                          onChange={(e) => {
+                            const updated = [...stats]
+                            updated[idx].value = Number(e.target.value)
+                            setKb({ ...kb, stats: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Suffix (+, %)</label>
+                        <input
+                          type="text"
+                          value={stat.suffix}
+                          onChange={(e) => {
+                            const updated = [...stats]
+                            updated[idx].suffix = e.target.value
+                            setKb({ ...kb, stats: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: GITHUB & OPEN SOURCE CMS */}
           {activeTab === 'github' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -815,7 +1064,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 2: SKILLS & PROFICIENCY BARS CMS */}
+          {/* TAB 5: SKILLS & PROFICIENCY BARS CMS */}
           {activeTab === 'skills' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1102,7 +1351,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: CERTIFICATIONS CATALOG CMS (DETAILED RICH FORM) */}
+          {/* TAB 6: CERTIFICATIONS CATALOG CMS */}
           {activeTab === 'certifications' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1251,7 +1500,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: ACADEMIC JOURNEY CMS */}
+          {/* TAB 7: ACADEMIC JOURNEY CMS */}
           {activeTab === 'education' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1386,7 +1635,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: WORK EXPERIENCE CMS */}
+          {/* TAB 8: WORK EXPERIENCE CMS */}
           {activeTab === 'experience' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1503,7 +1752,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: PROJECTS CATALOG CMS */}
+          {/* TAB 9: PROJECTS CATALOG CMS */}
           {activeTab === 'projects' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1648,6 +1897,119 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* TAB 10: PITTU AI KNOWLEDGE & FAQ ENGINE */}
+          {activeTab === 'pittu' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaRobot className="text-indigo-400" /> Pittu AI Knowledge & FAQ Engine
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                    Configure grounded facts, assistant Q&A pairs, persona rules, and test interactive responses
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const newFaq = {
+                        question: 'What new skills is Priyanshu learning?',
+                        answer: 'Priyanshu is actively expanding his knowledge in Neural Networks, Deep Learning, and Cloud Infrastructure.',
+                      }
+                      setKb({ ...kb, faqs: [...(kb.faqs || []), newFaq] })
+                      triggerToast('Added Pittu Q&A pair')
+                    }}
+                    className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                  >
+                    <FaPlus /> Add Q&A Pair
+                  </button>
+                  <button onClick={handleSaveAll} className="text-xs font-semibold text-slate-900 bg-emerald-400 hover:bg-emerald-300 px-3.5 py-2 rounded-lg shadow-sm">
+                    <FaSave className="inline mr-1.5" /> Save AI Knowledge
+                  </button>
+                </div>
+              </div>
+
+              {/* Pittu Live Interactive Test Tool */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3 shadow-sm">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                  <FaRobot className="text-indigo-400" /> Pittu AI Live Simulator & Test Console
+                </h3>
+
+                <form onSubmit={handleTestPittu} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Ask Pittu AI a test question (e.g., 'What is Priyanshu's SGPA?')..."
+                    value={pittuTestQuery}
+                    onChange={(e) => setPittuTestQuery(e.target.value)}
+                    className="flex-1 bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shadow-sm shrink-0"
+                  >
+                    <FaPaperPlane /> Test Query
+                  </button>
+                </form>
+
+                {pittuTestResponse && (
+                  <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-xs leading-relaxed font-mono">
+                    <span className="text-indigo-400 font-bold">🤖 Pittu AI Output:</span> {pittuTestResponse}
+                  </div>
+                )}
+              </div>
+
+              {/* Pittu Q&A Pairs */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">
+                  Grounded Q&A Facts ({kb.faqs?.length || 0})
+                </h3>
+                <div className="space-y-3">
+                  {(kb.faqs || []).map((faq, idx) => (
+                    <div key={idx} className="bg-[#070913] border border-slate-800 rounded-xl p-4 space-y-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-1">
+                          <span className="w-5 h-5 rounded bg-indigo-600/20 text-indigo-400 grid place-items-center text-[10px] font-bold font-mono">
+                            Q{idx + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={faq.question}
+                            onChange={(e) => {
+                              const updated = [...(kb.faqs || [])]
+                              updated[idx].question = e.target.value
+                              setKb({ ...kb, faqs: updated })
+                            }}
+                            className="font-bold text-xs text-white bg-transparent border-none flex-1 outline-none focus:text-indigo-300"
+                          />
+                        </div>
+                        <button
+                          onClick={() => {
+                            const updated = (kb.faqs || []).filter((_, i) => i !== idx)
+                            setKb({ ...kb, faqs: updated })
+                            triggerToast('Removed Q&A pair')
+                          }}
+                          className="text-rose-400 hover:text-rose-300 text-xs p-1"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={faq.answer}
+                        onChange={(e) => {
+                          const updated = [...(kb.faqs || [])]
+                          updated[idx].answer = e.target.value
+                          setKb({ ...kb, faqs: updated })
+                        }}
+                        className="w-full bg-[#0b0f19] border border-slate-800 rounded-lg p-2.5 text-xs text-slate-300 outline-none focus:border-indigo-500 leading-relaxed font-sans"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* OTHER TABS */}
           {activeTab === 'hero' && (
             <div className="space-y-6 max-w-5xl">
@@ -1779,58 +2141,6 @@ export default function AdminPage() {
                     onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, bio: e.target.value } })}
                     className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500 leading-relaxed"
                   />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'pittu' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Pittu AI Knowledge & FAQ Engine</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Configure grounded facts and Q&A pairs</p>
-                </div>
-                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm">
-                  <FaSave /> Save AI Knowledge
-                </button>
-              </div>
-
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Pittu Q&A Pairs ({kb.faqs?.length || 0})</h3>
-                <div className="space-y-3">
-                  {(kb.faqs || []).map((faq, idx) => (
-                    <div key={idx} className="bg-[#070913] border border-slate-800 rounded-lg p-3 space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <input
-                          type="text"
-                          value={faq.question}
-                          onChange={(e) => {
-                            const updated = [...(kb.faqs || [])]
-                            updated[idx].question = e.target.value
-                            setKb({ ...kb, faqs: updated })
-                          }}
-                          className="font-semibold text-xs text-indigo-300 bg-transparent border-none flex-1 outline-none"
-                        />
-                        <button
-                          onClick={() => setKb({ ...kb, faqs: (kb.faqs || []).filter((_, i) => i !== idx) })}
-                          className="text-rose-400 hover:text-rose-300 text-xs p-1"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                      <textarea
-                        rows={2}
-                        value={faq.answer}
-                        onChange={(e) => {
-                          const updated = [...(kb.faqs || [])]
-                          updated[idx].answer = e.target.value
-                          setKb({ ...kb, faqs: updated })
-                        }}
-                        className="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-xs text-slate-300 outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
