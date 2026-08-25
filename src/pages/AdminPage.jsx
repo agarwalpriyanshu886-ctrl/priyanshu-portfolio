@@ -43,7 +43,7 @@ export default function AdminPage() {
 
   // CMS State
   const [kb, setKb] = useState(getActiveKnowledge())
-  const [activeTab, setActiveTab] = useState('layout')
+  const [activeTab, setActiveTab] = useState('skills')
   const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Input states for adding new items
@@ -72,6 +72,27 @@ export default function AdminPage() {
     saveActiveKnowledge(kb)
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 2500)
+  }
+
+  const handleAddCategory = () => {
+    const label = newCatLabel.trim() || `New Category ${(kb.skillCategories?.length || 0) + 1}`
+    const newCat = {
+      id: `cat_${Date.now()}`,
+      label: label,
+      icon: 'code',
+      accent: '#a78bfa',
+      skills: [
+        { name: 'Sample Technology 1', level: 85, icon: 'code' },
+        { name: 'Sample Technology 2', level: 75, icon: 'code' },
+      ],
+    }
+    const updatedCategories = [...(kb.skillCategories || []), newCat]
+    const updatedKb = { ...kb, skillCategories: updatedCategories }
+    setKb(updatedKb)
+    saveActiveKnowledge(updatedKb)
+    setNewCatLabel('')
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 2000)
   }
 
   const hero = kb.hero || {
@@ -265,11 +286,11 @@ export default function AdminPage() {
         {/* Left Sidebar Navigation */}
         <aside className="w-full md:w-64 border-r border-white/10 bg-slate-900/60 p-4 space-y-1.5 shrink-0">
           {[
+            { id: 'skills', label: 'Skills & Proficiency Bars', badge: kb.skillCategories?.length || 0, icon: FaSlidersH },
             { id: 'layout', label: 'Layout & Section Spacing', badge: 'GAP ENGINE', icon: FaLayerGroup },
             { id: 'stats', label: 'Stats Counter Cards', badge: stats.length, icon: FaChartBar },
             { id: 'hero', label: 'Hero Section CMS', badge: 'MAIN', icon: FaRocket },
             { id: 'profile', label: 'Profile & Contact', badge: null, icon: FaUser },
-            { id: 'skills', label: 'Skills & Proficiency Bars', badge: kb.skillCategories?.length || 0, icon: FaSlidersH },
             { id: 'projects', label: 'Projects Catalog', badge: kb.projects?.length || 0, icon: FaProjectDiagram },
             { id: 'certifications', label: 'Certifications Catalog', badge: certifications.length, icon: FaAward },
             { id: 'education', label: 'Education & SGPA', badge: kb.education?.length || 0, icon: FaGraduationCap },
@@ -305,6 +326,200 @@ export default function AdminPage() {
 
         {/* Main Editor Panel */}
         <main className="flex-1 p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(100vh-73px)]">
+          {/* TAB 2: SKILLS & PROFICIENCY BARS CMS */}
+          {activeTab === 'skills' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-white">Categorized Skill Bars & Proficiency CMS</h2>
+                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit skill names, categories, and proficiency percentage sliders (0–100%)</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md cursor-pointer"
+                  >
+                    <FaPlus /> Add New Category
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAll}
+                    className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2.5 rounded-xl hover:bg-cyan-300 shadow-md cursor-pointer"
+                  >
+                    <FaSave className="inline mr-1.5" /> Save Skill Edits
+                  </button>
+                </div>
+              </div>
+
+              {/* Categorized Skill Bars */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {(kb.skillCategories || []).map((cat, catIdx) => (
+                  <div key={cat.id || catIdx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3 flex-1">
+                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.accent || '#6366f1' }} />
+                        <input
+                          type="text"
+                          value={cat.label}
+                          onChange={(e) => {
+                            const updatedCats = [...(kb.skillCategories || [])]
+                            updatedCats[catIdx].label = e.target.value
+                            setKb({ ...kb, skillCategories: updatedCats })
+                          }}
+                          className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-1 outline-none focus:border-cyan-400 flex-1"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updatedCats = (kb.skillCategories || []).filter((_, i) => i !== catIdx)
+                          const updatedKb = { ...kb, skillCategories: updatedCats }
+                          setKb(updatedKb)
+                          saveActiveKnowledge(updatedKb)
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs shrink-0 cursor-pointer"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4 pt-1">
+                      {cat.skills.map((skill, skillIdx) => (
+                        <div key={skillIdx} className="bg-slate-950/60 border border-white/10 rounded-xl p-3.5 space-y-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <input
+                              type="text"
+                              value={skill.name}
+                              onChange={(e) => {
+                                const updatedCats = [...(kb.skillCategories || [])]
+                                updatedCats[catIdx].skills[skillIdx].name = e.target.value
+                                setKb({ ...kb, skillCategories: updatedCats })
+                              }}
+                              className="text-xs font-bold text-white bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 outline-none focus:border-cyan-400 flex-1"
+                            />
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-mono font-bold text-cyan-300 w-10 text-right">{skill.level}%</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updatedCats = [...(kb.skillCategories || [])]
+                                  updatedCats[catIdx].skills = updatedCats[catIdx].skills.filter((_, i) => i !== skillIdx)
+                                  setKb({ ...kb, skillCategories: updatedCats })
+                                }}
+                                className="text-rose-400 hover:text-rose-300 p-1 text-xs cursor-pointer"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={skill.level}
+                              onChange={(e) => {
+                                const updatedCats = [...(kb.skillCategories || [])]
+                                updatedCats[catIdx].skills[skillIdx].level = Number(e.target.value)
+                                setKb({ ...kb, skillCategories: updatedCats })
+                              }}
+                              className="flex-1 accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                            />
+                          </div>
+                          <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-150"
+                              style={{
+                                width: `${skill.level}%`,
+                                background: `linear-gradient(90deg, ${cat.accent || '#6366f1'}, #22d3ee)`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-3 border-t border-white/10 flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="New skill name..."
+                        value={newSkillNames[catIdx] || ''}
+                        onChange={(e) => setNewSkillNames({ ...newSkillNames, [catIdx]: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            const name = (newSkillNames[catIdx] || '').trim()
+                            const level = Number(newSkillLevels[catIdx] || 75)
+                            if (name) {
+                              const updatedCats = [...(kb.skillCategories || [])]
+                              updatedCats[catIdx].skills.push({ name, level, icon: 'code' })
+                              const updatedKb = { ...kb, skillCategories: updatedCats }
+                              setKb(updatedKb)
+                              saveActiveKnowledge(updatedKb)
+                              setNewSkillNames({ ...newSkillNames, [catIdx]: '' })
+                            }
+                          }
+                        }}
+                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder="%"
+                        value={newSkillLevels[catIdx] || 75}
+                        onChange={(e) => setNewSkillLevels({ ...newSkillLevels, [catIdx]: Number(e.target.value) })}
+                        className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const name = (newSkillNames[catIdx] || '').trim()
+                          const level = Number(newSkillLevels[catIdx] || 75)
+                          if (name) {
+                            const updatedCats = [...(kb.skillCategories || [])]
+                            updatedCats[catIdx].skills.push({ name, level, icon: 'code' })
+                            const updatedKb = { ...kb, skillCategories: updatedCats }
+                            setKb(updatedKb)
+                            saveActiveKnowledge(updatedKb)
+                            setNewSkillNames({ ...newSkillNames, [catIdx]: '' })
+                          }
+                        }}
+                        className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                      >
+                        <FaPlus /> Add Skill
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-white/10 flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="New Category Label (e.g. Cloud & DevOps)..."
+                  value={newCatLabel}
+                  onChange={(e) => setNewCatLabel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddCategory()
+                    }
+                  }}
+                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-semibold"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCategory}
+                  className="bg-gradient-to-r from-indigo-400 to-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer hover:opacity-90 shadow-md"
+                >
+                  <FaPlus /> Add New Category
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* TAB: ADVANCED LAYOUT & SECTION SPACING CMS (GAP ENGINE) */}
           {activeTab === 'layout' && (
             <div className="space-y-6 max-w-5xl">
@@ -923,173 +1138,6 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: SKILLS & PROFICIENCY BARS CMS */}
-          {activeTab === 'skills' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div>
-                  <h2 className="text-xl font-bold font-display text-white">Categorized Skill Bars & Proficiency CMS</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit skill names, categories, and proficiency percentage sliders (0–100%)</p>
-                </div>
-                <button
-                  onClick={handleSaveAll}
-                  className="text-xs font-mono font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2 rounded-xl hover:opacity-90 flex items-center gap-1.5 shadow-md"
-                >
-                  <FaSave /> Save Skill Edits
-                </button>
-              </div>
-
-              {/* Categorized Skill Bars */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {(kb.skillCategories || []).map((cat, catIdx) => (
-                  <div key={cat.id || catIdx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                      <div className="flex items-center gap-3 flex-1">
-                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.accent || '#6366f1' }} />
-                        <input
-                          type="text"
-                          value={cat.label}
-                          onChange={(e) => {
-                            const updatedCats = [...(kb.skillCategories || [])]
-                            updatedCats[catIdx].label = e.target.value
-                            setKb({ ...kb, skillCategories: updatedCats })
-                          }}
-                          className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-1 outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          const updatedCats = (kb.skillCategories || []).filter((_, i) => i !== catIdx)
-                          setKb({ ...kb, skillCategories: updatedCats })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-
-                    <div className="space-y-4 pt-1">
-                      {cat.skills.map((skill, skillIdx) => (
-                        <div key={skillIdx} className="bg-slate-950/60 border border-white/10 rounded-xl p-3.5 space-y-2">
-                          <div className="flex items-center justify-between gap-3">
-                            <input
-                              type="text"
-                              value={skill.name}
-                              onChange={(e) => {
-                                const updatedCats = [...(kb.skillCategories || [])]
-                                updatedCats[catIdx].skills[skillIdx].name = e.target.value
-                                setKb({ ...kb, skillCategories: updatedCats })
-                              }}
-                              className="text-xs font-bold text-white bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 outline-none focus:border-cyan-400 flex-1"
-                            />
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-bold text-cyan-300 w-10 text-right">{skill.level}%</span>
-                              <button
-                                onClick={() => {
-                                  const updatedCats = [...(kb.skillCategories || [])]
-                                  updatedCats[catIdx].skills = updatedCats[catIdx].skills.filter((_, i) => i !== skillIdx)
-                                  setKb({ ...kb, skillCategories: updatedCats })
-                                }}
-                                className="text-rose-400 hover:text-rose-300 p-1 text-xs"
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={skill.level}
-                              onChange={(e) => {
-                                const updatedCats = [...(kb.skillCategories || [])]
-                                updatedCats[catIdx].skills[skillIdx].level = Number(e.target.value)
-                                setKb({ ...kb, skillCategories: updatedCats })
-                              }}
-                              className="flex-1 accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
-                            />
-                          </div>
-                          <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-150"
-                              style={{
-                                width: `${skill.level}%`,
-                                background: `linear-gradient(90deg, ${cat.accent || '#6366f1'}, #22d3ee)`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="pt-3 border-t border-white/10 flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="New skill name..."
-                        value={newSkillNames[catIdx] || ''}
-                        onChange={(e) => setNewSkillNames({ ...newSkillNames, [catIdx]: e.target.value })}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="%"
-                        value={newSkillLevels[catIdx] || 75}
-                        onChange={(e) => setNewSkillLevels({ ...newSkillLevels, [catIdx]: Number(e.target.value) })}
-                        className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                      />
-                      <button
-                        onClick={() => {
-                          const name = (newSkillNames[catIdx] || '').trim()
-                          const level = Number(newSkillLevels[catIdx] || 75)
-                          if (name) {
-                            const updatedCats = [...(kb.skillCategories || [])]
-                            updatedCats[catIdx].skills.push({ name, level, icon: 'code' })
-                            setKb({ ...kb, skillCategories: updatedCats })
-                            setNewSkillNames({ ...newSkillNames, [catIdx]: '' })
-                          }
-                        }}
-                        className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1"
-                      >
-                        <FaPlus /> Add Skill
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-white/10 flex items-center gap-3">
-                <input
-                  type="text"
-                  placeholder="New Category Label (e.g. Cloud & DevOps)..."
-                  value={newCatLabel}
-                  onChange={(e) => setNewCatLabel(e.target.value)}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                />
-                <button
-                  onClick={() => {
-                    if (newCatLabel.trim()) {
-                      const newCat = {
-                        id: `cat_${Date.now()}`,
-                        label: newCatLabel.trim(),
-                        icon: 'code',
-                        accent: '#a78bfa',
-                        skills: [{ name: 'Sample Technology', level: 80, icon: 'code' }],
-                      }
-                      setKb({ ...kb, skillCategories: [...(kb.skillCategories || []), newCat] })
-                      setNewCatLabel('')
-                    }
-                  }}
-                  className="bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5"
-                >
-                  <FaPlus /> Add New Category
-                </button>
               </div>
             </div>
           )}
