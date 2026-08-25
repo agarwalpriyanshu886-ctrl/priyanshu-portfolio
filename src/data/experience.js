@@ -4,9 +4,11 @@ export const experience = [
     id: 'graphic-design-intern',
     role: 'Graphic Design Intern',
     company: 'JALDIRIDE CONNECT PVT LTD',
+    companyUrl: 'https://jaldiride.com',
+    logo: 'https://jaldiride.com/favicon.ico',
     duration: '3 Months',
-    startDate: '2025',
-    endDate: '2025',
+    startDate: 'Nov 2025',
+    endDate: 'Jan 2026',
     type: 'Internship',
     points: [
       'Designed marketing creatives and social media graphics that strengthened brand consistency across digital channels.',

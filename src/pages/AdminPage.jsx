@@ -852,6 +852,48 @@ export default function AdminPage() {
                       </div>
 
                       <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Company Website Link (URL)</label>
+                        <div className="relative">
+                          <FaGlobe className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={exp.companyUrl || exp.url || ''}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].companyUrl = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            placeholder="https://jaldiride.com"
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Company Logo Image URL</label>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-[#070913] border border-slate-800 shrink-0 grid place-items-center overflow-hidden">
+                            {exp.logo || exp.companyLogo ? (
+                              <img src={exp.logo || exp.companyLogo} alt="Logo" className="w-full h-full object-contain" />
+                            ) : (
+                              <FaBuilding className="text-slate-600 text-xs" />
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            value={exp.logo || exp.companyLogo || ''}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].logo = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            placeholder="https://jaldiride.com/favicon.ico or logo image URL"
+                            className="flex-1 bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
                         <label className="block text-xs font-medium text-slate-400 mb-1">Employment Type (e.g. Internship, Contract, Full-Time)</label>
                         <input
                           type="text"

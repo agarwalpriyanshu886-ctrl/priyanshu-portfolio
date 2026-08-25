@@ -1,21 +1,43 @@
 import { useState, useEffect } from 'react'
-import { FaBriefcase } from 'react-icons/fa'
+import { FaBriefcase, FaExternalLinkAlt } from 'react-icons/fa'
 import { experience as defaultExperience } from '../data/experience'
 import { getActiveKnowledge } from '../lib/public-ai/cmsKnowledgeStore'
 import SectionHeading from './ui/SectionHeading'
 import Timeline from './ui/Timeline'
 
 function ExperienceItem({ item }) {
+  const logoSrc = item.logo || item.companyLogo || item.imageUrl
+  const linkUrl = item.companyUrl || item.url || item.websiteUrl
+
   return (
     <div className="glass rounded-3xl p-6 sm:p-7 hover:border-indigo-400/30 hover:-translate-y-0.5 transition-all duration-300">
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center text-white text-base shrink-0">
-            <FaBriefcase />
-          </span>
+          {logoSrc ? (
+            <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 p-1.5 shrink-0 overflow-hidden grid place-items-center">
+              <img src={logoSrc} alt={item.company || 'Company Logo'} className="w-full h-full object-contain rounded-lg" />
+            </div>
+          ) : (
+            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center text-white text-base shrink-0">
+              <FaBriefcase />
+            </span>
+          )}
           <div>
-            <h3 className="font-display font-semibold text-white">{item.role}</h3>
-            <p className="text-sm text-cyan-300/90">{item.company}</p>
+            <div className="flex items-center gap-2">
+              <h3 className="font-display font-semibold text-white">{item.role}</h3>
+              {linkUrl && (
+                <a
+                  href={linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-indigo-400 hover:text-cyan-300 transition-colors inline-flex items-center gap-1 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20 font-mono"
+                  title={`Visit ${item.company}`}
+                >
+                  Website <FaExternalLinkAlt className="text-[9px]" />
+                </a>
+              )}
+            </div>
+            <p className="text-sm text-cyan-300/90 font-medium">{item.company}</p>
           </div>
         </div>
         <span className="font-mono text-xs text-slate-400 glass rounded-full px-3 py-1.5 whitespace-nowrap">
