@@ -30,7 +30,7 @@ export const projects = [
     image: { from: '#f59e0b', to: '#ef4444' },
     tech: ['Kotlin', 'Jetpack Compose', 'Firebase'],
     category: 'mobile',
-    github: 'https://github.com/',
+    github: 'https://github.com/agarwalpriyanshu886-ctrl',
     demo: 'https://example.com',
     featured: true,
   },

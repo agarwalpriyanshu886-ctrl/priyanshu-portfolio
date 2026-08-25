@@ -8,7 +8,11 @@ export function getActiveKnowledge(): PublicKnowledgeBase {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved)
-      return { ...PUBLIC_KNOWLEDGE, ...parsed }
+      const merged = { ...PUBLIC_KNOWLEDGE, ...parsed }
+      if (merged.profile && merged.profile.github && merged.profile.github.includes('agarwalpriyanshu886-ctr')) {
+        merged.profile.github = 'https://github.com/agarwalpriyanshu886-ctrl'
+      }
+      return merged
     }
   } catch (err) {
     console.error('Error loading CMS knowledge:', err)

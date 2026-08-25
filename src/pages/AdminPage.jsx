@@ -1349,7 +1349,7 @@ export default function AdminPage() {
                       features: ['Feature 1'],
                       status: 'IN_DEVELOPMENT',
                       demoUrl: 'https://',
-                      githubUrl: 'https://github.com',
+                      githubUrl: 'https://github.com/agarwalpriyanshu886-ctrl',
                     }
                     setKb({ ...kb, projects: [newProj, ...kb.projects] })
                   }}
