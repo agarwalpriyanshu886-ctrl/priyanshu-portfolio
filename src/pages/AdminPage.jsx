@@ -32,6 +32,8 @@ import {
   FaSearch,
   FaTimes,
   FaPalette,
+  FaTachometerAlt,
+  FaChevronRight,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -57,13 +59,13 @@ export default function AdminPage() {
 
   // CMS State
   const [kb, setKb] = useState(getActiveKnowledge())
-  const [activeTab, setActiveTab] = useState('skills')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Icon / Logo Picker Modal State
   const [pickerModal, setPickerModal] = useState({
     open: false,
-    type: 'skill', // 'skill' | 'category'
+    type: 'skill',
     catIdx: 0,
     skillIdx: 0,
   })
@@ -186,64 +188,67 @@ export default function AdminPage() {
     ],
   }
 
-  // 1. ADMIN LOGIN VIEW
+  const filteredIcons = (pickerModal.type === 'category' ? AVAILABLE_CATEGORY_ICONS : AVAILABLE_SKILL_ICONS).filter((item) =>
+    item.name.toLowerCase().includes(iconSearch.toLowerCase()) || item.id.toLowerCase().includes(iconSearch.toLowerCase())
+  )
+
+  // 1. ADMIN LOGIN VIEW (Executive Minimalist Style)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center p-4 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-[#070a12] text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
 
         <Link
           to="/"
-          className="absolute top-6 left-6 flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors bg-white/5 px-4 py-2 rounded-xl border border-white/10"
+          className="absolute top-6 left-6 flex items-center gap-2 text-xs font-medium text-slate-400 hover:text-white transition-colors bg-slate-900/80 px-3.5 py-2 rounded-lg border border-slate-800"
         >
-          <FaArrowLeft /> Return to Portfolio
+          <FaArrowLeft /> Return to Live Portfolio
         </Link>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.98, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="w-full max-w-md bg-slate-900/90 border border-cyan-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(34,211,238,0.2)] backdrop-blur-xl relative z-10"
+          className="w-full max-w-sm bg-[#0f172a]/90 border border-slate-800 rounded-2xl p-7 shadow-2xl backdrop-blur-xl relative z-10"
         >
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center mx-auto mb-4 text-2xl text-slate-950 font-bold shadow-lg">
-              <FaShieldAlt />
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center mx-auto mb-3.5 text-slate-950 font-bold text-lg shadow-md">
+              PA
             </div>
-            <h2 className="text-2xl font-bold font-display text-white">Portfolio CMS Admin Portal</h2>
-            <p className="text-xs text-slate-400 mt-1 font-mono">Priyanshu Agarwal • Full Systematic Suite</p>
+            <h2 className="text-lg font-bold text-white tracking-tight">Executive Studio CMS</h2>
+            <p className="text-xs text-slate-400 mt-1">Authorized Content Management Console</p>
           </div>
 
           {loginError && (
-            <div className="mb-6 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-mono text-center">
+            <div className="mb-5 p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs text-center font-medium">
               {loginError}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Admin Email</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Account Email</label>
               <div className="relative">
-                <FaEnvelope className="absolute left-3.5 top-3.5 text-slate-500 text-sm" />
+                <FaEnvelope className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                  className="w-full bg-[#070a12] border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/40"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-slate-400 mb-1">Password</label>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5">Security Passcode</label>
               <div className="relative">
-                <FaLock className="absolute left-3.5 top-3.5 text-slate-500 text-sm" />
+                <FaLock className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="admin123"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                  className="w-full bg-[#070a12] border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/40"
                   required
                 />
               </div>
@@ -251,16 +256,16 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-opacity mt-4 shadow-lg shadow-cyan-500/20"
+              className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-all shadow-md mt-2"
             >
-              Sign In to CMS Dashboard
+              Sign In to Console
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/10 text-center">
-            <p className="text-[11px] font-mono text-slate-500">
-              Demo Access Credentials: <br />
-              <span className="text-cyan-400">admin@priyanshu.com</span> / <span className="text-cyan-400">admin123</span>
+          <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">
+            <p className="text-[11px] text-slate-500">
+              Demo Console Access: <br />
+              <span className="text-indigo-400 font-mono">admin@priyanshu.com</span> / <span className="text-indigo-400 font-mono">admin123</span>
             </p>
           </div>
         </motion.div>
@@ -268,78 +273,72 @@ export default function AdminPage() {
     )
   }
 
-  const filteredIcons = (pickerModal.type === 'category' ? AVAILABLE_CATEGORY_ICONS : AVAILABLE_SKILL_ICONS).filter((item) =>
-    item.name.toLowerCase().includes(iconSearch.toLowerCase()) || item.id.toLowerCase().includes(iconSearch.toLowerCase())
-  )
-
-  // 2. ADMIN CMS DASHBOARD VIEW
+  // 2. ADMIN CMS DASHBOARD VIEW (Vercel/Linear Professional Style)
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans relative">
-      {/* Visual Icon Grid Gallery Modal */}
+    <div className="min-h-screen bg-[#070a12] text-slate-200 flex flex-col font-sans relative">
+      {/* Icon / Logo Selection Modal */}
       <AnimatePresence>
         {pickerModal.open && (
           <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 w-full max-w-2xl max-h-[85vh] flex flex-col shadow-[0_0_60px_rgba(34,211,238,0.2)]"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 w-full max-w-xl max-h-[85vh] flex flex-col shadow-2xl"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h3 className="font-bold font-display text-white text-lg flex items-center gap-2">
-                    <FaPalette className="text-cyan-400" /> Select {pickerModal.type === 'category' ? 'Category Icon' : 'Technology Skill Logo'}
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <FaPalette className="text-indigo-400" /> Choose {pickerModal.type === 'category' ? 'Category Icon' : 'Technology Logo'}
                   </h3>
-                  <p className="text-xs font-mono text-slate-400 mt-0.5">Click any logo below to set it instantly</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Click any logo icon to apply to your skill item</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setPickerModal({ ...pickerModal, open: false })}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white"
+                  className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
                 >
                   <FaTimes />
                 </button>
               </div>
 
-              {/* Search & Custom Image URL */}
+              {/* Search & Custom URL */}
               <div className="space-y-3 py-4">
                 <div className="relative">
                   <FaSearch className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
                   <input
                     type="text"
-                    placeholder="Search icons by name (e.g. Python, React, Code, Database)..."
+                    placeholder="Search technology logo by name (Python, React, SQL)..."
                     value={iconSearch}
                     onChange={(e) => setIconSearch(e.target.value)}
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                    className="w-full bg-[#070a12] border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white outline-none focus:border-indigo-500"
                   />
                 </div>
 
                 {pickerModal.type === 'skill' && (
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
-                      placeholder="Or paste custom logo Image URL (https://...)..."
+                      placeholder="Paste Custom Image Logo URL (https://...)..."
                       value={customLogoUrl}
                       onChange={(e) => setCustomLogoUrl(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-mono"
+                      className="flex-1 bg-[#070a12] border border-slate-800 rounded-xl px-3 py-2 text-xs text-indigo-300 outline-none focus:border-indigo-500 font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        if (customLogoUrl.trim()) {
-                          handleSelectIcon(customLogoUrl.trim())
-                        }
+                        if (customLogoUrl.trim()) handleSelectIcon(customLogoUrl.trim())
                       }}
-                      className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-2 rounded-xl text-xs"
                     >
-                      Use Image URL
+                      Apply URL
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* Icon Grid Gallery */}
-              <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {/* Grid Selector */}
+              <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-4 sm:grid-cols-5 gap-2.5">
                 {filteredIcons.map((item) => {
                   const IconComp = item.icon
                   return (
@@ -347,10 +346,10 @@ export default function AdminPage() {
                       key={item.id}
                       type="button"
                       onClick={() => handleSelectIcon(item.id)}
-                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-950/80 border border-white/10 hover:border-cyan-400/60 hover:bg-cyan-400/10 transition-all duration-200 group text-center"
+                      className="flex flex-col items-center justify-center p-3 rounded-xl bg-[#070a12] border border-slate-800/80 hover:border-indigo-500 hover:bg-indigo-500/10 transition-all text-center group"
                     >
-                      <IconComp className="text-2xl text-cyan-300 group-hover:scale-125 transition-transform duration-200 mb-1.5" />
-                      <span className="text-[11px] font-mono text-slate-300 group-hover:text-white line-clamp-1">{item.name}</span>
+                      <IconComp className="text-xl text-indigo-400 group-hover:scale-110 transition-transform mb-1.5" />
+                      <span className="text-[11px] font-medium text-slate-300 line-clamp-1">{item.name}</span>
                     </button>
                   )
                 })}
@@ -360,38 +359,37 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Top Header Bar */}
-      <header className="border-b border-white/10 bg-slate-900/90 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+      {/* Top Navbar Header */}
+      <header className="border-b border-slate-800/80 bg-[#0b0f19]/90 backdrop-blur-md px-6 py-3.5 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 grid place-items-center text-slate-950 font-bold font-display text-sm shadow-md">
+          <div className="w-8 h-8 rounded-lg bg-indigo-600 grid place-items-center text-white font-bold font-display text-xs shadow-sm">
             PA
           </div>
-          <div>
-            <h1 className="font-bold text-white text-sm">Priyanshu Executive CMS Suite</h1>
-            <p className="text-[11px] text-slate-400 font-mono flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Systematic Content & Knowledge Engine
-            </p>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white text-xs tracking-tight">Executive Studio Console</span>
+            <span className="text-slate-600 text-xs">/</span>
+            <span className="text-xs font-medium text-indigo-400 capitalize">{activeTab}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {saveSuccess && (
-            <span className="text-xs font-mono text-emerald-400 bg-emerald-400/20 border border-emerald-400/40 px-3 py-1.5 rounded-xl flex items-center gap-1.5 animate-pulse">
-              <FaCheckCircle /> Saved & Updated Live!
+            <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-lg flex items-center gap-1.5">
+              <FaCheckCircle /> Saved & Updated Live
             </span>
           )}
 
           <button
             onClick={handleSaveAll}
-            className="flex items-center gap-2 text-xs font-mono font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md hover:shadow-cyan-500/20"
+            className="flex items-center gap-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition-all shadow-sm"
           >
-            <FaSave /> Save All Changes
+            <FaSave /> Save Changes
           </button>
 
           <button
             onClick={resetCMSKnowledgeToDefault}
-            title="Reset all CMS data to default state"
-            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white border border-white/10 text-xs font-mono transition-all"
+            title="Reset data to defaults"
+            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs border border-slate-700"
           >
             <FaUndo />
           </button>
@@ -399,108 +397,201 @@ export default function AdminPage() {
           <Link
             to="/"
             target="_blank"
-            className="text-xs font-mono text-cyan-300 hover:text-white bg-cyan-400/10 border border-cyan-400/30 px-3 py-2.5 rounded-xl transition-all flex items-center gap-1.5"
+            className="text-xs text-slate-300 hover:text-white bg-slate-800/60 border border-slate-700 px-3 py-2 rounded-lg transition-all flex items-center gap-1.5"
           >
-            View Live Site <FaExternalLinkAlt className="text-[10px]" />
+            Preview Site <FaExternalLinkAlt className="text-[10px]" />
           </Link>
 
           <button
             onClick={() => setIsAuthenticated(false)}
-            className="flex items-center gap-1.5 text-xs font-mono text-rose-400 bg-rose-500/10 border border-rose-500/30 px-3 py-2.5 rounded-xl hover:bg-rose-500/20 transition-all"
+            className="p-2 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all"
           >
-            <FaSignOutAlt /> Sign Out
+            <FaSignOutAlt />
           </button>
         </div>
       </header>
 
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Left Sidebar Navigation */}
-        <aside className="w-full md:w-64 border-r border-white/10 bg-slate-900/60 p-4 space-y-1.5 shrink-0">
+        {/* Left Grouped Executive Sidebar */}
+        <aside className="w-full md:w-60 border-r border-slate-800/80 bg-[#070a12] p-3 space-y-5 shrink-0">
           {[
-            { id: 'skills', label: 'Skills & Proficiency Bars', badge: kb.skillCategories?.length || 0, icon: FaSlidersH },
-            { id: 'layout', label: 'Layout & Section Spacing', badge: 'GAP ENGINE', icon: FaLayerGroup },
-            { id: 'stats', label: 'Stats Counter Cards', badge: stats.length, icon: FaChartBar },
-            { id: 'hero', label: 'Hero Section CMS', badge: 'MAIN', icon: FaRocket },
-            { id: 'profile', label: 'Profile & Contact', badge: null, icon: FaUser },
-            { id: 'projects', label: 'Projects Catalog', badge: kb.projects?.length || 0, icon: FaProjectDiagram },
-            { id: 'certifications', label: 'Certifications Catalog', badge: certifications.length, icon: FaAward },
-            { id: 'education', label: 'Education & SGPA', badge: kb.education?.length || 0, icon: FaGraduationCap },
-            { id: 'experience', label: 'Work Experience', badge: kb.experience?.length || 0, icon: FaBriefcase },
-            { id: 'pittu', label: 'Pittu AI Engine', badge: kb.faqs?.length || 0, icon: FaRobot },
-            { id: 'database', label: 'Database & Infra', badge: null, icon: FaDatabase },
-          ].map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-mono transition-all text-left ${
-                  isActive
-                    ? 'bg-gradient-to-r from-indigo-500/20 to-cyan-400/20 text-cyan-300 border border-cyan-400/40 font-bold shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="text-sm shrink-0" />
-                  <span>{tab.label}</span>
-                </div>
-                {tab.badge !== null && (
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-cyan-400/30 text-cyan-200' : 'bg-white/10 text-slate-400'}`}>
-                    {tab.badge}
-                  </span>
-                )}
-              </button>
-            )
-          })}
+            {
+              group: 'Overview & Layout',
+              items: [
+                { id: 'dashboard', label: 'Console Dashboard', icon: FaTachometerAlt, badge: null },
+                { id: 'layout', label: 'Section Spacing & Gaps', icon: FaLayerGroup, badge: 'GAP' },
+              ],
+            },
+            {
+              group: 'Content Management',
+              items: [
+                { id: 'skills', label: 'Skills & Tech Bars', icon: FaSlidersH, badge: kb.skillCategories?.length || 0 },
+                { id: 'stats', label: 'Stats Counter Cards', icon: FaChartBar, badge: stats.length },
+                { id: 'hero', label: 'Hero & Typewriter', icon: FaRocket, badge: 'MAIN' },
+                { id: 'profile', label: 'Profile & Contact', icon: FaUser, badge: null },
+                { id: 'projects', label: 'Projects Catalog', icon: FaProjectDiagram, badge: kb.projects?.length || 0 },
+                { id: 'certifications', label: 'Certifications', icon: FaAward, badge: certifications.length },
+                { id: 'education', label: 'Academic Journey', icon: FaGraduationCap, badge: kb.education?.length || 0 },
+                { id: 'experience', label: 'Work Experience', icon: FaBriefcase, badge: kb.experience?.length || 0 },
+              ],
+            },
+            {
+              group: 'AI & Systems',
+              items: [
+                { id: 'pittu', label: 'Pittu AI Knowledge', icon: FaRobot, badge: kb.faqs?.length || 0 },
+                { id: 'database', label: 'Infra & Database', icon: FaDatabase, badge: null },
+              ],
+            },
+          ].map((catGroup, gIdx) => (
+            <div key={gIdx} className="space-y-1">
+              <p className="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                {catGroup.group}
+              </p>
+              {catGroup.items.map((tab) => {
+                const Icon = tab.icon
+                const isActive = activeTab === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={`text-xs ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                      <span>{tab.label}</span>
+                    </div>
+                    {tab.badge !== null && (
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white font-bold' : 'bg-slate-800 text-slate-400'}`}>
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
         </aside>
 
-        {/* Main Editor Panel */}
-        <main className="flex-1 p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(100vh-73px)]">
+        {/* Main Content Workspace */}
+        <main className="flex-1 p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-57px)] bg-[#0b0f19]">
+          {/* TAB: DASHBOARD OVERVIEW */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6 max-w-5xl">
+              <div>
+                <h2 className="text-lg font-bold text-white">Executive Studio Overview</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Manage single source of truth data across live portfolio website and Pittu AI</p>
+              </div>
+
+              {/* Metric Cards Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-1">
+                  <p className="text-xs text-slate-400 font-medium">Skill Categories</p>
+                  <p className="text-2xl font-bold text-white">{kb.skillCategories?.length || 0}</p>
+                </div>
+
+                <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-1">
+                  <p className="text-xs text-slate-400 font-medium">Projects Listed</p>
+                  <p className="text-2xl font-bold text-white">{kb.projects?.length || 0}</p>
+                </div>
+
+                <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-1">
+                  <p className="text-xs text-slate-400 font-medium">Certifications</p>
+                  <p className="text-2xl font-bold text-white">{certifications.length}</p>
+                </div>
+
+                <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-1">
+                  <p className="text-xs text-slate-400 font-medium">Pittu AI Knowledge FAQs</p>
+                  <p className="text-2xl font-bold text-white">{kb.faqs?.length || 0}</p>
+                </div>
+              </div>
+
+              {/* Quick Jump Links */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Quick Section Management</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setActiveTab('skills')}
+                    className="p-3 rounded-lg bg-[#070a12] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
+                  >
+                    <div>
+                      <p className="text-xs font-semibold text-white">Skills & Logos</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Edit progress bars & icons</p>
+                    </div>
+                    <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('layout')}
+                    className="p-3 rounded-lg bg-[#070a12] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
+                  >
+                    <div>
+                      <p className="text-xs font-semibold text-white">Section Gaps</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Adjust padding & presets</p>
+                    </div>
+                    <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('stats')}
+                    className="p-3 rounded-lg bg-[#070a12] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
+                  >
+                    <div>
+                      <p className="text-xs font-semibold text-white">Stats Counters</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Edit achievement numbers</p>
+                    </div>
+                    <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 2: SKILLS & PROFICIENCY BARS CMS */}
           {activeTab === 'skills' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Categorized Skill Bars & Proficiency CMS</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit skill names, logos/icons, categories, and proficiency percentage sliders (0–100%)</p>
+                  <h2 className="text-lg font-bold text-white">Skills & Technology Logos CMS</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Edit category names, technology logos, proficiency sliders, and accent colors</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={handleAddCategory}
-                    className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md cursor-pointer"
+                    className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
                   >
                     <FaPlus /> Add New Category
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveAll}
-                    className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2.5 rounded-xl hover:bg-cyan-300 shadow-md cursor-pointer"
+                    className="text-xs font-semibold text-slate-900 bg-emerald-400 hover:bg-emerald-300 px-3.5 py-2 rounded-lg transition-all shadow-sm"
                   >
-                    <FaSave className="inline mr-1.5" /> Save Skill Edits
+                    <FaSave className="inline mr-1.5" /> Save Edits
                   </button>
                 </div>
               </div>
 
-              {/* Categorized Skill Bars */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Categorized Skill Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {(kb.skillCategories || []).map((cat, catIdx) => (
-                  <div key={cat.id || catIdx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                    {/* Category Card Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-3">
+                  <div key={cat.id || catIdx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800 gap-3">
                       <div className="flex items-center gap-2.5 flex-1">
-                        {/* Category Icon Selector Button */}
                         <button
                           type="button"
                           onClick={() => setPickerModal({ open: true, type: 'category', catIdx, skillIdx: 0 })}
-                          title="Click to change category logo/icon"
-                          className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 grid place-items-center text-cyan-300 hover:scale-110 transition-transform cursor-pointer shrink-0 shadow-md"
+                          title="Change category logo/icon"
+                          className="w-8 h-8 rounded-lg bg-[#070a12] border border-slate-700 grid place-items-center text-indigo-400 hover:scale-105 transition-transform cursor-pointer shrink-0"
                         >
-                          <CategoryIcon name={cat.icon || 'code'} className="text-base" />
+                          <CategoryIcon name={cat.icon || 'code'} className="text-sm" />
                         </button>
 
-                        {/* Category Color Accent Palette Button */}
                         <div className="flex items-center gap-1">
                           {COLOR_ACCENTS.map((col) => (
                             <button
@@ -511,8 +602,8 @@ export default function AdminPage() {
                                 updatedCats[catIdx].accent = col.code
                                 setKb({ ...kb, skillCategories: updatedCats })
                               }}
-                              className={`w-3.5 h-3.5 rounded-full transition-transform ${
-                                cat.accent === col.code ? 'scale-125 ring-2 ring-white' : 'opacity-60 hover:opacity-100'
+                              className={`w-3 h-3 rounded-full transition-transform ${
+                                cat.accent === col.code ? 'scale-125 ring-2 ring-white' : 'opacity-50 hover:opacity-100'
                               }`}
                               style={{ backgroundColor: col.code }}
                               title={`Set ${col.name} Accent`}
@@ -528,7 +619,7 @@ export default function AdminPage() {
                             updatedCats[catIdx].label = e.target.value
                             setKb({ ...kb, skillCategories: updatedCats })
                           }}
-                          className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-1 outline-none focus:border-cyan-400 flex-1"
+                          className="font-semibold text-white text-sm bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1 outline-none focus:border-indigo-500 flex-1"
                         />
                       </div>
 
@@ -540,25 +631,24 @@ export default function AdminPage() {
                           setKb(updatedKb)
                           saveActiveKnowledge(updatedKb)
                         }}
-                        className="text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs shrink-0 cursor-pointer"
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs shrink-0 cursor-pointer"
                       >
                         <FaTrash />
                       </button>
                     </div>
 
-                    {/* Skill List in Category */}
-                    <div className="space-y-4 pt-1">
+                    {/* Skill List */}
+                    <div className="space-y-3 pt-1">
                       {cat.skills.map((skill, skillIdx) => (
-                        <div key={skillIdx} className="bg-slate-950/60 border border-white/10 rounded-xl p-3.5 space-y-2">
-                          <div className="flex items-center justify-between gap-3">
-                            {/* Individual Skill Logo Button */}
+                        <div key={skillIdx} className="bg-[#070a12] border border-slate-800 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between gap-2.5">
                             <button
                               type="button"
                               onClick={() => setPickerModal({ open: true, type: 'skill', catIdx, skillIdx })}
                               title="Click to select tech logo for this skill"
-                              className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 grid place-items-center text-cyan-300 hover:scale-110 hover:border-cyan-400 transition-all cursor-pointer shrink-0"
+                              className="w-7 h-7 rounded-md bg-slate-800/80 border border-slate-700 grid place-items-center text-indigo-400 hover:scale-105 hover:border-indigo-500 transition-all cursor-pointer shrink-0"
                             >
-                              <SkillIcon name={skill.icon || 'SiPython'} className="text-sm" />
+                              <SkillIcon name={skill.icon || 'SiPython'} className="text-xs" />
                             </button>
 
                             <input
@@ -569,11 +659,11 @@ export default function AdminPage() {
                                 updatedCats[catIdx].skills[skillIdx].name = e.target.value
                                 setKb({ ...kb, skillCategories: updatedCats })
                               }}
-                              className="text-xs font-bold text-white bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 outline-none focus:border-cyan-400 flex-1"
+                              className="text-xs font-semibold text-white bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 outline-none focus:border-indigo-500 flex-1"
                             />
 
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-bold text-cyan-300 w-10 text-right">{skill.level}%</span>
+                              <span className="text-xs font-mono text-indigo-300 font-bold w-9 text-right">{skill.level}%</span>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -599,24 +689,15 @@ export default function AdminPage() {
                                 updatedCats[catIdx].skills[skillIdx].level = Number(e.target.value)
                                 setKb({ ...kb, skillCategories: updatedCats })
                               }}
-                              className="flex-1 accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
-                            />
-                          </div>
-
-                          <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-150"
-                              style={{
-                                width: `${skill.level}%`,
-                                background: `linear-gradient(90deg, ${cat.accent || '#6366f1'}, #22d3ee)`,
-                              }}
+                              className="flex-1 accent-indigo-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
                             />
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="pt-3 border-t border-white/10 flex items-center gap-2">
+                    {/* Add Skill Row */}
+                    <div className="pt-3 border-t border-slate-800 flex items-center gap-2">
                       <input
                         type="text"
                         placeholder="New skill name..."
@@ -637,7 +718,7 @@ export default function AdminPage() {
                             }
                           }
                         }}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400"
+                        className="flex-1 bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-indigo-500"
                       />
                       <input
                         type="number"
@@ -646,7 +727,7 @@ export default function AdminPage() {
                         placeholder="%"
                         value={newSkillLevels[catIdx] || 75}
                         onChange={(e) => setNewSkillLevels({ ...newSkillLevels, [catIdx]: Number(e.target.value) })}
-                        className="w-16 bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
+                        className="w-14 bg-[#070a12] border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
                       />
                       <button
                         type="button"
@@ -662,7 +743,7 @@ export default function AdminPage() {
                             setNewSkillNames({ ...newSkillNames, [catIdx]: '' })
                           }
                         }}
-                        className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer"
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 cursor-pointer"
                       >
                         <FaPlus /> Add Skill
                       </button>
@@ -671,7 +752,8 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center gap-3">
+              {/* Add New Category Input Footer */}
+              <div className="pt-4 border-t border-slate-800 flex items-center gap-3">
                 <input
                   type="text"
                   placeholder="New Category Label (e.g. Cloud & DevOps)..."
@@ -683,12 +765,12 @@ export default function AdminPage() {
                       handleAddCategory()
                     }
                   }}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-semibold"
+                  className="flex-1 bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-medium"
                 />
                 <button
                   type="button"
                   onClick={handleAddCategory}
-                  className="bg-gradient-to-r from-indigo-400 to-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer hover:opacity-90 shadow-md"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
                   <FaPlus /> Add New Category
                 </button>
@@ -696,43 +778,38 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: ADVANCED LAYOUT & SECTION SPACING CMS (GAP ENGINE) */}
+          {/* TAB: ADVANCED LAYOUT & SECTION SPACING CMS */}
           {activeTab === 'layout' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
-                    <FaLayerGroup className="text-cyan-400" /> Advanced Layout & Section Spacing Engine
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaLayerGroup className="text-indigo-400" /> Section Spacing & Gap Architecture
                   </h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">
-                    Control section padding/gaps, toggle section visibility (Show/Hide), and re-order homepage flow dynamically
-                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Control section padding/gaps, toggle section visibility (Show/Hide), and re-order homepage flow</p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl hover:opacity-90 flex items-center gap-1.5 shadow-md">
-                  <FaSave /> Save Layout Architecture
+                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5">
+                  <FaSave /> Save Architecture
                 </button>
               </div>
 
-              {/* Global Spacing Presets */}
-              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 px-3 py-1 rounded-full">
-                  Global Gap Presets
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              {/* Presets */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Global Spacing Presets</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
                     onClick={() => {
                       const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 1, paddingBottomRem: 1 }))
                       setKb({ ...kb, layoutConfig: { preset: 'compact', sections: updatedSections } })
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
                       layoutConfig.preset === 'compact'
-                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
-                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070a12] border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <p className="text-xs font-mono uppercase tracking-wider text-cyan-300">⚡ Ultra-Compact (Zero Gaps)</p>
-                    <p className="text-[11px] text-slate-400 mt-1">1rem top & bottom padding. Eliminates all large black voids.</p>
+                    <p className="text-xs font-semibold">⚡ Ultra-Compact (Zero Gaps)</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">1rem padding. Tight continuous stream.</p>
                   </button>
 
                   <button
@@ -740,14 +817,14 @@ export default function AdminPage() {
                       const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 2.5, paddingBottomRem: 2.5 }))
                       setKb({ ...kb, layoutConfig: { preset: 'balanced', sections: updatedSections } })
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
                       layoutConfig.preset === 'balanced'
-                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
-                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070a12] border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <p className="text-xs font-mono uppercase tracking-wider text-indigo-300">⚖️ Balanced Rhythm</p>
-                    <p className="text-[11px] text-slate-400 mt-1">2.5rem padding. Optimal spacing between sections.</p>
+                    <p className="text-xs font-semibold">⚖️ Balanced Rhythm</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">2.5rem padding. Optimal spacing.</p>
                   </button>
 
                   <button
@@ -755,62 +832,49 @@ export default function AdminPage() {
                       const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 4.5, paddingBottomRem: 4.5 }))
                       setKb({ ...kb, layoutConfig: { preset: 'spacious', sections: updatedSections } })
                     }}
-                    className={`p-4 rounded-xl border text-left transition-all ${
+                    className={`p-3.5 rounded-xl border text-left transition-all ${
                       layoutConfig.preset === 'spacious'
-                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
-                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
+                        : 'bg-[#070a12] border-slate-800 text-slate-400 hover:text-white'
                     }`}
                   >
-                    <p className="text-xs font-mono uppercase tracking-wider text-pink-300">🌌 Spacious (Generous)</p>
-                    <p className="text-[11px] text-slate-400 mt-1">4.5rem padding. Roomy vertical breathable gaps.</p>
+                    <p className="text-xs font-semibold">🌌 Spacious (Generous)</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">4.5rem padding. Generous vertical space.</p>
                   </button>
                 </div>
               </div>
 
-              {/* Section-by-Section Spacing & Visibility Editor */}
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                  <h3 className="font-bold text-white text-sm">Homepage Section Sequence & Gap Sliders</h3>
-                  <span className="text-xs font-mono text-slate-400">Total Sections: {layoutConfig.sections.length}</span>
-                </div>
-
+              {/* Section Sequence */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Homepage Sequence & Sliders</h3>
                 <div className="space-y-3">
                   {layoutConfig.sections.map((sec, idx) => (
-                    <div
-                      key={sec.id}
-                      className={`p-4 rounded-xl border transition-all ${
-                        sec.enabled
-                          ? 'bg-slate-950/80 border-white/10'
-                          : 'bg-slate-950/40 border-rose-500/20 opacity-60'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                          <span className="w-7 h-7 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 grid place-items-center text-xs font-mono font-bold">
+                    <div key={sec.id} className="p-3.5 rounded-lg bg-[#070a12] border border-slate-800 space-y-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <span className="w-6 h-6 rounded bg-indigo-600/20 text-indigo-300 grid place-items-center text-xs font-bold font-mono">
                             #{idx + 1}
                           </span>
                           <span className="font-bold text-xs text-white">{sec.name}</span>
                         </div>
 
-                        {/* Visibility Switch */}
-                        <button
-                          onClick={() => {
-                            const updated = [...layoutConfig.sections]
-                            updated[idx].enabled = !updated[idx].enabled
-                            setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
-                          }}
-                          className={`flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-xl border transition-all ${
-                            sec.enabled
-                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                              : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                          }`}
-                        >
-                          {sec.enabled ? <FaEye /> : <FaEyeSlash />}
-                          {sec.enabled ? 'Section Visible' : 'Hidden'}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              const updated = [...layoutConfig.sections]
+                              updated[idx].enabled = !updated[idx].enabled
+                              setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                            }}
+                            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg border ${
+                              sec.enabled
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                            }`}
+                          >
+                            {sec.enabled ? <FaEye /> : <FaEyeSlash />}
+                            {sec.enabled ? 'Visible' : 'Hidden'}
+                          </button>
 
-                        {/* Order Controls */}
-                        <div className="flex items-center gap-1">
                           <button
                             disabled={idx === 0}
                             onClick={() => {
@@ -822,11 +886,10 @@ export default function AdminPage() {
                                 setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
                               }
                             }}
-                            className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
                           >
                             <FaArrowUp />
                           </button>
-
                           <button
                             disabled={idx === layoutConfig.sections.length - 1}
                             onClick={() => {
@@ -838,57 +901,12 @@ export default function AdminPage() {
                                 setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
                               }
                             }}
-                            className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
                           >
                             <FaArrowDown />
                           </button>
                         </div>
                       </div>
-
-                      {/* Padding Sliders */}
-                      {sec.enabled && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 mt-3 border-t border-white/10">
-                          <div>
-                            <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
-                              <span>Top Gap (Padding Top)</span>
-                              <span className="text-cyan-300 font-bold">{sec.paddingTopRem} rem</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="8"
-                              step="0.5"
-                              value={sec.paddingTopRem}
-                              onChange={(e) => {
-                                const updated = [...layoutConfig.sections]
-                                updated[idx].paddingTopRem = Number(e.target.value)
-                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
-                              }}
-                              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
-                            />
-                          </div>
-
-                          <div>
-                            <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
-                              <span>Bottom Gap (Padding Bottom)</span>
-                              <span className="text-cyan-300 font-bold">{sec.paddingBottomRem} rem</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="8"
-                              step="0.5"
-                              value={sec.paddingBottomRem}
-                              onChange={(e) => {
-                                const updated = [...layoutConfig.sections]
-                                updated[idx].paddingBottomRem = Number(e.target.value)
-                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
-                              }}
-                              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -899,112 +917,76 @@ export default function AdminPage() {
           {/* TAB: STATS COUNTER CARDS CMS */}
           {activeTab === 'stats' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
-                    <FaChartBar className="text-cyan-400" /> Stats Counter Cards CMS
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaChartBar className="text-indigo-400" /> Stats Counter Cards CMS
                   </h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">
-                    Live edit numeric counter values, labels, and plus/star suffixes (e.g. 15+ Projects Completed, 20+ Technologies Learned)
-                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Edit counter numbers, suffixes, and card titles</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      const newStat = {
-                        id: `stat-${Date.now()}`,
-                        label: 'New Metric Title',
-                        value: 10,
-                        suffix: '+',
-                      }
-                      setKb({ ...kb, stats: [...stats, newStat] })
-                    }}
-                    className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
-                  >
-                    <FaPlus /> Add New Stat Card
-                  </button>
-                  <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2.5 rounded-xl hover:bg-cyan-300">
-                    <FaSave className="inline mr-1.5" /> Save Stats Edits
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    const newStat = { id: `stat-${Date.now()}`, label: 'New Metric Title', value: 10, suffix: '+' }
+                    setKb({ ...kb, stats: [...stats, newStat] })
+                  }}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+                >
+                  <FaPlus /> Add Stat Card
+                </button>
               </div>
 
-              {/* Live Preview Cards Grid */}
-              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 px-3 py-1 rounded-full">
-                  Live Counter Cards Section Preview
-                </span>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                  {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 text-center">
-                      <p className="font-display text-3xl font-bold text-cyan-300">
-                        {stat.value}{stat.suffix}
-                      </p>
-                      <p className="mt-2 text-xs text-slate-400 font-medium">{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Editable Stat Cards Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {stats.map((stat, idx) => (
-                  <div key={stat.id || idx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-5 space-y-3 shadow-md relative">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-400/10 px-2.5 py-1 rounded-lg">
-                        Stat Card #{idx + 1}
-                      </span>
+                  <div key={stat.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded">Stat Card #{idx + 1}</span>
                       <button
-                        onClick={() => {
-                          const updatedStats = stats.filter((_, i) => i !== idx)
-                          setKb({ ...kb, stats: updatedStats })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs"
+                        onClick={() => setKb({ ...kb, stats: stats.filter((_, i) => i !== idx) })}
+                        className="text-rose-400 hover:text-rose-300 p-1 text-xs"
                       >
-                        <FaTrash /> Delete
+                        <FaTrash />
                       </button>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 mb-1">Metric Label</label>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Label Title</label>
                       <input
                         type="text"
                         value={stat.label}
                         onChange={(e) => {
-                          const updatedStats = [...stats]
-                          updatedStats[idx].label = e.target.value
-                          setKb({ ...kb, stats: updatedStats })
+                          const updated = [...stats]
+                          updated[idx].label = e.target.value
+                          setKb({ ...kb, stats: updated })
                         }}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400 font-bold"
+                        className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Numeric Value</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Value Number</label>
                         <input
                           type="number"
                           value={stat.value}
                           onChange={(e) => {
-                            const updatedStats = [...stats]
-                            updatedStats[idx].value = Number(e.target.value)
-                            setKb({ ...kb, stats: updatedStats })
+                            const updated = [...stats]
+                            updated[idx].value = Number(e.target.value)
+                            setKb({ ...kb, stats: updated })
                           }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400 font-bold"
+                          className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Suffix (e.g. +, %)</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Suffix (+, %)</label>
                         <input
                           type="text"
                           value={stat.suffix}
                           onChange={(e) => {
-                            const updatedStats = [...stats]
-                            updatedStats[idx].suffix = e.target.value
-                            setKb({ ...kb, stats: updatedStats })
+                            const updated = [...stats]
+                            updated[idx].suffix = e.target.value
+                            setKb({ ...kb, stats: updated })
                           }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400 font-bold"
+                          className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
                         />
                       </div>
                     </div>
@@ -1014,80 +996,47 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 0: HERO SECTION CMS */}
+          {/* OTHER TABS */}
           {activeTab === 'hero' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Hero Section CMS</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit homepage hero title, animated typewriter word strings, speed controls, and CTAs</p>
+                  <h2 className="text-lg font-bold text-white">Hero Section & Typewriter CMS</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Edit title, animated roles, typing speeds, and description</p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl hover:opacity-90 flex items-center gap-1.5 shadow-md">
+                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
                   <FaSave /> Save Hero Changes
                 </button>
               </div>
 
-              {/* Live Preview Card */}
-              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 px-3 py-1 rounded-full">
-                    Live Hero Animated Preview
-                  </span>
-                  <span className="text-xs font-mono text-slate-400">
-                    Cycling {hero.roles.length} animated roles
-                  </span>
-                </div>
-
-                <div className="space-y-3 pt-2">
-                  <span className="inline-block text-xs font-mono text-slate-300 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full">
-                    {hero.greetingPill}
-                  </span>
-
-                  <h3 className="text-3xl font-bold text-white font-display">
-                    {hero.firstName} <span className="text-cyan-400">{hero.lastName}</span>
-                  </h3>
-
-                  {/* Live Typewriter Component Preview */}
-                  <div className="text-xl font-bold text-cyan-300 font-display min-h-[36px] flex items-center bg-slate-950/80 border border-cyan-400/30 rounded-xl px-4 py-2">
-                    <Typewriter
-                      words={hero.roles.length > 0 ? hero.roles : ['Full-Stack Developer']}
-                      typingSpeed={hero.typingSpeed || 70}
-                      deletingSpeed={hero.deletingSpeed || 40}
-                      pause={hero.pauseDuration || 1600}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">First Name</label>
+                    <input
+                      type="text"
+                      value={hero.firstName}
+                      onChange={(e) => setKb({ ...kb, hero: { ...hero, firstName: e.target.value } })}
+                      className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
                     />
                   </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
-                    {hero.shortDescription}
-                  </p>
-
-                  <div className="flex items-center gap-3 pt-2">
-                    <span className="text-xs font-bold text-slate-950 bg-cyan-400 px-4 py-2 rounded-xl">
-                      {hero.primaryCtaLabel}
-                    </span>
-                    <span className="text-xs font-bold text-white bg-indigo-600 px-4 py-2 rounded-xl">
-                      {hero.secondaryCtaLabel}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* IN-DEPTH ANIMATED TYPEWRITER ROLES EDITOR */}
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div>
-                    <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                      <FaCode className="text-cyan-400" /> Animated Typewriter Word Strings ({hero.roles.length})
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">These animated words cycle continuously on the homepage hero section</p>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      value={hero.lastName}
+                      onChange={(e) => setKb({ ...kb, hero: { ...hero, lastName: e.target.value } })}
+                      className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-400 outline-none focus:border-indigo-500 font-bold"
+                    />
                   </div>
                 </div>
 
-                {/* Role Strings List */}
-                <div className="space-y-3">
+                {/* Animated Typewriter Roles */}
+                <div className="space-y-3 pt-2">
+                  <label className="block text-xs font-medium text-slate-400">Animated Typewriter Roles ({hero.roles.length})</label>
                   {hero.roles.map((roleStr, rIdx) => (
-                    <div key={rIdx} className="flex items-center gap-3 bg-slate-950/70 border border-white/10 rounded-xl p-3">
-                      <span className="w-6 h-6 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 grid place-items-center text-xs font-mono font-bold shrink-0">
+                    <div key={rIdx} className="flex items-center gap-3 bg-[#070a12] border border-slate-800 rounded-lg p-2.5">
+                      <span className="w-6 h-6 rounded bg-indigo-600/20 text-indigo-300 grid place-items-center text-xs font-mono font-bold shrink-0">
                         {rIdx + 1}
                       </span>
                       <input
@@ -1098,233 +1047,98 @@ export default function AdminPage() {
                           updatedRoles[rIdx] = e.target.value
                           setKb({ ...kb, hero: { ...hero, roles: updatedRoles } })
                         }}
-                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400 font-semibold"
+                        className="flex-1 bg-transparent border-none text-xs text-white outline-none font-semibold"
                       />
                       <button
                         onClick={() => {
                           const updatedRoles = hero.roles.filter((_, i) => i !== rIdx)
                           setKb({ ...kb, hero: { ...hero, roles: updatedRoles } })
                         }}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs rounded-lg bg-rose-500/10 border border-rose-500/30 shrink-0"
+                        className="text-rose-400 hover:text-rose-300 p-1 text-xs"
                       >
                         <FaTrash />
                       </button>
                     </div>
                   ))}
-                </div>
 
-                {/* Add New Animated Role Word */}
-                <div className="pt-3 border-t border-white/10 flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="New Animated Word String (e.g. AI/ML Student, Programmer, Full-Stack)..."
-                    value={newRoleString}
-                    onChange={(e) => setNewRoleString(e.target.value)}
-                    className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                  />
-                  <button
-                    onClick={() => {
-                      if (newRoleString.trim()) {
-                        const updatedRoles = [...hero.roles, newRoleString.trim()]
-                        setKb({ ...kb, hero: { ...hero, roles: updatedRoles } })
-                        setNewRoleString('')
-                      }
-                    }}
-                    className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-1.5 shrink-0"
-                  >
-                    <FaPlus /> Add Animated Word
-                  </button>
-                </div>
-
-                {/* Typewriter Speed & Timing Controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/10">
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Typing Speed (ms)</label>
+                  <div className="flex items-center gap-2 pt-2">
                     <input
-                      type="number"
-                      value={hero.typingSpeed || 70}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, typingSpeed: Number(e.target.value) } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
+                      type="text"
+                      placeholder="Add new animated role (e.g. Full-Stack Developer)..."
+                      value={newRoleString}
+                      onChange={(e) => setNewRoleString(e.target.value)}
+                      className="flex-1 bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Deleting Speed (ms)</label>
-                    <input
-                      type="number"
-                      value={hero.deletingSpeed || 40}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, deletingSpeed: Number(e.target.value) } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Pause Duration (ms)</label>
-                    <input
-                      type="number"
-                      value={hero.pauseDuration || 1600}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, pauseDuration: Number(e.target.value) } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                    />
+                    <button
+                      onClick={() => {
+                        if (newRoleString.trim()) {
+                          setKb({ ...kb, hero: { ...hero, roles: [...hero.roles, newRoleString.trim()] } })
+                          setNewRoleString('')
+                        }
+                      }}
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-2 rounded-lg text-xs"
+                    >
+                      <FaPlus /> Add
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 1: PROFILE & CONTACT CMS */}
           {activeTab === 'profile' && (
             <div className="space-y-6 max-w-4xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Profile & Contact Information</h2>
-                  <p className="text-xs text-slate-400 mt-0.5 font-mono">Manage primary bio, role definitions, and public social channels</p>
+                  <h2 className="text-lg font-bold text-white">Profile & Contact Information</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage primary bio, role definitions, and public social channels</p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2 rounded-xl hover:bg-cyan-300">
-                  <FaSave className="inline mr-1.5" /> Save Profile
+                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm">
+                  <FaSave /> Save Profile
                 </button>
               </div>
 
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Full Name</label>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
                     <input
                       type="text"
                       value={kb.profile.name}
                       onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, name: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-bold"
+                      className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Primary Title</label>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Primary Title</label>
                     <input
                       type="text"
                       value={kb.profile.title}
                       onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, title: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                      className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Authoritative Public Bio</label>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Authoritative Public Bio</label>
                   <textarea
                     rows={4}
                     value={kb.profile.bio}
                     onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, bio: e.target.value } })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-cyan-400 leading-relaxed"
+                    className="w-full bg-[#070a12] border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500 leading-relaxed"
                   />
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB: CERTIFICATIONS CATALOG CMS */}
-          {activeTab === 'certifications' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div>
-                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
-                    <FaAward className="text-cyan-400" /> Certifications Catalog CMS
-                  </h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Manage certification credentials, issuing organizations, dates, and verification links</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newCert = {
-                      id: `cert-${Date.now()}`,
-                      title: 'New Certification Title',
-                      organization: 'Organization Name',
-                      date: '2026',
-                      url: 'https://',
-                      description: 'Overview of certification achievements',
-                    }
-                    setKb({ ...kb, certifications: [...certifications, newCert] })
-                  }}
-                  className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
-                >
-                  <FaPlus /> Add New Certification
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {certifications.map((cert, idx) => (
-                  <div key={cert.id || idx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg relative">
-                    <div className="flex items-center justify-between gap-4">
-                      <input
-                        type="text"
-                        value={cert.title}
-                        onChange={(e) => {
-                          const updatedCerts = [...certifications]
-                          updatedCerts[idx].title = e.target.value
-                          setKb({ ...kb, certifications: updatedCerts })
-                        }}
-                        className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400"
-                      />
-                      <button
-                        onClick={() => {
-                          const updatedCerts = certifications.filter((_, i) => i !== idx)
-                          setKb({ ...kb, certifications: updatedCerts })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs"
-                      >
-                        <FaTrash /> Delete
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Issuing Organization</label>
-                        <input
-                          type="text"
-                          value={cert.organization}
-                          onChange={(e) => {
-                            const updatedCerts = [...certifications]
-                            updatedCerts[idx].organization = e.target.value
-                            setKb({ ...kb, certifications: updatedCerts })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Issue Date / Year</label>
-                        <input
-                          type="text"
-                          value={cert.date}
-                          onChange={(e) => {
-                            const updatedCerts = [...certifications]
-                            updatedCerts[idx].date = e.target.value
-                            setKb({ ...kb, certifications: updatedCerts })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Verification URL</label>
-                        <input
-                          type="text"
-                          value={cert.url || ''}
-                          onChange={(e) => {
-                            const updatedCerts = [...certifications]
-                            updatedCerts[idx].url = e.target.value
-                            setKb({ ...kb, certifications: updatedCerts })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: PROJECTS CATALOG CMS */}
           {activeTab === 'projects' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Projects Catalog CMS</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Manage project cards, live URLs, GitHub repos, and status flags</p>
+                  <h2 className="text-lg font-bold text-white">Projects Catalog CMS</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage project cards, live URLs, GitHub repos, and status flags</p>
                 </div>
                 <button
                   onClick={() => {
@@ -1346,15 +1160,15 @@ export default function AdminPage() {
                     }
                     setKb({ ...kb, projects: [newProj, ...kb.projects] })
                   }}
-                  className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                 >
-                  <FaPlus /> Add New Project
+                  <FaPlus /> Add Project
                 </button>
               </div>
 
               <div className="space-y-4">
                 {kb.projects.map((proj, idx) => (
-                  <div key={proj.id} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
+                  <div key={proj.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                     <div className="flex items-center justify-between gap-4">
                       <input
                         type="text"
@@ -1364,35 +1178,17 @@ export default function AdminPage() {
                           updated[idx].title = e.target.value
                           setKb({ ...kb, projects: updated })
                         }}
-                        className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400"
+                        className="font-bold text-white text-sm bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
                       />
-                      <select
-                        value={proj.category}
-                        onChange={(e) => {
-                          const updated = [...kb.projects]
-                          updated[idx].category = e.target.value
-                          setKb({ ...kb, projects: updated })
-                        }}
-                        className="bg-slate-800 text-xs font-mono text-cyan-300 border border-cyan-400/40 rounded-xl px-3 py-2 outline-none font-bold"
-                      >
-                        <option value="HYBRID">HYBRID</option>
-                        <option value="CODE">CODE</option>
-                        <option value="DESIGN">DESIGN</option>
-                        <option value="MOBILE">MOBILE</option>
-                      </select>
                       <button
-                        onClick={() => {
-                          const updated = kb.projects.filter((p) => p.id !== proj.id)
-                          setKb({ ...kb, projects: updated })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs"
+                        onClick={() => setKb({ ...kb, projects: kb.projects.filter((p) => p.id !== proj.id) })}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
                       >
-                        <FaTrash /> Delete
+                        <FaTrash />
                       </button>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-mono text-slate-400 mb-1">Short Description</label>
                       <input
                         type="text"
                         value={proj.shortDescription}
@@ -1401,37 +1197,9 @@ export default function AdminPage() {
                           updated[idx].shortDescription = e.target.value
                           setKb({ ...kb, projects: updated })
                         }}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                        placeholder="Short description"
+                        className="w-full bg-[#070a12] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
                       />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Live Demo URL</label>
-                        <input
-                          type="text"
-                          value={proj.demoUrl || ''}
-                          onChange={(e) => {
-                            const updated = [...kb.projects]
-                            updated[idx].demoUrl = e.target.value
-                            setKb({ ...kb, projects: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-mono"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Tech Stack (comma separated)</label>
-                        <input
-                          type="text"
-                          value={proj.techStack.join(', ')}
-                          onChange={(e) => {
-                            const updated = [...kb.projects]
-                            updated[idx].techStack = e.target.value.split(',').map((t) => t.trim())
-                            setKb({ ...kb, projects: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -1439,13 +1207,63 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 4: EDUCATION & SGPA */}
+          {activeTab === 'certifications' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white">Certifications Catalog CMS</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage certification credentials, issuing organizations, and URLs</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newCert = {
+                      id: `cert-${Date.now()}`,
+                      title: 'New Certification Title',
+                      organization: 'Organization Name',
+                      date: '2026',
+                      url: 'https://',
+                    }
+                    setKb({ ...kb, certifications: [...certifications, newCert] })
+                  }}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                >
+                  <FaPlus /> Add Certification
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {certifications.map((cert, idx) => (
+                  <div key={cert.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <input
+                        type="text"
+                        value={cert.title}
+                        onChange={(e) => {
+                          const updated = [...certifications]
+                          updated[idx].title = e.target.value
+                          setKb({ ...kb, certifications: updated })
+                        }}
+                        className="font-bold text-white text-sm bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
+                      />
+                      <button
+                        onClick={() => setKb({ ...kb, certifications: certifications.filter((_, i) => i !== idx) })}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'education' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Academic Journey & Education</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Manage academic qualifications, schools, colleges, and SGPA performance</p>
+                  <h2 className="text-lg font-bold text-white">Academic Journey & Education</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage academic qualifications, schools, colleges, and SGPA</p>
                 </div>
                 <button
                   onClick={() => {
@@ -1453,26 +1271,26 @@ export default function AdminPage() {
                       id: `edu_${Date.now()}`,
                       degree: 'New Certification / Degree',
                       field: 'Field of Study',
-                      institution: 'University / Institute Name',
+                      institution: 'University Name',
                       location: 'City, State',
                       duration: '1 Year',
                       years: '2025 – 2026',
                       badge: 'Academic Honor',
                       sgpa: '8.86 SGPA',
-                      description: 'Overview of academic achievements',
-                      highlights: ['Core Subject 1', 'Core Subject 2'],
+                      description: 'Overview',
+                      highlights: ['Core Subject 1'],
                     }
                     setKb({ ...kb, education: [newEdu, ...kb.education] })
                   }}
-                  className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                 >
-                  <FaPlus /> Add New Education Entry
+                  <FaPlus /> Add Education Entry
                 </button>
               </div>
 
               <div className="space-y-4">
                 {kb.education.map((edu, idx) => (
-                  <div key={edu.id} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg relative">
+                  <div key={edu.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                     <div className="flex items-center justify-between gap-4">
                       <input
                         type="text"
@@ -1482,88 +1300,14 @@ export default function AdminPage() {
                           updated[idx].degree = e.target.value
                           setKb({ ...kb, education: updated })
                         }}
-                        className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400"
+                        className="font-bold text-white text-sm bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
                       />
                       <button
-                        onClick={() => {
-                          const updated = kb.education.filter((e) => e.id !== edu.id)
-                          setKb({ ...kb, education: updated })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs"
+                        onClick={() => setKb({ ...kb, education: kb.education.filter((e) => e.id !== edu.id) })}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
                       >
-                        <FaTrash /> Delete
+                        <FaTrash />
                       </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Field of Study</label>
-                        <input
-                          type="text"
-                          value={edu.field}
-                          onChange={(e) => {
-                            const updated = [...kb.education]
-                            updated[idx].field = e.target.value
-                            setKb({ ...kb, education: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Institution Name</label>
-                        <input
-                          type="text"
-                          value={edu.institution}
-                          onChange={(e) => {
-                            const updated = [...kb.education]
-                            updated[idx].institution = e.target.value
-                            setKb({ ...kb, education: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Location</label>
-                        <input
-                          type="text"
-                          value={edu.location}
-                          onChange={(e) => {
-                            const updated = [...kb.education]
-                            updated[idx].location = e.target.value
-                            setKb({ ...kb, education: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Years / Duration</label>
-                        <input
-                          type="text"
-                          value={edu.years}
-                          onChange={(e) => {
-                            const updated = [...kb.education]
-                            updated[idx].years = e.target.value
-                            setKb({ ...kb, education: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">SGPA / Performance</label>
-                        <input
-                          type="text"
-                          value={edu.sgpa || ''}
-                          onChange={(e) => {
-                            const updated = [...kb.education]
-                            updated[idx].sgpa = e.target.value
-                            setKb({ ...kb, education: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                        />
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -1571,37 +1315,36 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 5: WORK EXPERIENCE & INTERNSHIPS */}
           {activeTab === 'experience' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Work Experience & Internships</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Manage professional internships, roles, duration, and key bullet points</p>
+                  <h2 className="text-lg font-bold text-white">Work Experience & Internships</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage professional internships, roles, and responsibilities</p>
                 </div>
                 <button
                   onClick={() => {
                     const newExp = {
                       id: `exp_${Date.now()}`,
-                      role: 'New Internship / Role',
-                      company: 'Company Name',
+                      role: 'New Role',
+                      company: 'Company',
                       duration: '3 Months',
                       startDate: '2026',
                       endDate: '2026',
                       type: 'Internship',
-                      points: ['Responsibility bullet point 1', 'Responsibility bullet point 2'],
+                      points: ['Bullet 1'],
                     }
                     setKb({ ...kb, experience: [newExp, ...kb.experience] })
                   }}
-                  className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                 >
-                  <FaPlus /> Add New Work Experience
+                  <FaPlus /> Add Experience
                 </button>
               </div>
 
               <div className="space-y-4">
                 {kb.experience.map((exp, idx) => (
-                  <div key={exp.id} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg relative">
+                  <div key={exp.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                     <div className="flex items-center justify-between gap-4">
                       <input
                         type="text"
@@ -1611,72 +1354,14 @@ export default function AdminPage() {
                           updated[idx].role = e.target.value
                           setKb({ ...kb, experience: updated })
                         }}
-                        placeholder="Role Title (e.g. Graphic Design Intern)"
-                        className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400"
-                      />
-                      <input
-                        type="text"
-                        value={exp.company}
-                        onChange={(e) => {
-                          const updated = [...kb.experience]
-                          updated[idx].company = e.target.value
-                          setKb({ ...kb, experience: updated })
-                        }}
-                        placeholder="Company Name (e.g. JALDIRIDE CONNECT)"
-                        className="font-bold text-cyan-300 text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400 font-mono"
+                        className="font-bold text-white text-sm bg-[#070a12] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
                       />
                       <button
-                        onClick={() => {
-                          const updated = kb.experience.filter((e) => e.id !== exp.id)
-                          setKb({ ...kb, experience: updated })
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs shrink-0"
+                        onClick={() => setKb({ ...kb, experience: kb.experience.filter((e) => e.id !== exp.id) })}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
                       >
-                        <FaTrash /> Delete
+                        <FaTrash />
                       </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Duration & Dates</label>
-                        <input
-                          type="text"
-                          value={`${exp.duration} (${exp.startDate} – ${exp.endDate})`}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].duration = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-mono text-slate-400 mb-1">Employment Type</label>
-                        <input
-                          type="text"
-                          value={exp.type || 'Internship'}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].type = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-mono"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-slate-400 mb-1">Key Responsibilities (one bullet per line)</label>
-                      <textarea
-                        rows={3}
-                        value={(exp.points || []).join('\n')}
-                        onChange={(e) => {
-                          const updated = [...kb.experience]
-                          updated[idx].points = e.target.value.split('\n').filter(Boolean)
-                          setKb({ ...kb, experience: updated })
-                        }}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-slate-300 outline-none focus:border-cyan-400 leading-relaxed font-mono"
-                      />
                     </div>
                   </div>
                 ))}
@@ -1684,27 +1369,23 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 6: PITTU AI ENGINE & FAQS */}
           {activeTab === 'pittu' && (
             <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white">Pittu AI Knowledge & FAQ Engine</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Configure allowed knowledge topics, privacy firewall boundaries, and Q&A facts</p>
+                  <h2 className="text-lg font-bold text-white">Pittu AI Knowledge & FAQ Engine</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Configure grounded facts and Q&A pairs</p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2 rounded-xl hover:bg-cyan-300">
-                  <FaSave className="inline mr-1.5" /> Save AI Engine
+                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm">
+                  <FaSave /> Save AI Knowledge
                 </button>
               </div>
 
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                  <FaQuestionCircle className="text-cyan-400" /> Pittu AI Grounded Q&A Pairs ({kb.faqs?.length || 0})
-                </h3>
-
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Pittu Q&A Pairs ({kb.faqs?.length || 0})</h3>
                 <div className="space-y-3">
                   {(kb.faqs || []).map((faq, idx) => (
-                    <div key={idx} className="bg-slate-950/60 border border-white/10 rounded-xl p-4 space-y-2">
+                    <div key={idx} className="bg-[#070a12] border border-slate-800 rounded-lg p-3 space-y-2">
                       <div className="flex items-center justify-between gap-3">
                         <input
                           type="text"
@@ -1714,13 +1395,10 @@ export default function AdminPage() {
                             updated[idx].question = e.target.value
                             setKb({ ...kb, faqs: updated })
                           }}
-                          className="font-bold text-xs text-cyan-300 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-cyan-400"
+                          className="font-semibold text-xs text-indigo-300 bg-transparent border-none flex-1 outline-none"
                         />
                         <button
-                          onClick={() => {
-                            const updated = (kb.faqs || []).filter((_, i) => i !== idx)
-                            setKb({ ...kb, faqs: updated })
-                          }}
+                          onClick={() => setKb({ ...kb, faqs: (kb.faqs || []).filter((_, i) => i !== idx) })}
                           className="text-rose-400 hover:text-rose-300 text-xs p-1"
                         >
                           <FaTrash />
@@ -1734,59 +1412,27 @@ export default function AdminPage() {
                           updated[idx].answer = e.target.value
                           setKb({ ...kb, faqs: updated })
                         }}
-                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2.5 text-xs text-slate-300 outline-none focus:border-cyan-400"
+                        className="w-full bg-[#090d16] border border-slate-800 rounded-lg p-2 text-xs text-slate-300 outline-none focus:border-indigo-500"
                       />
                     </div>
                   ))}
-                </div>
-
-                <div className="pt-3 border-t border-white/10 space-y-3">
-                  <input
-                    type="text"
-                    placeholder="New Question..."
-                    value={newFaqQ}
-                    onChange={(e) => setNewFaqQ(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-cyan-400"
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="New Answer..."
-                    value={newFaqA}
-                    onChange={(e) => setNewFaqA(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-cyan-400"
-                  />
-                  <button
-                    onClick={() => {
-                      if (newFaqQ.trim() && newFaqA.trim()) {
-                        const newFaq = { question: newFaqQ.trim(), answer: newFaqA.trim(), category: 'GENERAL' }
-                        setKb({ ...kb, faqs: [...(kb.faqs || []), newFaq] })
-                        setNewFaqQ('')
-                        setNewFaqA('')
-                      }
-                    }}
-                    className="bg-cyan-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5"
-                  >
-                    <FaPlus /> Add FAQ Pair
-                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 7: DATABASE */}
           {activeTab === 'database' && (
             <div className="space-y-6 max-w-4xl">
-              <h2 className="text-xl font-bold font-display text-white">Database & Infrastructure Overview</h2>
-
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
+              <h2 className="text-lg font-bold text-white">Database & Infrastructure Overview</h2>
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-white text-sm">Supabase Service Connection</h3>
-                  <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 border border-emerald-400/30 px-3 py-1 rounded-full">
+                  <h3 className="font-semibold text-white text-xs">Supabase Database Connection</h3>
+                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
                     {isSupabaseConfigured() ? 'Supabase Active' : 'Browser Storage + Local Memory'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  All changes made in this Executive CMS are saved immediately to Local Browser Storage and update the authoritative single source of truth across the live website and Pittu AI!
+                  All changes made in this Executive Console are saved immediately to Local Storage and update the authoritative single source of truth across the live portfolio website and Pittu AI!
                 </p>
               </div>
             </div>
