@@ -42,6 +42,9 @@ import {
   FaSync,
   FaStar,
   FaCodeBranch,
+  FaLink,
+  FaCalendarAlt,
+  FaBuilding,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -67,7 +70,7 @@ export default function AdminPage() {
   // CMS State
   const [kb, setKb] = useState(getActiveKnowledge())
   const [activeTab, setActiveTab] = useState('dashboard')
-  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'table'
+  const [viewMode, setViewMode] = useState('grid')
   const [toastMessage, setToastMessage] = useState('')
 
   // GitHub Test Connection State
@@ -224,6 +227,14 @@ export default function AdminPage() {
       url: 'https://coursera.org',
       description: 'Covered Python fundamentals, Pandas, NumPy, and data manipulation libraries for machine learning workflows.',
     },
+    {
+      id: 'cert-2',
+      title: 'Full-Stack Web Development Mastery',
+      organization: 'Udemy / Meta',
+      date: '2025',
+      url: 'https://udemy.com',
+      description: 'Mastered modern React, Node.js, REST APIs, Tailwind CSS, and full-stack system architecture.',
+    },
   ]
 
   const layoutConfig = kb.layoutConfig || {
@@ -378,7 +389,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Type a command or jump to section (e.g. GitHub, Skills, Layout, Projects)..."
+                  placeholder="Type a command or jump to section (e.g. GitHub, Certifications, Skills)..."
                   value={commandQuery}
                   onChange={(e) => setCommandQuery(e.target.value)}
                   className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
@@ -672,12 +683,12 @@ export default function AdminPage() {
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Quick Section Management</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
-                    onClick={() => setActiveTab('github')}
+                    onClick={() => setActiveTab('certifications')}
                     className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
                   >
                     <div>
-                      <p className="text-xs font-semibold text-white">GitHub API Connection</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Manage live REST integration</p>
+                      <p className="text-xs font-semibold text-white">Certifications Catalog</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Edit certs & credentials</p>
                     </div>
                     <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
                   </button>
@@ -694,12 +705,12 @@ export default function AdminPage() {
                   </button>
 
                   <button
-                    onClick={() => setActiveTab('layout')}
+                    onClick={() => setActiveTab('github')}
                     className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
                   >
                     <div>
-                      <p className="text-xs font-semibold text-white">Section Gaps</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Adjust padding & presets</p>
+                      <p className="text-xs font-semibold text-white">GitHub API</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Manage live REST integration</p>
                     </div>
                     <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
                   </button>
@@ -813,7 +824,6 @@ export default function AdminPage() {
                   <p className="text-xs text-slate-400 mt-0.5">Edit category names, technology logos, proficiency sliders, and accent colors</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {/* View Mode Switcher (Grid vs Table View) */}
                   <div className="flex items-center bg-[#070913] border border-slate-800 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('grid')}
@@ -848,12 +858,10 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Grid or Table View */}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                   {(kb.skillCategories || []).map((cat, catIdx) => (
                     <div key={cat.id || catIdx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-                      {/* Header */}
                       <div className="flex items-center justify-between pb-3 border-b border-slate-800 gap-3">
                         <div className="flex items-center gap-2.5 flex-1">
                           <button
@@ -910,7 +918,6 @@ export default function AdminPage() {
                         </button>
                       </div>
 
-                      {/* Skill List */}
                       <div className="space-y-3 pt-1">
                         {cat.skills.map((skill, skillIdx) => (
                           <div key={skillIdx} className="bg-[#070913] border border-slate-800 rounded-lg p-3 space-y-2">
@@ -969,7 +976,6 @@ export default function AdminPage() {
                         ))}
                       </div>
 
-                      {/* Add Skill Row */}
                       <div className="pt-3 border-t border-slate-800 flex items-center gap-2">
                         <input
                           type="text"
@@ -1025,7 +1031,6 @@ export default function AdminPage() {
                   ))}
                 </div>
               ) : (
-                /* Table View */
                 <div className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-sm">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-[#070913] border-b border-slate-800 text-slate-400 font-mono uppercase text-[10px]">
@@ -1072,7 +1077,6 @@ export default function AdminPage() {
                 </div>
               )}
 
-              {/* Add New Category Input Footer */}
               <div className="pt-4 border-t border-slate-800 flex items-center gap-3">
                 <input
                   type="text"
@@ -1098,217 +1102,545 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB: ADVANCED LAYOUT & SECTION SPACING CMS */}
-          {activeTab === 'layout' && (
+          {/* TAB: CERTIFICATIONS CATALOG CMS (DETAILED RICH FORM) */}
+          {activeTab === 'certifications' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <FaLayerGroup className="text-indigo-400" /> Section Spacing & Gap Architecture
+                    <FaAward className="text-indigo-400" /> Certifications Catalog CMS
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Control section padding/gaps, toggle section visibility (Show/Hide), and re-order homepage flow</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage certification titles, issuing organizations, verification links, and detailed curriculum notes</p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5">
-                  <FaSave /> Save Architecture
-                </button>
-              </div>
-
-              {/* Presets */}
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Global Spacing Presets</span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => {
-                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 1, paddingBottomRem: 1 }))
-                      setKb({ ...kb, layoutConfig: { preset: 'compact', sections: updatedSections } })
+                      const newCert = {
+                        id: `cert-${Date.now()}`,
+                        title: 'New Certification Title',
+                        organization: 'IBM / Coursera',
+                        date: '2026',
+                        url: 'https://coursera.org/verify/example',
+                        description: 'Detailed description of skills and topics covered in this certification course.',
+                      }
+                      setKb({ ...kb, certifications: [newCert, ...certifications] })
+                      triggerToast('Added new certification entry card')
                     }}
-                    className={`p-3.5 rounded-xl border text-left transition-all ${
-                      layoutConfig.preset === 'compact'
-                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
-                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
-                    }`}
+                    className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                   >
-                    <p className="text-xs font-semibold">⚡ Ultra-Compact (Zero Gaps)</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">1rem padding. Tight continuous stream.</p>
+                    <FaPlus /> Add Certification Card
                   </button>
-
                   <button
-                    onClick={() => {
-                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 2.5, paddingBottomRem: 2.5 }))
-                      setKb({ ...kb, layoutConfig: { preset: 'balanced', sections: updatedSections } })
-                    }}
-                    className={`p-3.5 rounded-xl border text-left transition-all ${
-                      layoutConfig.preset === 'balanced'
-                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
-                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
-                    }`}
+                    onClick={handleSaveAll}
+                    className="text-xs font-semibold text-slate-900 bg-emerald-400 hover:bg-emerald-300 px-3.5 py-2 rounded-lg shadow-sm"
                   >
-                    <p className="text-xs font-semibold">⚖️ Balanced Rhythm</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">2.5rem padding. Optimal spacing.</p>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 4.5, paddingBottomRem: 4.5 }))
-                      setKb({ ...kb, layoutConfig: { preset: 'spacious', sections: updatedSections } })
-                    }}
-                    className={`p-3.5 rounded-xl border text-left transition-all ${
-                      layoutConfig.preset === 'spacious'
-                        ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold'
-                        : 'bg-[#070913] border-slate-800 text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    <p className="text-xs font-semibold">🌌 Spacious (Generous)</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">4.5rem padding. Generous vertical space.</p>
+                    <FaSave className="inline mr-1.5" /> Save Edits
                   </button>
                 </div>
               </div>
 
-              {/* Section Sequence */}
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Homepage Sequence & Sliders</h3>
-                <div className="space-y-3">
-                  {layoutConfig.sections.map((sec, idx) => (
-                    <div key={sec.id} className="p-3.5 rounded-lg bg-[#070913] border border-slate-800 space-y-3">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded bg-indigo-600/20 text-indigo-300 grid place-items-center text-xs font-bold font-mono">
-                            #{idx + 1}
-                          </span>
-                          <span className="font-bold text-xs text-white">{sec.name}</span>
+              <div className="space-y-5">
+                {certifications.map((cert, idx) => (
+                  <div key={cert.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">Certification Details</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = certifications.filter((_, i) => i !== idx)
+                          setKb({ ...kb, certifications: updated })
+                          triggerToast('Removed certification card')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
+                      >
+                        <FaTrash /> Remove
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Certification Title</label>
+                        <input
+                          type="text"
+                          value={cert.title}
+                          onChange={(e) => {
+                            const updated = [...certifications]
+                            updated[idx].title = e.target.value
+                            setKb({ ...kb, certifications: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Issuing Organization</label>
+                        <div className="relative">
+                          <FaBuilding className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={cert.organization || ''}
+                            onChange={(e) => {
+                              const updated = [...certifications]
+                              updated[idx].organization = e.target.value
+                              setKb({ ...kb, certifications: updated })
+                            }}
+                            placeholder="e.g. IBM / Coursera"
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+                          />
                         </div>
+                      </div>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              const updated = [...layoutConfig.sections]
-                              updated[idx].enabled = !updated[idx].enabled
-                              setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Completion Date / Year</label>
+                        <div className="relative">
+                          <FaCalendarAlt className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={cert.date || ''}
+                            onChange={(e) => {
+                              const updated = [...certifications]
+                              updated[idx].date = e.target.value
+                              setKb({ ...kb, certifications: updated })
                             }}
-                            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg border ${
-                              sec.enabled
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                            }`}
-                          >
-                            {sec.enabled ? <FaEye /> : <FaEyeSlash />}
-                            {sec.enabled ? 'Visible' : 'Hidden'}
-                          </button>
+                            placeholder="e.g. 2025"
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
 
-                          <button
-                            disabled={idx === 0}
-                            onClick={() => {
-                              if (idx > 0) {
-                                const updated = [...layoutConfig.sections]
-                                const temp = updated[idx]
-                                updated[idx] = updated[idx - 1]
-                                updated[idx - 1] = temp
-                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
-                              }
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Verification / Certificate Link</label>
+                        <div className="relative">
+                          <FaLink className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={cert.url || ''}
+                            onChange={(e) => {
+                              const updated = [...certifications]
+                              updated[idx].url = e.target.value
+                              setKb({ ...kb, certifications: updated })
                             }}
-                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
-                          >
-                            <FaArrowUp />
-                          </button>
-                          <button
-                            disabled={idx === layoutConfig.sections.length - 1}
-                            onClick={() => {
-                              if (idx < layoutConfig.sections.length - 1) {
-                                const updated = [...layoutConfig.sections]
-                                const temp = updated[idx]
-                                updated[idx] = updated[idx + 1]
-                                updated[idx + 1] = temp
-                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
-                              }
-                            }}
-                            className="p-1.5 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
-                          >
-                            <FaArrowDown />
-                          </button>
+                            placeholder="https://coursera.org/verify/..."
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-indigo-500"
+                          />
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Detailed Course Description & Core Concepts Learned</label>
+                      <textarea
+                        rows={3}
+                        value={cert.description || ''}
+                        onChange={(e) => {
+                          const updated = [...certifications]
+                          updated[idx].description = e.target.value
+                          setKb({ ...kb, certifications: updated })
+                        }}
+                        placeholder="Covered Python fundamentals, Pandas, NumPy, and data manipulation libraries..."
+                        className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-slate-200 outline-none focus:border-indigo-500 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
-          {/* TAB: STATS COUNTER CARDS CMS */}
-          {activeTab === 'stats' && (
+          {/* TAB: ACADEMIC JOURNEY CMS */}
+          {activeTab === 'education' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <FaChartBar className="text-indigo-400" /> Stats Counter Cards CMS
+                    <FaGraduationCap className="text-indigo-400" /> Academic Journey & Education CMS
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Edit counter numbers, suffixes, and card titles</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage degrees, universities, SGPA grades, and academic achievements</p>
                 </div>
                 <button
                   onClick={() => {
-                    const newStat = { id: `stat-${Date.now()}`, label: 'New Metric Title', value: 10, suffix: '+' }
-                    setKb({ ...kb, stats: [...stats, newStat] })
+                    const newEdu = {
+                      id: `edu_${Date.now()}`,
+                      degree: 'B.Tech in Computer Science & Engineering',
+                      field: 'AI & Machine Learning Specialization',
+                      institution: 'NIMS University Jaipur',
+                      location: 'Jaipur, Rajasthan',
+                      duration: '4 Years',
+                      years: '2023 – 2027',
+                      badge: 'Academic Honor',
+                      sgpa: '8.86 SGPA',
+                      description: 'Specializing in Artificial Intelligence, Deep Learning, Data Structures, and Software Architecture.',
+                      highlights: ['Neural Networks', 'Python & C++', 'Data Structures', 'Machine Learning'],
+                    }
+                    setKb({ ...kb, education: [newEdu, ...kb.education] })
+                    triggerToast('Added education card')
                   }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5"
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
                 >
-                  <FaPlus /> Add Stat Card
+                  <FaPlus /> Add Education Card
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {stats.map((stat, idx) => (
-                  <div key={stat.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded">Stat Card #{idx + 1}</span>
+              <div className="space-y-5">
+                {kb.education.map((edu, idx) => (
+                  <div key={edu.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">Academic Qualification Details</span>
+                      </div>
                       <button
-                        onClick={() => setKb({ ...kb, stats: stats.filter((_, i) => i !== idx) })}
-                        className="text-rose-400 hover:text-rose-300 p-1 text-xs"
+                        onClick={() => {
+                          const updated = kb.education.filter((_, i) => i !== idx)
+                          setKb({ ...kb, education: updated })
+                          triggerToast('Removed education card')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
                       >
-                        <FaTrash />
+                        <FaTrash /> Remove
                       </button>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1">Label Title</label>
-                      <input
-                        type="text"
-                        value={stat.label}
-                        onChange={(e) => {
-                          const updated = [...stats]
-                          updated[idx].label = e.target.value
-                          setKb({ ...kb, stats: updated })
-                        }}
-                        className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Value Number</label>
-                        <input
-                          type="number"
-                          value={stat.value}
-                          onChange={(e) => {
-                            const updated = [...stats]
-                            updated[idx].value = Number(e.target.value)
-                            setKb({ ...kb, stats: updated })
-                          }}
-                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Suffix (+, %)</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Degree Title</label>
                         <input
                           type="text"
-                          value={stat.suffix}
+                          value={edu.degree}
                           onChange={(e) => {
-                            const updated = [...stats]
-                            updated[idx].suffix = e.target.value
-                            setKb({ ...kb, stats: updated })
+                            const updated = [...kb.education]
+                            updated[idx].degree = e.target.value
+                            setKb({ ...kb, education: updated })
                           }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Field of Study / Branch</label>
+                        <input
+                          type="text"
+                          value={edu.field || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.education]
+                            updated[idx].field = e.target.value
+                            setKb({ ...kb, education: updated })
+                          }}
+                          placeholder="e.g. AI & Machine Learning"
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-cyan-300 outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Institution / University</label>
+                        <input
+                          type="text"
+                          value={edu.institution || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.education]
+                            updated[idx].institution = e.target.value
+                            setKb({ ...kb, education: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">SGPA / Grade Score</label>
+                        <input
+                          type="text"
+                          value={edu.sgpa || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.education]
+                            updated[idx].sgpa = e.target.value
+                            setKb({ ...kb, education: updated })
+                          }}
+                          placeholder="e.g. 8.86 SGPA"
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Academic Overview</label>
+                      <textarea
+                        rows={2}
+                        value={edu.description || ''}
+                        onChange={(e) => {
+                          const updated = [...kb.education]
+                          updated[idx].description = e.target.value
+                          setKb({ ...kb, education: updated })
+                        }}
+                        className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-slate-200 outline-none focus:border-indigo-500 leading-relaxed"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: WORK EXPERIENCE CMS */}
+          {activeTab === 'experience' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaBriefcase className="text-indigo-400" /> Work Experience & Internships CMS
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage professional internships, engineering roles, and achievements</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newExp = {
+                      id: `exp_${Date.now()}`,
+                      role: 'AI / Full-Stack Engineer Intern',
+                      company: 'Tech Solutions Inc.',
+                      duration: '6 Months',
+                      startDate: 'Jan 2026',
+                      endDate: 'Jun 2026',
+                      type: 'Internship',
+                      points: ['Built React web modules', 'Trained Python ML models'],
+                    }
+                    setKb({ ...kb, experience: [newExp, ...kb.experience] })
+                    triggerToast('Added experience card')
+                  }}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                >
+                  <FaPlus /> Add Experience Card
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                {kb.experience.map((exp, idx) => (
+                  <div key={exp.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">Experience Card</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = kb.experience.filter((_, i) => i !== idx)
+                          setKb({ ...kb, experience: updated })
+                          triggerToast('Removed experience card')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
+                      >
+                        <FaTrash /> Remove
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Job / Internship Role</label>
+                        <input
+                          type="text"
+                          value={exp.role}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].role = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Company / Organization</label>
+                        <input
+                          type="text"
+                          value={exp.company || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].company = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Employment Type (e.g. Internship, Contract)</label>
+                        <input
+                          type="text"
+                          value={exp.type || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].type = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Duration / Timeline</label>
+                        <input
+                          type="text"
+                          value={exp.duration || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].duration = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          placeholder="e.g. 6 Months (Jan 2026 – Present)"
                           className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
                         />
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PROJECTS CATALOG CMS */}
+          {activeTab === 'projects' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaProjectDiagram className="text-indigo-400" /> Projects Catalog CMS
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Manage project titles, categories, live URLs, GitHub repositories, and problem-solution breakdown</p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newProj = {
+                      id: `proj_${Date.now()}`,
+                      title: 'New Innovation Project',
+                      category: 'HYBRID',
+                      shortDescription: 'Full-stack software application with AI integration.',
+                      problem: 'Target problem statement solved.',
+                      solution: 'Technical architecture implemented.',
+                      demoUrl: 'https://',
+                      githubUrl: 'https://github.com/agarwalpriyanshu886-ctrl',
+                      status: 'LIVE',
+                    }
+                    setKb({ ...kb, projects: [newProj, ...kb.projects] })
+                    triggerToast('Added new project entry')
+                  }}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                >
+                  <FaPlus /> Add Project Card
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                {kb.projects.map((proj, idx) => (
+                  <div key={proj.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">Project Specifications</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = kb.projects.filter((_, i) => i !== idx)
+                          setKb({ ...kb, projects: updated })
+                          triggerToast('Removed project entry')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
+                      >
+                        <FaTrash /> Remove
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Project Title</label>
+                        <input
+                          type="text"
+                          value={proj.title}
+                          onChange={(e) => {
+                            const updated = [...kb.projects]
+                            updated[idx].title = e.target.value
+                            setKb({ ...kb, projects: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Category & Status Flag</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={proj.category || 'FULL_STACK'}
+                            onChange={(e) => {
+                              const updated = [...kb.projects]
+                              updated[idx].category = e.target.value
+                              setKb({ ...kb, projects: updated })
+                            }}
+                            className="bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 outline-none font-mono"
+                          />
+                          <input
+                            type="text"
+                            value={proj.status || 'LIVE'}
+                            onChange={(e) => {
+                              const updated = [...kb.projects]
+                              updated[idx].status = e.target.value
+                              setKb({ ...kb, projects: updated })
+                            }}
+                            className="bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-emerald-400 outline-none font-mono font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Live Demo / Production URL</label>
+                        <input
+                          type="text"
+                          value={proj.demoUrl || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.projects]
+                            updated[idx].demoUrl = e.target.value
+                            setKb({ ...kb, projects: updated })
+                          }}
+                          placeholder="https://..."
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">GitHub Repository Link</label>
+                        <input
+                          type="text"
+                          value={proj.githubUrl || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.projects]
+                            updated[idx].githubUrl = e.target.value
+                            setKb({ ...kb, projects: updated })
+                          }}
+                          placeholder="https://github.com/agarwalpriyanshu886-ctrl/..."
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1">Short Description</label>
+                      <textarea
+                        rows={2}
+                        value={proj.shortDescription || ''}
+                        onChange={(e) => {
+                          const updated = [...kb.projects]
+                          updated[idx].shortDescription = e.target.value
+                          setKb({ ...kb, projects: updated })
+                        }}
+                        className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-slate-200 outline-none focus:border-indigo-500 leading-relaxed"
+                      />
                     </div>
                   </div>
                 ))}
@@ -1351,7 +1683,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Animated Typewriter Roles */}
                 <div className="space-y-3 pt-2">
                   <label className="block text-xs font-medium text-slate-400">Animated Typewriter Roles ({hero.roles.length})</label>
                   {hero.roles.map((roleStr, rIdx) => (
@@ -1449,242 +1780,6 @@ export default function AdminPage() {
                     className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500 leading-relaxed"
                   />
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'projects' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Projects Catalog CMS</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage project cards, live URLs, GitHub repos, and status flags</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newProj = {
-                      id: `proj_${Date.now()}`,
-                      slug: `new-project-${Date.now()}`,
-                      title: 'New Project Title',
-                      category: 'HYBRID',
-                      shortDescription: 'Short project overview',
-                      fullDescription: 'Detailed project breakdown',
-                      problem: 'Target problem solved',
-                      solution: 'Technical solution implemented',
-                      techStack: ['React', 'Python'],
-                      architecture: 'Full stack architecture',
-                      features: ['Feature 1'],
-                      status: 'IN_DEVELOPMENT',
-                      demoUrl: 'https://',
-                      githubUrl: 'https://github.com/agarwalpriyanshu886-ctrl',
-                    }
-                    setKb({ ...kb, projects: [newProj, ...kb.projects] })
-                  }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <FaPlus /> Add Project
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {kb.projects.map((proj, idx) => (
-                  <div key={proj.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <input
-                        type="text"
-                        value={proj.title}
-                        onChange={(e) => {
-                          const updated = [...kb.projects]
-                          updated[idx].title = e.target.value
-                          setKb({ ...kb, projects: updated })
-                        }}
-                        className="font-bold text-white text-sm bg-[#070913] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
-                      />
-                      <button
-                        onClick={() => setKb({ ...kb, projects: kb.projects.filter((p) => p.id !== proj.id) })}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-
-                    <div>
-                      <input
-                        type="text"
-                        value={proj.shortDescription}
-                        onChange={(e) => {
-                          const updated = [...kb.projects]
-                          updated[idx].shortDescription = e.target.value
-                          setKb({ ...kb, projects: updated })
-                        }}
-                        placeholder="Short description"
-                        className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'certifications' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Certifications Catalog CMS</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage certification credentials, issuing organizations, and URLs</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newCert = {
-                      id: `cert-${Date.now()}`,
-                      title: 'New Certification Title',
-                      organization: 'Organization Name',
-                      date: '2026',
-                      url: 'https://',
-                    }
-                    setKb({ ...kb, certifications: [...certifications, newCert] })
-                  }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <FaPlus /> Add Certification
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {certifications.map((cert, idx) => (
-                  <div key={cert.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <input
-                        type="text"
-                        value={cert.title}
-                        onChange={(e) => {
-                          const updated = [...certifications]
-                          updated[idx].title = e.target.value
-                          setKb({ ...kb, certifications: updated })
-                        }}
-                        className="font-bold text-white text-sm bg-[#070913] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
-                      />
-                      <button
-                        onClick={() => setKb({ ...kb, certifications: certifications.filter((_, i) => i !== idx) })}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'education' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Academic Journey & Education</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage academic qualifications, schools, colleges, and SGPA</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newEdu = {
-                      id: `edu_${Date.now()}`,
-                      degree: 'New Certification / Degree',
-                      field: 'Field of Study',
-                      institution: 'University Name',
-                      location: 'City, State',
-                      duration: '1 Year',
-                      years: '2025 – 2026',
-                      badge: 'Academic Honor',
-                      sgpa: '8.86 SGPA',
-                      description: 'Overview',
-                      highlights: ['Core Subject 1'],
-                    }
-                    setKb({ ...kb, education: [newEdu, ...kb.education] })
-                  }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <FaPlus /> Add Education Entry
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {kb.education.map((edu, idx) => (
-                  <div key={edu.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <input
-                        type="text"
-                        value={edu.degree}
-                        onChange={(e) => {
-                          const updated = [...kb.education]
-                          updated[idx].degree = e.target.value
-                          setKb({ ...kb, education: updated })
-                        }}
-                        className="font-bold text-white text-sm bg-[#070913] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
-                      />
-                      <button
-                        onClick={() => setKb({ ...kb, education: kb.education.filter((e) => e.id !== edu.id) })}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'experience' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Work Experience & Internships</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage professional internships, roles, and responsibilities</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newExp = {
-                      id: `exp_${Date.now()}`,
-                      role: 'New Role',
-                      company: 'Company',
-                      duration: '3 Months',
-                      startDate: '2026',
-                      endDate: '2026',
-                      type: 'Internship',
-                      points: ['Bullet 1'],
-                    }
-                    setKb({ ...kb, experience: [newExp, ...kb.experience] })
-                  }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <FaPlus /> Add Experience
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {kb.experience.map((exp, idx) => (
-                  <div key={exp.id} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <input
-                        type="text"
-                        value={exp.role}
-                        onChange={(e) => {
-                          const updated = [...kb.experience]
-                          updated[idx].role = e.target.value
-                          setKb({ ...kb, experience: updated })
-                        }}
-                        className="font-bold text-white text-sm bg-[#070913] border border-slate-800 rounded-lg px-3 py-1.5 flex-1 outline-none focus:border-indigo-500"
-                      />
-                      <button
-                        onClick={() => setKb({ ...kb, experience: kb.experience.filter((e) => e.id !== exp.id) })}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 text-xs"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-                ))}
               </div>
             </div>
           )}
