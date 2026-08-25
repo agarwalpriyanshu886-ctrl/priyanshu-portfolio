@@ -70,6 +70,23 @@ export interface HeroCMSData {
   codeSnippet: string
 }
 
+export interface StatMetadata {
+  id: string
+  label: string
+  value: number
+  suffix: string
+}
+
+export interface CertificationMetadata {
+  id: string
+  title: string
+  organization: string
+  date: string
+  url?: string
+  media?: string
+  description?: string
+}
+
 export interface PublicKnowledgeBase {
   profile: {
     name: string
@@ -85,6 +102,8 @@ export interface PublicKnowledgeBase {
     instagram: string
   }
   hero: HeroCMSData
+  stats: StatMetadata[]
+  certifications: CertificationMetadata[]
   publicContactConfig: {
     showEmail: boolean
     showPhone: boolean
@@ -140,7 +159,7 @@ export const PUBLIC_KNOWLEDGE: PublicKnowledgeBase = {
     location: 'Jaipur, Rajasthan, India',
     contactEmail: 'agarwalpriyanshu@gmail.com',
     contactPhone: '+91 75684 41942',
-    github: 'https://github.com/agarwalpriyanshu886-ctrl',
+    github: 'https://github.com/agarwalpriyanshu886-ctr',
     linkedin: 'https://www.linkedin.com/in/',
     instagram: 'https://www.instagram.com/priyanshu0.112',
   },
@@ -160,6 +179,32 @@ export const PUBLIC_KNOWLEDGE: PublicKnowledgeBase = {
     secondaryCtaHref: '#contact',
     codeSnippet: 'def build(idea):\n    return ai + web',
   },
+
+  stats: [
+    { id: 'stat-1', label: 'Projects Completed', value: 15, suffix: '+' },
+    { id: 'stat-2', label: 'Technologies Learned', value: 20, suffix: '+' },
+    { id: 'stat-3', label: 'Certifications', value: 8, suffix: '+' },
+    { id: 'stat-4', label: 'Years of Learning', value: 3, suffix: '+' },
+  ],
+
+  certifications: [
+    {
+      id: 'cert-1',
+      title: 'Python for Data Science & AI',
+      organization: 'IBM / Coursera',
+      date: '2024',
+      url: 'https://coursera.org',
+      description: 'Covered Python fundamentals, Pandas, NumPy, and data manipulation libraries for machine learning workflows.',
+    },
+    {
+      id: 'cert-2',
+      title: 'Full-Stack Web Development Mastery',
+      organization: 'NIMS University Technical Society',
+      date: '2024',
+      url: 'https://nimsuniversity.org',
+      description: 'Advanced web engineering with React, Node.js, REST APIs, and relational database schema architectures.',
+    },
+  ],
 
   publicContactConfig: {
     showEmail: true,
@@ -253,7 +298,7 @@ export const PUBLIC_KNOWLEDGE: PublicKnowledgeBase = {
       features: ['Dynamic Menu Management (300+ Dishes)', 'Customer Gallery Uploads & Review System', 'Admin Review & Approval Workflow', 'Responsive Dark Glassmorphic Design'],
       status: 'LIVE',
       demoUrl: 'https://agarwalschopati.vercel.app',
-      githubUrl: 'https://github.com/agarwalpriyanshu886-ctrl',
+      githubUrl: 'https://github.com/agarwalpriyanshu886-ctr',
       developerHighlights: ['React', 'Supabase', 'Auth RBAC', 'PostgreSQL'],
       creativeHighlights: ['Brand Identity', 'UI Design', 'Visual Assets', 'Motion Graphics'],
     },

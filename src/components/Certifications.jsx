@@ -1,10 +1,21 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FaAward, FaExternalLinkAlt, FaCalendarAlt, FaBuilding } from 'react-icons/fa'
-import { certifications } from '../data/certifications'
+import { certifications as defaultCertifications } from '../data/certifications'
+import { getActiveKnowledge } from '../lib/public-ai/cmsKnowledgeStore'
 import SectionHeading from './ui/SectionHeading'
 import Reveal from './ui/Reveal'
 
 export default function Certifications() {
+  const [certList, setCertList] = useState(defaultCertifications)
+
+  useEffect(() => {
+    const active = getActiveKnowledge()
+    if (active && active.certifications && active.certifications.length > 0) {
+      setCertList(active.certifications)
+    }
+  }, [])
+
   return (
     <section id="certifications" className="relative py-24 lg:py-28 overflow-hidden">
       <div className="absolute -top-20 right-1/4 w-[28rem] h-[28rem] rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
@@ -17,16 +28,16 @@ export default function Certifications() {
           description="Certifications that back up my skills."
         />
 
-        {certifications.length === 0 ? (
+        {certList.length === 0 ? (
           <Reveal className="text-center">
             <p className="text-slate-500 glass rounded-2xl py-14">
-              Certifications will appear here. Add them in <span className="font-mono text-cyan-400">src/data/certifications.js</span>.
+              No certifications currently listed. Add them in the Admin Panel.
             </p>
           </Reveal>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {certifications.map((cert, i) => (
-              <Reveal key={cert.id} delay={i * 0.08}>
+            {certList.map((cert, i) => (
+              <Reveal key={cert.id || i} delay={i * 0.08}>
                 <motion.div
                   whileHover={{ y: -6 }}
                   className="glass rounded-3xl overflow-hidden card-glow hover:border-cyan-400/30 transition-colors duration-300 h-full flex flex-col"
@@ -61,16 +72,18 @@ export default function Certifications() {
                     {cert.description && (
                       <p className="mt-3 text-sm text-slate-500 leading-relaxed">{cert.description}</p>
                     )}
-                    <div className="mt-auto pt-5">
-                      <a
-                        href={cert.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full px-5 py-2.5 hover:shadow-[0_6px_30px_-6px_rgb(34_211_238/0.5)] hover:-translate-y-0.5 transition-all duration-300"
-                      >
-                        View Certificate <FaExternalLinkAlt className="text-xs" />
-                      </a>
-                    </div>
+                    {cert.url && (
+                      <div className="mt-auto pt-5">
+                        <a
+                          href={cert.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-full px-5 py-2.5 hover:shadow-[0_6px_30px_-6px_rgb(34_211_238/0.5)] hover:-translate-y-0.5 transition-all duration-300"
+                        >
+                          View Certificate <FaExternalLinkAlt className="text-xs" />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               </Reveal>

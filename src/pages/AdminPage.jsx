@@ -22,6 +22,8 @@ import {
   FaExternalLinkAlt,
   FaQuestionCircle,
   FaRocket,
+  FaChartBar,
+  FaAward,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -36,7 +38,7 @@ export default function AdminPage() {
 
   // CMS State
   const [kb, setKb] = useState(getActiveKnowledge())
-  const [activeTab, setActiveTab] = useState('hero')
+  const [activeTab, setActiveTab] = useState('stats')
   const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Input states for adding new items
@@ -44,8 +46,6 @@ export default function AdminPage() {
   const [newSkillNames, setNewSkillNames] = useState({})
   const [newSkillLevels, setNewSkillLevels] = useState({})
   const [newCatLabel, setNewCatLabel] = useState('')
-  const [newTechBadge, setNewTechBadge] = useState('')
-  const [newCreativeBadge, setNewCreativeBadge] = useState('')
   const [newFaqQ, setNewFaqQ] = useState('')
   const [newFaqA, setNewFaqA] = useState('')
 
@@ -85,6 +85,24 @@ export default function AdminPage() {
     secondaryCtaHref: '#contact',
     codeSnippet: 'def build(idea):\n    return ai + web',
   }
+
+  const stats = kb.stats || [
+    { id: 'stat-1', label: 'Projects Completed', value: 15, suffix: '+' },
+    { id: 'stat-2', label: 'Technologies Learned', value: 20, suffix: '+' },
+    { id: 'stat-3', label: 'Certifications', value: 8, suffix: '+' },
+    { id: 'stat-4', label: 'Years of Learning', value: 3, suffix: '+' },
+  ]
+
+  const certifications = kb.certifications || [
+    {
+      id: 'cert-1',
+      title: 'Python for Data Science & AI',
+      organization: 'IBM / Coursera',
+      date: '2024',
+      url: 'https://coursera.org',
+      description: 'Covered Python fundamentals, Pandas, NumPy, and data manipulation libraries for machine learning workflows.',
+    },
+  ]
 
   // 1. ADMIN LOGIN VIEW
   if (!isAuthenticated) {
@@ -228,10 +246,12 @@ export default function AdminPage() {
         {/* Left Sidebar Navigation */}
         <aside className="w-full md:w-64 border-r border-white/10 bg-slate-900/60 p-4 space-y-1.5 shrink-0">
           {[
+            { id: 'stats', label: 'Stats Counter Cards', badge: stats.length, icon: FaChartBar },
             { id: 'hero', label: 'Hero Section CMS', badge: 'MAIN', icon: FaRocket },
             { id: 'profile', label: 'Profile & Contact', badge: null, icon: FaUser },
             { id: 'skills', label: 'Skills & Proficiency Bars', badge: kb.skillCategories?.length || 0, icon: FaSlidersH },
             { id: 'projects', label: 'Projects Catalog', badge: kb.projects?.length || 0, icon: FaProjectDiagram },
+            { id: 'certifications', label: 'Certifications Catalog', badge: certifications.length, icon: FaAward },
             { id: 'education', label: 'Education & SGPA', badge: kb.education?.length || 0, icon: FaGraduationCap },
             { id: 'experience', label: 'Work Experience', badge: kb.experience?.length || 0, icon: FaBriefcase },
             { id: 'pittu', label: 'Pittu AI Engine', badge: kb.faqs?.length || 0, icon: FaRobot },
@@ -265,6 +285,124 @@ export default function AdminPage() {
 
         {/* Main Editor Panel */}
         <main className="flex-1 p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(100vh-73px)]">
+          {/* TAB: STATS COUNTER CARDS CMS */}
+          {activeTab === 'stats' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
+                    <FaChartBar className="text-cyan-400" /> Stats Counter Cards CMS
+                  </h2>
+                  <p className="text-xs font-mono text-slate-400 mt-1">
+                    Live edit numeric counter values, labels, and plus/star suffixes (e.g. 15+ Projects Completed, 20+ Technologies Learned)
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const newStat = {
+                        id: `stat-${Date.now()}`,
+                        label: 'New Metric Title',
+                        value: 10,
+                        suffix: '+',
+                      }
+                      setKb({ ...kb, stats: [...stats, newStat] })
+                    }}
+                    className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
+                  >
+                    <FaPlus /> Add New Stat Card
+                  </button>
+                  <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-cyan-400 px-4 py-2.5 rounded-xl hover:bg-cyan-300">
+                    <FaSave className="inline mr-1.5" /> Save Stats Edits
+                  </button>
+                </div>
+              </div>
+
+              {/* Live Preview Cards Grid */}
+              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 px-3 py-1 rounded-full">
+                  Live Counter Cards Section Preview
+                </span>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                  {stats.map((stat, idx) => (
+                    <div key={idx} className="bg-slate-950/80 border border-white/10 rounded-2xl p-5 text-center">
+                      <p className="font-display text-3xl font-bold text-cyan-300">
+                        {stat.value}{stat.suffix}
+                      </p>
+                      <p className="mt-2 text-xs text-slate-400 font-medium">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Editable Stat Cards Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {stats.map((stat, idx) => (
+                  <div key={stat.id || idx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-5 space-y-3 shadow-md relative">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-400/10 px-2.5 py-1 rounded-lg">
+                        Stat Card #{idx + 1}
+                      </span>
+                      <button
+                        onClick={() => {
+                          const updatedStats = stats.filter((_, i) => i !== idx)
+                          setKb({ ...kb, stats: updatedStats })
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs"
+                      >
+                        <FaTrash /> Delete
+                      </button>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-slate-400 mb-1">Metric Label</label>
+                      <input
+                        type="text"
+                        value={stat.label}
+                        onChange={(e) => {
+                          const updatedStats = [...stats]
+                          updatedStats[idx].label = e.target.value
+                          setKb({ ...kb, stats: updatedStats })
+                        }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400 font-bold"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">Numeric Value</label>
+                        <input
+                          type="number"
+                          value={stat.value}
+                          onChange={(e) => {
+                            const updatedStats = [...stats]
+                            updatedStats[idx].value = Number(e.target.value)
+                            setKb({ ...kb, stats: updatedStats })
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400 font-bold"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">Suffix (e.g. +, %)</label>
+                        <input
+                          type="text"
+                          value={stat.suffix}
+                          onChange={(e) => {
+                            const updatedStats = [...stats]
+                            updatedStats[idx].suffix = e.target.value
+                            setKb({ ...kb, stats: updatedStats })
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400 font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* TAB 0: HERO SECTION CMS */}
           {activeTab === 'hero' && (
             <div className="space-y-6 max-w-5xl">
@@ -418,71 +556,6 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
-
-              {/* General Hero Form Controls */}
-              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Top Greeting Pill Text</label>
-                  <input
-                    type="text"
-                    value={hero.greetingPill}
-                    onChange={(e) => setKb({ ...kb, hero: { ...hero, greetingPill: e.target.value } })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">First Name</label>
-                    <input
-                      type="text"
-                      value={hero.firstName}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, firstName: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Last Name (Gradient Highlighted)</label>
-                    <input
-                      type="text"
-                      value={hero.lastName}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, lastName: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-bold"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Hero Short Description</label>
-                  <textarea
-                    rows={3}
-                    value={hero.shortDescription}
-                    onChange={(e) => setKb({ ...kb, hero: { ...hero, shortDescription: e.target.value } })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-cyan-400 leading-relaxed"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/10">
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Primary CTA Button Label</label>
-                    <input
-                      type="text"
-                      value={hero.primaryCtaLabel}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, primaryCtaLabel: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Secondary CTA Button Label</label>
-                    <input
-                      type="text"
-                      value={hero.secondaryCtaLabel}
-                      onChange={(e) => setKb({ ...kb, hero: { ...hero, secondaryCtaLabel: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -522,18 +595,6 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-slate-400 mb-1">Roles List (comma separated)</label>
-                  <input
-                    type="text"
-                    value={kb.profile.roles.join(', ')}
-                    onChange={(e) =>
-                      setKb({ ...kb, profile: { ...kb.profile, roles: e.target.value.split(',').map((r) => r.trim()) } })
-                    }
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-mono"
-                  />
-                </div>
-
-                <div>
                   <label className="block text-xs font-mono text-slate-400 mb-1">Authoritative Public Bio</label>
                   <textarea
                     rows={4}
@@ -542,45 +603,106 @@ export default function AdminPage() {
                     className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white outline-none focus:border-cyan-400 leading-relaxed"
                   />
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Contact Email</label>
-                    <input
-                      type="email"
-                      value={kb.profile.contactEmail}
-                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, contactEmail: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Location</label>
-                    <input
-                      type="text"
-                      value={kb.profile.location}
-                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, location: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">GitHub Profile URL</label>
-                    <input
-                      type="text"
-                      value={kb.profile.github}
-                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, github: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-slate-400 mb-1">Instagram Profile URL</label>
-                    <input
-                      type="text"
-                      value={kb.profile.instagram}
-                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, instagram: e.target.value } })}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-pink-300 font-mono outline-none focus:border-cyan-400"
-                    />
-                  </div>
+          {/* TAB: CERTIFICATIONS CATALOG CMS */}
+          {activeTab === 'certifications' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
+                    <FaAward className="text-cyan-400" /> Certifications Catalog CMS
+                  </h2>
+                  <p className="text-xs font-mono text-slate-400 mt-1">Manage certification credentials, issuing organizations, dates, and verification links</p>
                 </div>
+                <button
+                  onClick={() => {
+                    const newCert = {
+                      id: `cert-${Date.now()}`,
+                      title: 'New Certification Title',
+                      organization: 'Organization Name',
+                      date: '2026',
+                      url: 'https://',
+                      description: 'Overview of certification achievements',
+                    }
+                    setKb({ ...kb, certifications: [...certifications, newCert] })
+                  }}
+                  className="text-xs font-mono text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 hover:opacity-90 shadow-md"
+                >
+                  <FaPlus /> Add New Certification
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {certifications.map((cert, idx) => (
+                  <div key={cert.id || idx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg relative">
+                    <div className="flex items-center justify-between gap-4">
+                      <input
+                        type="text"
+                        value={cert.title}
+                        onChange={(e) => {
+                          const updatedCerts = [...certifications]
+                          updatedCerts[idx].title = e.target.value
+                          setKb({ ...kb, certifications: updatedCerts })
+                        }}
+                        className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-2 flex-1 outline-none focus:border-cyan-400"
+                      />
+                      <button
+                        onClick={() => {
+                          const updatedCerts = certifications.filter((_, i) => i !== idx)
+                          setKb({ ...kb, certifications: updatedCerts })
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs"
+                      >
+                        <FaTrash /> Delete
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">Issuing Organization</label>
+                        <input
+                          type="text"
+                          value={cert.organization}
+                          onChange={(e) => {
+                            const updatedCerts = [...certifications]
+                            updatedCerts[idx].organization = e.target.value
+                            setKb({ ...kb, certifications: updatedCerts })
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">Issue Date / Year</label>
+                        <input
+                          type="text"
+                          value={cert.date}
+                          onChange={(e) => {
+                            const updatedCerts = [...certifications]
+                            updatedCerts[idx].date = e.target.value
+                            setKb({ ...kb, certifications: updatedCerts })
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-mono text-slate-400 mb-1">Verification URL</label>
+                        <input
+                          type="text"
+                          value={cert.url || ''}
+                          onChange={(e) => {
+                            const updatedCerts = [...certifications]
+                            updatedCerts[idx].url = e.target.value
+                            setKb({ ...kb, certifications: updatedCerts })
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

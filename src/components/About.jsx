@@ -34,15 +34,22 @@ export default function About() {
     passions: defaultSite.about.passions,
   })
 
+  const [statsList, setStatsList] = useState(defaultSite.stats)
+
   useEffect(() => {
     const active = getActiveKnowledge()
-    if (active && active.profile) {
-      setProfile({
-        name: active.profile.name,
-        title: active.profile.title,
-        bio: active.profile.bio,
-        passions: active.profile.passions || defaultSite.about.passions,
-      })
+    if (active) {
+      if (active.profile) {
+        setProfile({
+          name: active.profile.name,
+          title: active.profile.title,
+          bio: active.profile.bio,
+          passions: active.profile.passions || defaultSite.about.passions,
+        })
+      }
+      if (active.stats && active.stats.length > 0) {
+        setStatsList(active.stats)
+      }
     }
   }, [])
 
@@ -102,17 +109,18 @@ export default function About() {
           </Reveal>
         </div>
 
+        {/* Dynamic Stats Counter Cards Section */}
         <Reveal delay={0.15} className="mt-10">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {defaultSite.stats.map((stat) => (
+            {statsList.map((stat, idx) => (
               <div
-                key={stat.label}
+                key={stat.id || idx}
                 className="glass rounded-2xl p-6 text-center hover:border-indigo-400/40 hover:-translate-y-1 transition-all duration-300"
               >
                 <p className="font-display text-3xl sm:text-4xl font-bold text-gradient">
-                  <Counter value={stat.value} suffix={stat.suffix} />
+                  <Counter value={Number(stat.value) || 0} suffix={stat.suffix || '+'} />
                 </p>
-                <p className="mt-2 text-xs sm:text-sm text-slate-400">{stat.label}</p>
+                <p className="mt-2 text-xs sm:text-sm text-slate-400 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
