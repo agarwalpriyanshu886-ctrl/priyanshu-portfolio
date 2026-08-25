@@ -36,14 +36,16 @@ import {
   FaChevronRight,
   FaTable,
   FaThLarge,
-  FaBell,
   FaGlobe,
   FaCircle,
+  FaGithub,
+  FaSync,
+  FaStar,
+  FaCodeBranch,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
 import { isSupabaseConfigured } from '../lib/supabase'
-import Typewriter from '../components/ui/Typewriter'
 import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
 
 const COLOR_ACCENTS = [
@@ -68,6 +70,10 @@ export default function AdminPage() {
   const [viewMode, setViewMode] = useState('grid') // 'grid' | 'table'
   const [toastMessage, setToastMessage] = useState('')
 
+  // GitHub Test Connection State
+  const [gitTestStatus, setGitTestStatus] = useState(null)
+  const [gitTesting, setGitTesting] = useState(false)
+
   // Quick Command Search (⌘K / Ctrl+K)
   const [commandOpen, setCommandOpen] = useState(false)
   const [commandQuery, setCommandQuery] = useState('')
@@ -87,8 +93,6 @@ export default function AdminPage() {
   const [newSkillNames, setNewSkillNames] = useState({})
   const [newSkillLevels, setNewSkillLevels] = useState({})
   const [newCatLabel, setNewCatLabel] = useState('')
-  const [newFaqQ, setNewFaqQ] = useState('')
-  const [newFaqA, setNewFaqA] = useState('')
 
   useEffect(() => {
     setKb(getActiveKnowledge())
@@ -163,6 +167,31 @@ export default function AdminPage() {
     triggerToast('Technology logo updated')
   }
 
+  const handleTestGitHubConnection = async () => {
+    const username = (kb.profile?.github || '').split('github.com/').pop().replace(/\/$/, '') || 'agarwalpriyanshu886-ctrl'
+    setGitTesting(true)
+    setGitTestStatus(null)
+
+    try {
+      const res = await fetch(`https://api.github.com/users/${username}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}: User not found`)
+      const data = await res.json()
+      setGitTestStatus({
+        success: true,
+        data,
+        msg: `Successfully connected to @${data.login}! Public Repos: ${data.public_repos}, Followers: ${data.followers}`,
+      })
+      triggerToast(`GitHub Connection verified for @${data.login}!`)
+    } catch (err) {
+      setGitTestStatus({
+        success: false,
+        msg: err.message || 'Failed to connect to GitHub API',
+      })
+    } finally {
+      setGitTesting(false)
+    }
+  }
+
   const hero = kb.hero || {
     greetingPill: '• Hi, I\'m Priyanshu Agarwal — Engineering student @ NIMS University Jaipur',
     firstName: 'Priyanshu',
@@ -219,6 +248,7 @@ export default function AdminPage() {
   const allNavItems = [
     { id: 'dashboard', label: 'Console Dashboard', cat: 'Overview' },
     { id: 'layout', label: 'Section Spacing & Gaps', cat: 'Overview' },
+    { id: 'github', label: 'GitHub & Open Source', cat: 'Content' },
     { id: 'skills', label: 'Skills & Tech Bars', cat: 'Content' },
     { id: 'stats', label: 'Stats Counter Cards', cat: 'Content' },
     { id: 'hero', label: 'Hero & Typewriter', cat: 'Content' },
@@ -348,7 +378,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Type a command or jump to section (e.g. Skills, Layout, Projects)..."
+                  placeholder="Type a command or jump to section (e.g. GitHub, Skills, Layout, Projects)..."
                   value={commandQuery}
                   onChange={(e) => setCommandQuery(e.target.value)}
                   className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
@@ -540,6 +570,7 @@ export default function AdminPage() {
             {
               group: 'Content Management',
               items: [
+                { id: 'github', label: 'GitHub & Open Source', icon: FaGithub, badge: 'GIT' },
                 { id: 'skills', label: 'Skills & Tech Bars', icon: FaSlidersH, badge: kb.skillCategories?.length || 0 },
                 { id: 'stats', label: 'Stats Counter Cards', icon: FaChartBar, badge: stats.length },
                 { id: 'hero', label: 'Hero & Typewriter', icon: FaRocket, badge: 'MAIN' },
@@ -641,6 +672,17 @@ export default function AdminPage() {
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Quick Section Management</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
+                    onClick={() => setActiveTab('github')}
+                    className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
+                  >
+                    <div>
+                      <p className="text-xs font-semibold text-white">GitHub API Connection</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Manage live REST integration</p>
+                    </div>
+                    <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
+                  </button>
+
+                  <button
                     onClick={() => setActiveTab('skills')}
                     className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
                   >
@@ -661,18 +703,103 @@ export default function AdminPage() {
                     </div>
                     <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
                   </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: GITHUB & OPEN SOURCE CMS */}
+          {activeTab === 'github' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaGithub className="text-indigo-400" /> GitHub & Open Source CMS Connection
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Configure live REST API synchronization for your GitHub profile and activity feed</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSaveAll}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                >
+                  <FaSave /> Save GitHub Settings
+                </button>
+              </div>
+
+              {/* GitHub Credentials Panel */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4">
+                <h3 className="font-bold text-white text-xs uppercase tracking-wider text-indigo-400">Live API Credentials</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">GitHub Username</label>
+                    <input
+                      type="text"
+                      value={(kb.profile?.github || '').split('github.com/').pop().replace(/\/$/, '') || 'agarwalpriyanshu886-ctrl'}
+                      onChange={(e) => {
+                        const newUsername = e.target.value.trim()
+                        setKb({
+                          ...kb,
+                          profile: {
+                            ...kb.profile,
+                            github: `https://github.com/${newUsername}`,
+                          },
+                        })
+                      }}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">GitHub Public Profile URL</label>
+                    <input
+                      type="text"
+                      value={kb.profile?.github || 'https://github.com/agarwalpriyanshu886-ctrl'}
+                      onChange={(e) =>
+                        setKb({
+                          ...kb,
+                          profile: {
+                            ...kb.profile,
+                            github: e.target.value.trim(),
+                          },
+                        })
+                      }
+                      className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Connection Test Action */}
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#070913] border border-slate-800 p-3.5 rounded-lg">
+                  <div>
+                    <p className="text-xs font-semibold text-white flex items-center gap-2">
+                      <FaSync className={`text-indigo-400 ${gitTesting ? 'animate-spin' : ''}`} /> GitHub REST API Connectivity Status
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Test connection to verify public repositories and real commit activity feed</p>
+                  </div>
 
                   <button
-                    onClick={() => setActiveTab('stats')}
-                    className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
+                    type="button"
+                    onClick={handleTestGitHubConnection}
+                    disabled={gitTesting}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 shrink-0"
                   >
-                    <div>
-                      <p className="text-xs font-semibold text-white">Stats Counters</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Edit achievement numbers</p>
-                    </div>
-                    <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
+                    {gitTesting ? 'Testing REST API...' : 'Test Connection'}
                   </button>
                 </div>
+
+                {gitTestStatus && (
+                  <div
+                    className={`p-3 rounded-lg text-xs font-mono border ${
+                      gitTestStatus.success
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                        : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                    }`}
+                  >
+                    {gitTestStatus.msg}
+                  </div>
+                )}
               </div>
             </div>
           )}
