@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   FaLock,
   FaEnvelope,
@@ -29,11 +29,25 @@ import {
   FaArrowUp,
   FaArrowDown,
   FaLayerGroup,
+  FaSearch,
+  FaTimes,
+  FaPalette,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import Typewriter from '../components/ui/Typewriter'
+import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
+
+const COLOR_ACCENTS = [
+  { name: 'Indigo', code: '#6366f1' },
+  { name: 'Cyan', code: '#22d3ee' },
+  { name: 'Emerald', code: '#34d399' },
+  { name: 'Purple', code: '#a78bfa' },
+  { name: 'Amber', code: '#fbbf24' },
+  { name: 'Rose', code: '#f43f5e' },
+  { name: 'Pink', code: '#ec4899' },
+]
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -45,6 +59,16 @@ export default function AdminPage() {
   const [kb, setKb] = useState(getActiveKnowledge())
   const [activeTab, setActiveTab] = useState('skills')
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Icon / Logo Picker Modal State
+  const [pickerModal, setPickerModal] = useState({
+    open: false,
+    type: 'skill', // 'skill' | 'category'
+    catIdx: 0,
+    skillIdx: 0,
+  })
+  const [iconSearch, setIconSearch] = useState('')
+  const [customLogoUrl, setCustomLogoUrl] = useState('')
 
   // Input states for adding new items
   const [newRoleString, setNewRoleString] = useState('')
@@ -82,8 +106,8 @@ export default function AdminPage() {
       icon: 'code',
       accent: '#a78bfa',
       skills: [
-        { name: 'Sample Technology 1', level: 85, icon: 'code' },
-        { name: 'Sample Technology 2', level: 75, icon: 'code' },
+        { name: 'Sample Technology 1', level: 85, icon: 'SiPython' },
+        { name: 'Sample Technology 2', level: 75, icon: 'SiReact' },
       ],
     }
     const updatedCategories = [...(kb.skillCategories || []), newCat]
@@ -93,6 +117,24 @@ export default function AdminPage() {
     setNewCatLabel('')
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 2000)
+  }
+
+  const handleSelectIcon = (iconId) => {
+    const { type, catIdx, skillIdx } = pickerModal
+    const updatedCats = [...(kb.skillCategories || [])]
+
+    if (type === 'category') {
+      updatedCats[catIdx].icon = iconId
+    } else if (type === 'skill' && skillIdx !== undefined) {
+      updatedCats[catIdx].skills[skillIdx].icon = iconId
+    }
+
+    const updatedKb = { ...kb, skillCategories: updatedCats }
+    setKb(updatedKb)
+    saveActiveKnowledge(updatedKb)
+    setPickerModal({ ...pickerModal, open: false })
+    setIconSearch('')
+    setCustomLogoUrl('')
   }
 
   const hero = kb.hero || {
@@ -226,9 +268,98 @@ export default function AdminPage() {
     )
   }
 
+  const filteredIcons = (pickerModal.type === 'category' ? AVAILABLE_CATEGORY_ICONS : AVAILABLE_SKILL_ICONS).filter((item) =>
+    item.name.toLowerCase().includes(iconSearch.toLowerCase()) || item.id.toLowerCase().includes(iconSearch.toLowerCase())
+  )
+
   // 2. ADMIN CMS DASHBOARD VIEW
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col font-sans relative">
+      {/* Visual Icon Grid Gallery Modal */}
+      <AnimatePresence>
+        {pickerModal.open && (
+          <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 w-full max-w-2xl max-h-[85vh] flex flex-col shadow-[0_0_60px_rgba(34,211,238,0.2)]"
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                  <h3 className="font-bold font-display text-white text-lg flex items-center gap-2">
+                    <FaPalette className="text-cyan-400" /> Select {pickerModal.type === 'category' ? 'Category Icon' : 'Technology Skill Logo'}
+                  </h3>
+                  <p className="text-xs font-mono text-slate-400 mt-0.5">Click any logo below to set it instantly</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPickerModal({ ...pickerModal, open: false })}
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Search & Custom Image URL */}
+              <div className="space-y-3 py-4">
+                <div className="relative">
+                  <FaSearch className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
+                  <input
+                    type="text"
+                    placeholder="Search icons by name (e.g. Python, React, Code, Database)..."
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    className="w-full bg-slate-950 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white outline-none focus:border-cyan-400"
+                  />
+                </div>
+
+                {pickerModal.type === 'skill' && (
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="text"
+                      placeholder="Or paste custom logo Image URL (https://...)..."
+                      value={customLogoUrl}
+                      onChange={(e) => setCustomLogoUrl(e.target.value)}
+                      className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-cyan-300 outline-none focus:border-cyan-400 font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customLogoUrl.trim()) {
+                          handleSelectIcon(customLogoUrl.trim())
+                        }
+                      }}
+                      className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs"
+                    >
+                      Use Image URL
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Icon Grid Gallery */}
+              <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-3 sm:grid-cols-5 gap-3">
+                {filteredIcons.map((item) => {
+                  const IconComp = item.icon
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => handleSelectIcon(item.id)}
+                      className="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-950/80 border border-white/10 hover:border-cyan-400/60 hover:bg-cyan-400/10 transition-all duration-200 group text-center"
+                    >
+                      <IconComp className="text-2xl text-cyan-300 group-hover:scale-125 transition-transform duration-200 mb-1.5" />
+                      <span className="text-[11px] font-mono text-slate-300 group-hover:text-white line-clamp-1">{item.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Top Header Bar */}
       <header className="border-b border-white/10 bg-slate-900/90 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
@@ -332,7 +463,7 @@ export default function AdminPage() {
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div>
                   <h2 className="text-xl font-bold font-display text-white">Categorized Skill Bars & Proficiency CMS</h2>
-                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit skill names, categories, and proficiency percentage sliders (0–100%)</p>
+                  <p className="text-xs font-mono text-slate-400 mt-1">Live edit skill names, logos/icons, categories, and proficiency percentage sliders (0–100%)</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -356,9 +487,39 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {(kb.skillCategories || []).map((cat, catIdx) => (
                   <div key={cat.id || catIdx} className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
-                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                      <div className="flex items-center gap-3 flex-1">
-                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.accent || '#6366f1' }} />
+                    {/* Category Card Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-3">
+                      <div className="flex items-center gap-2.5 flex-1">
+                        {/* Category Icon Selector Button */}
+                        <button
+                          type="button"
+                          onClick={() => setPickerModal({ open: true, type: 'category', catIdx, skillIdx: 0 })}
+                          title="Click to change category logo/icon"
+                          className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 grid place-items-center text-cyan-300 hover:scale-110 transition-transform cursor-pointer shrink-0 shadow-md"
+                        >
+                          <CategoryIcon name={cat.icon || 'code'} className="text-base" />
+                        </button>
+
+                        {/* Category Color Accent Palette Button */}
+                        <div className="flex items-center gap-1">
+                          {COLOR_ACCENTS.map((col) => (
+                            <button
+                              key={col.code}
+                              type="button"
+                              onClick={() => {
+                                const updatedCats = [...(kb.skillCategories || [])]
+                                updatedCats[catIdx].accent = col.code
+                                setKb({ ...kb, skillCategories: updatedCats })
+                              }}
+                              className={`w-3.5 h-3.5 rounded-full transition-transform ${
+                                cat.accent === col.code ? 'scale-125 ring-2 ring-white' : 'opacity-60 hover:opacity-100'
+                              }`}
+                              style={{ backgroundColor: col.code }}
+                              title={`Set ${col.name} Accent`}
+                            />
+                          ))}
+                        </div>
+
                         <input
                           type="text"
                           value={cat.label}
@@ -370,6 +531,7 @@ export default function AdminPage() {
                           className="font-bold text-white text-base bg-white/5 border border-white/10 rounded-xl px-3 py-1 outline-none focus:border-cyan-400 flex-1"
                         />
                       </div>
+
                       <button
                         type="button"
                         onClick={() => {
@@ -384,10 +546,21 @@ export default function AdminPage() {
                       </button>
                     </div>
 
+                    {/* Skill List in Category */}
                     <div className="space-y-4 pt-1">
                       {cat.skills.map((skill, skillIdx) => (
                         <div key={skillIdx} className="bg-slate-950/60 border border-white/10 rounded-xl p-3.5 space-y-2">
                           <div className="flex items-center justify-between gap-3">
+                            {/* Individual Skill Logo Button */}
+                            <button
+                              type="button"
+                              onClick={() => setPickerModal({ open: true, type: 'skill', catIdx, skillIdx })}
+                              title="Click to select tech logo for this skill"
+                              className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 grid place-items-center text-cyan-300 hover:scale-110 hover:border-cyan-400 transition-all cursor-pointer shrink-0"
+                            >
+                              <SkillIcon name={skill.icon || 'SiPython'} className="text-sm" />
+                            </button>
+
                             <input
                               type="text"
                               value={skill.name}
@@ -396,8 +569,9 @@ export default function AdminPage() {
                                 updatedCats[catIdx].skills[skillIdx].name = e.target.value
                                 setKb({ ...kb, skillCategories: updatedCats })
                               }}
-                              className="text-xs font-bold text-white bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 outline-none focus:border-cyan-400 flex-1"
+                              className="text-xs font-bold text-white bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 outline-none focus:border-cyan-400 flex-1"
                             />
+
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-mono font-bold text-cyan-300 w-10 text-right">{skill.level}%</span>
                               <button
@@ -413,6 +587,7 @@ export default function AdminPage() {
                               </button>
                             </div>
                           </div>
+
                           <div className="flex items-center gap-3">
                             <input
                               type="range"
@@ -427,6 +602,7 @@ export default function AdminPage() {
                               className="flex-1 accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
                             />
                           </div>
+
                           <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-150"
@@ -453,7 +629,7 @@ export default function AdminPage() {
                             const level = Number(newSkillLevels[catIdx] || 75)
                             if (name) {
                               const updatedCats = [...(kb.skillCategories || [])]
-                              updatedCats[catIdx].skills.push({ name, level, icon: 'code' })
+                              updatedCats[catIdx].skills.push({ name, level, icon: 'SiPython' })
                               const updatedKb = { ...kb, skillCategories: updatedCats }
                               setKb(updatedKb)
                               saveActiveKnowledge(updatedKb)
@@ -479,7 +655,7 @@ export default function AdminPage() {
                           const level = Number(newSkillLevels[catIdx] || 75)
                           if (name) {
                             const updatedCats = [...(kb.skillCategories || [])]
-                            updatedCats[catIdx].skills.push({ name, level, icon: 'code' })
+                            updatedCats[catIdx].skills.push({ name, level, icon: 'SiPython' })
                             const updatedKb = { ...kb, skillCategories: updatedCats }
                             setKb(updatedKb)
                             saveActiveKnowledge(updatedKb)
