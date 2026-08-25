@@ -46,6 +46,12 @@ import {
   FaCalendarAlt,
   FaBuilding,
   FaPaperPlane,
+  FaMapMarkerAlt,
+  FaListUl,
+  FaTag,
+  FaPhoneAlt,
+  FaInstagram,
+  FaLinkedin,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -101,8 +107,11 @@ export default function AdminPage() {
   const [newSkillNames, setNewSkillNames] = useState({})
   const [newSkillLevels, setNewSkillLevels] = useState({})
   const [newCatLabel, setNewCatLabel] = useState('')
-  const [newFaqQ, setNewFaqQ] = useState('')
-  const [newFaqA, setNewFaqA] = useState('')
+
+  // Bullet point temporary state for arrays
+  const [newExpPoint, setNewExpPoint] = useState({})
+  const [newEduHighlight, setNewEduHighlight] = useState({})
+  const [newProjTech, setNewProjTech] = useState({})
 
   useEffect(() => {
     setKb(getActiveKnowledge())
@@ -412,7 +421,7 @@ export default function AdminPage() {
                 <input
                   type="text"
                   autoFocus
-                  placeholder="Type a command or jump to section (e.g. GitHub, Certifications, Skills)..."
+                  placeholder="Type a command or jump to section (e.g. Work Experience, Education, Hero)..."
                   value={commandQuery}
                   onChange={(e) => setCommandQuery(e.target.value)}
                   className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
@@ -706,12 +715,12 @@ export default function AdminPage() {
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Quick Section Management</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
-                    onClick={() => setActiveTab('certifications')}
+                    onClick={() => setActiveTab('experience')}
                     className="p-3.5 rounded-xl bg-[#070913] border border-slate-800 text-left hover:border-indigo-500 transition-all flex items-center justify-between group"
                   >
                     <div>
-                      <p className="text-xs font-semibold text-white">Certifications Catalog</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Edit certs & credentials</p>
+                      <p className="text-xs font-semibold text-white">Work Experience</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Edit roles & bullet points</p>
                     </div>
                     <FaChevronRight className="text-slate-500 group-hover:text-indigo-400 text-xs" />
                   </button>
@@ -742,7 +751,265 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 2: SECTION SPACING & GAPS CMS */}
+          {/* TAB 8: WORK EXPERIENCE & INTERNSHIPS CMS (FULL DETAILED WITH BULLET POINTS) */}
+          {activeTab === 'experience' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaBriefcase className="text-indigo-400" /> Work Experience & Internships CMS
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                    Manage professional roles, internships, locations, duration timelines, and detailed accomplishment bullet points
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const newExp = {
+                        id: `exp_${Date.now()}`,
+                        role: 'Graphic Design Intern',
+                        company: 'JALDIRIDE CONNECT PVT LTD',
+                        location: 'Jaipur, Rajasthan (Remote / On-site)',
+                        duration: '3 Months',
+                        startDate: 'Nov 2025',
+                        endDate: 'Jan 2026',
+                        type: 'Internship',
+                        points: [
+                          'Designed promotional social media graphics, banners, and digital marketing materials for Jaldiride Connect.',
+                          'Created vector icons, UI layout mockups, and visual assets following strict brand design guidelines.',
+                          'Collaborated closely with marketing and product development teams to produce high-converting creative graphics.',
+                        ],
+                      }
+                      setKb({ ...kb, experience: [newExp, ...kb.experience] })
+                      triggerToast('Added detailed experience card')
+                    }}
+                    className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
+                  >
+                    <FaPlus /> Add Experience Card
+                  </button>
+                  <button
+                    onClick={handleSaveAll}
+                    className="text-xs font-semibold text-slate-900 bg-emerald-400 hover:bg-emerald-300 px-3.5 py-2 rounded-lg shadow-sm"
+                  >
+                    <FaSave className="inline mr-1.5" /> Save Edits
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                {kb.experience.map((exp, idx) => (
+                  <div key={exp.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">Experience & Role Details</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const updated = kb.experience.filter((_, i) => i !== idx)
+                          setKb({ ...kb, experience: updated })
+                          triggerToast('Removed experience card')
+                        }}
+                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
+                      >
+                        <FaTrash /> Remove Card
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Job / Internship Role Title</label>
+                        <input
+                          type="text"
+                          value={exp.role}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].role = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Company / Organization Name</label>
+                        <div className="relative">
+                          <FaBuilding className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={exp.company || ''}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].company = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Employment Type (e.g. Internship, Contract, Full-Time)</label>
+                        <input
+                          type="text"
+                          value={exp.type || ''}
+                          onChange={(e) => {
+                            const updated = [...kb.experience]
+                            updated[idx].type = e.target.value
+                            setKb({ ...kb, experience: updated })
+                          }}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Duration / Timeline (e.g. 3 Months, Nov 2025 - Jan 2026)</label>
+                        <div className="relative">
+                          <FaCalendarAlt className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={exp.duration || ''}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].duration = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            placeholder="3 Months (Nov 2025 – Jan 2026)"
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Location (City, State / Remote)</label>
+                        <div className="relative">
+                          <FaMapMarkerAlt className="absolute left-3 top-3 text-slate-500 text-xs" />
+                          <input
+                            type="text"
+                            value={exp.location || 'Jaipur, Rajasthan'}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].location = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            className="w-full bg-[#070913] border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs text-slate-200 outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Start Date & End Date</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={exp.startDate || 'Nov 2025'}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].startDate = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            placeholder="Start Date"
+                            className="bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 outline-none font-mono"
+                          />
+                          <input
+                            type="text"
+                            value={exp.endDate || 'Jan 2026'}
+                            onChange={(e) => {
+                              const updated = [...kb.experience]
+                              updated[idx].endDate = e.target.value
+                              setKb({ ...kb, experience: updated })
+                            }}
+                            placeholder="End Date"
+                            className="bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-300 outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bullet Points List Manager */}
+                    <div className="space-y-3 pt-2 border-t border-slate-800">
+                      <label className="block text-xs font-semibold text-indigo-400 flex items-center gap-2">
+                        <FaListUl /> Key Responsibilities & Accomplishments Bullet Points ({(exp.points || []).length})
+                      </label>
+
+                      <div className="space-y-2">
+                        {(exp.points || []).map((pt, ptIdx) => (
+                          <div key={ptIdx} className="flex items-center gap-2.5 bg-[#070913] border border-slate-800 rounded-lg p-2.5">
+                            <span className="w-5 h-5 rounded bg-indigo-600/20 text-indigo-400 grid place-items-center text-[10px] font-bold font-mono shrink-0">
+                              •
+                            </span>
+                            <input
+                              type="text"
+                              value={pt}
+                              onChange={(e) => {
+                                const updated = [...kb.experience]
+                                updated[idx].points[ptIdx] = e.target.value
+                                setKb({ ...kb, experience: updated })
+                              }}
+                              className="flex-1 bg-transparent border-none text-xs text-slate-200 outline-none font-sans"
+                            />
+                            <button
+                              onClick={() => {
+                                const updated = [...kb.experience]
+                                updated[idx].points = updated[idx].points.filter((_, i) => i !== ptIdx)
+                                setKb({ ...kb, experience: updated })
+                              }}
+                              className="text-rose-400 hover:text-rose-300 p-1 text-xs shrink-0"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add New Bullet Point Input */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="text"
+                          placeholder="Add new responsibility bullet point..."
+                          value={newExpPoint[idx] || ''}
+                          onChange={(e) => setNewExpPoint({ ...newExpPoint, [idx]: e.target.value })}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              const val = (newExpPoint[idx] || '').trim()
+                              if (val) {
+                                const updated = [...kb.experience]
+                                updated[idx].points = [...(updated[idx].points || []), val]
+                                setKb({ ...kb, experience: updated })
+                                setNewExpPoint({ ...newExpPoint, [idx]: '' })
+                              }
+                            }
+                          }}
+                          className="flex-1 bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const val = (newExpPoint[idx] || '').trim()
+                            if (val) {
+                              const updated = [...kb.experience]
+                              updated[idx].points = [...(updated[idx].points || []), val]
+                              setKb({ ...kb, experience: updated })
+                              setNewExpPoint({ ...newExpPoint, [idx]: '' })
+                            }
+                          }}
+                          className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-2 rounded-lg text-xs flex items-center gap-1 shrink-0"
+                        >
+                          <FaPlus /> Add Bullet
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* OTHER TABS */}
           {activeTab === 'layout' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -757,7 +1024,6 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* Presets */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">Global Spacing Presets</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -811,7 +1077,6 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Section Sequence & Padding Controls */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">Homepage Sequence & Vertical Gap Controls</h3>
                 <div className="space-y-3">
@@ -881,7 +1146,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 3: STATS COUNTER CARDS CMS */}
           {activeTab === 'stats' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -968,7 +1232,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 4: GITHUB & OPEN SOURCE CMS */}
           {activeTab === 'github' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -987,7 +1250,6 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* GitHub Credentials Panel */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-indigo-400">Live API Credentials</h3>
 
@@ -1030,7 +1292,6 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                {/* Connection Test Action */}
                 <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#070913] border border-slate-800 p-3.5 rounded-lg">
                   <div>
                     <p className="text-xs font-semibold text-white flex items-center gap-2">
@@ -1064,7 +1325,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 5: SKILLS & PROFICIENCY BARS CMS */}
           {activeTab === 'skills' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1351,7 +1611,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 6: CERTIFICATIONS CATALOG CMS */}
           {activeTab === 'certifications' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1500,7 +1759,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 7: ACADEMIC JOURNEY CMS */}
           {activeTab === 'education' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1635,124 +1893,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 8: WORK EXPERIENCE CMS */}
-          {activeTab === 'experience' && (
-            <div className="space-y-6 max-w-5xl">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                <div>
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <FaBriefcase className="text-indigo-400" /> Work Experience & Internships CMS
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage professional internships, engineering roles, and achievements</p>
-                </div>
-                <button
-                  onClick={() => {
-                    const newExp = {
-                      id: `exp_${Date.now()}`,
-                      role: 'AI / Full-Stack Engineer Intern',
-                      company: 'Tech Solutions Inc.',
-                      duration: '6 Months',
-                      startDate: 'Jan 2026',
-                      endDate: 'Jun 2026',
-                      type: 'Internship',
-                      points: ['Built React web modules', 'Trained Python ML models'],
-                    }
-                    setKb({ ...kb, experience: [newExp, ...kb.experience] })
-                    triggerToast('Added experience card')
-                  }}
-                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-sm"
-                >
-                  <FaPlus /> Add Experience Card
-                </button>
-              </div>
-
-              <div className="space-y-5">
-                {kb.experience.map((exp, idx) => (
-                  <div key={exp.id || idx} className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
-                    <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-800">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 grid place-items-center text-xs font-bold font-mono">
-                          #{idx + 1}
-                        </span>
-                        <span className="font-bold text-white text-sm">Experience Card</span>
-                      </div>
-                      <button
-                        onClick={() => {
-                          const updated = kb.experience.filter((_, i) => i !== idx)
-                          setKb({ ...kb, experience: updated })
-                          triggerToast('Removed experience card')
-                        }}
-                        className="text-rose-400 hover:text-rose-300 p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs"
-                      >
-                        <FaTrash /> Remove
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Job / Internship Role</label>
-                        <input
-                          type="text"
-                          value={exp.role}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].role = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Company / Organization</label>
-                        <input
-                          type="text"
-                          value={exp.company || ''}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].company = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-semibold"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Employment Type (e.g. Internship, Contract)</label>
-                        <input
-                          type="text"
-                          value={exp.type || ''}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].type = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 outline-none focus:border-indigo-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Duration / Timeline</label>
-                        <input
-                          type="text"
-                          value={exp.duration || ''}
-                          onChange={(e) => {
-                            const updated = [...kb.experience]
-                            updated[idx].duration = e.target.value
-                            setKb({ ...kb, experience: updated })
-                          }}
-                          placeholder="e.g. 6 Months (Jan 2026 – Present)"
-                          className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 9: PROJECTS CATALOG CMS */}
           {activeTab === 'projects' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1897,7 +2037,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* TAB 10: PITTU AI KNOWLEDGE & FAQ ENGINE */}
           {activeTab === 'pittu' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
@@ -1929,7 +2068,6 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Pittu Live Interactive Test Tool */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3 shadow-sm">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-indigo-400 flex items-center gap-2">
                   <FaRobot className="text-indigo-400" /> Pittu AI Live Simulator & Test Console
@@ -1958,7 +2096,6 @@ export default function AdminPage() {
                 )}
               </div>
 
-              {/* Pittu Q&A Pairs */}
               <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 shadow-sm">
                 <h3 className="font-bold text-white text-xs uppercase tracking-wider text-slate-400">
                   Grounded Q&A Facts ({kb.faqs?.length || 0})
@@ -2010,7 +2147,6 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* OTHER TABS */}
           {activeTab === 'hero' && (
             <div className="space-y-6 max-w-5xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
