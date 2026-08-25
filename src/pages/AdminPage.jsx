@@ -24,6 +24,11 @@ import {
   FaRocket,
   FaChartBar,
   FaAward,
+  FaEye,
+  FaEyeSlash,
+  FaArrowUp,
+  FaArrowDown,
+  FaLayerGroup,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
@@ -38,7 +43,7 @@ export default function AdminPage() {
 
   // CMS State
   const [kb, setKb] = useState(getActiveKnowledge())
-  const [activeTab, setActiveTab] = useState('stats')
+  const [activeTab, setActiveTab] = useState('layout')
   const [saveSuccess, setSaveSuccess] = useState(false)
 
   // Input states for adding new items
@@ -69,7 +74,6 @@ export default function AdminPage() {
     setTimeout(() => setSaveSuccess(false), 2500)
   }
 
-  // Ensure hero object is fully populated
   const hero = kb.hero || {
     greetingPill: '• Hi, I\'m Priyanshu Agarwal — Engineering student @ NIMS University Jaipur',
     firstName: 'Priyanshu',
@@ -103,6 +107,21 @@ export default function AdminPage() {
       description: 'Covered Python fundamentals, Pandas, NumPy, and data manipulation libraries for machine learning workflows.',
     },
   ]
+
+  const layoutConfig = kb.layoutConfig || {
+    preset: 'compact',
+    sections: [
+      { id: 'hero', name: 'Hero Section', enabled: true, paddingTopRem: 1, paddingBottomRem: 1 },
+      { id: 'about', name: 'About & Stats Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'skills', name: 'Technical Skills Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'projects', name: 'Projects Catalog Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'experience', name: 'Work Experience Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'education', name: 'Academic Journey Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'certifications', name: 'Certifications Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'github', name: 'GitHub Activity Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'contact', name: 'Contact Form Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+    ],
+  }
 
   // 1. ADMIN LOGIN VIEW
   if (!isAuthenticated) {
@@ -246,6 +265,7 @@ export default function AdminPage() {
         {/* Left Sidebar Navigation */}
         <aside className="w-full md:w-64 border-r border-white/10 bg-slate-900/60 p-4 space-y-1.5 shrink-0">
           {[
+            { id: 'layout', label: 'Layout & Section Spacing', badge: 'GAP ENGINE', icon: FaLayerGroup },
             { id: 'stats', label: 'Stats Counter Cards', badge: stats.length, icon: FaChartBar },
             { id: 'hero', label: 'Hero Section CMS', badge: 'MAIN', icon: FaRocket },
             { id: 'profile', label: 'Profile & Contact', badge: null, icon: FaUser },
@@ -285,6 +305,206 @@ export default function AdminPage() {
 
         {/* Main Editor Panel */}
         <main className="flex-1 p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[calc(100vh-73px)]">
+          {/* TAB: ADVANCED LAYOUT & SECTION SPACING CMS (GAP ENGINE) */}
+          {activeTab === 'layout' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-white flex items-center gap-2">
+                    <FaLayerGroup className="text-cyan-400" /> Advanced Layout & Section Spacing Engine
+                  </h2>
+                  <p className="text-xs font-mono text-slate-400 mt-1">
+                    Control section padding/gaps, toggle section visibility (Show/Hide), and re-order homepage flow dynamically
+                  </p>
+                </div>
+                <button onClick={handleSaveAll} className="text-xs font-mono font-bold text-slate-950 bg-gradient-to-r from-indigo-400 to-cyan-400 px-4 py-2.5 rounded-xl hover:opacity-90 flex items-center gap-1.5 shadow-md">
+                  <FaSave /> Save Layout Architecture
+                </button>
+              </div>
+
+              {/* Global Spacing Presets */}
+              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-300 bg-cyan-400/10 border border-cyan-400/30 px-3 py-1 rounded-full">
+                  Global Gap Presets
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 1, paddingBottomRem: 1 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'compact', sections: updatedSections } })
+                    }}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'compact'
+                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
+                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-mono uppercase tracking-wider text-cyan-300">⚡ Ultra-Compact (Zero Gaps)</p>
+                    <p className="text-[11px] text-slate-400 mt-1">1rem top & bottom padding. Eliminates all large black voids.</p>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 2.5, paddingBottomRem: 2.5 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'balanced', sections: updatedSections } })
+                    }}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'balanced'
+                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
+                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-mono uppercase tracking-wider text-indigo-300">⚖️ Balanced Rhythm</p>
+                    <p className="text-[11px] text-slate-400 mt-1">2.5rem padding. Optimal spacing between sections.</p>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const updatedSections = layoutConfig.sections.map((s) => ({ ...s, paddingTopRem: 4.5, paddingBottomRem: 4.5 }))
+                      setKb({ ...kb, layoutConfig: { preset: 'spacious', sections: updatedSections } })
+                    }}
+                    className={`p-4 rounded-xl border text-left transition-all ${
+                      layoutConfig.preset === 'spacious'
+                        ? 'bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold shadow-md'
+                        : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <p className="text-xs font-mono uppercase tracking-wider text-pink-300">🌌 Spacious (Generous)</p>
+                    <p className="text-[11px] text-slate-400 mt-1">4.5rem padding. Roomy vertical breathable gaps.</p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Section-by-Section Spacing & Visibility Editor */}
+              <div className="bg-slate-900/90 border border-white/10 rounded-2xl p-6 space-y-4 shadow-lg">
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                  <h3 className="font-bold text-white text-sm">Homepage Section Sequence & Gap Sliders</h3>
+                  <span className="text-xs font-mono text-slate-400">Total Sections: {layoutConfig.sections.length}</span>
+                </div>
+
+                <div className="space-y-3">
+                  {layoutConfig.sections.map((sec, idx) => (
+                    <div
+                      key={sec.id}
+                      className={`p-4 rounded-xl border transition-all ${
+                        sec.enabled
+                          ? 'bg-slate-950/80 border-white/10'
+                          : 'bg-slate-950/40 border-rose-500/20 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+                          <span className="w-7 h-7 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 grid place-items-center text-xs font-mono font-bold">
+                            #{idx + 1}
+                          </span>
+                          <span className="font-bold text-xs text-white">{sec.name}</span>
+                        </div>
+
+                        {/* Visibility Switch */}
+                        <button
+                          onClick={() => {
+                            const updated = [...layoutConfig.sections]
+                            updated[idx].enabled = !updated[idx].enabled
+                            setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                          }}
+                          className={`flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-xl border transition-all ${
+                            sec.enabled
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                              : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                          }`}
+                        >
+                          {sec.enabled ? <FaEye /> : <FaEyeSlash />}
+                          {sec.enabled ? 'Section Visible' : 'Hidden'}
+                        </button>
+
+                        {/* Order Controls */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            disabled={idx === 0}
+                            onClick={() => {
+                              if (idx > 0) {
+                                const updated = [...layoutConfig.sections]
+                                const temp = updated[idx]
+                                updated[idx] = updated[idx - 1]
+                                updated[idx - 1] = temp
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }
+                            }}
+                            className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                          >
+                            <FaArrowUp />
+                          </button>
+
+                          <button
+                            disabled={idx === layoutConfig.sections.length - 1}
+                            onClick={() => {
+                              if (idx < layoutConfig.sections.length - 1) {
+                                const updated = [...layoutConfig.sections]
+                                const temp = updated[idx]
+                                updated[idx] = updated[idx + 1]
+                                updated[idx + 1] = temp
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }
+                            }}
+                            className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:text-white disabled:opacity-30 text-xs"
+                          >
+                            <FaArrowDown />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Padding Sliders */}
+                      {sec.enabled && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 mt-3 border-t border-white/10">
+                          <div>
+                            <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
+                              <span>Top Gap (Padding Top)</span>
+                              <span className="text-cyan-300 font-bold">{sec.paddingTopRem} rem</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="8"
+                              step="0.5"
+                              value={sec.paddingTopRem}
+                              onChange={(e) => {
+                                const updated = [...layoutConfig.sections]
+                                updated[idx].paddingTopRem = Number(e.target.value)
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }}
+                              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1">
+                              <span>Bottom Gap (Padding Bottom)</span>
+                              <span className="text-cyan-300 font-bold">{sec.paddingBottomRem} rem</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="8"
+                              step="0.5"
+                              value={sec.paddingBottomRem}
+                              onChange={(e) => {
+                                const updated = [...layoutConfig.sections]
+                                updated[idx].paddingBottomRem = Number(e.target.value)
+                                setKb({ ...kb, layoutConfig: { ...layoutConfig, sections: updated } })
+                              }}
+                              className="w-full accent-cyan-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: STATS COUNTER CARDS CMS */}
           {activeTab === 'stats' && (
             <div className="space-y-6 max-w-5xl">

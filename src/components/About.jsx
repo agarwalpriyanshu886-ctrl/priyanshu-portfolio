@@ -54,7 +54,7 @@ export default function About() {
   }, [])
 
   return (
-    <section id="about" className="relative py-24 lg:py-28 overflow-hidden">
+    <section id="about" className="relative py-12 lg:py-16 overflow-hidden">
       <div className="absolute top-1/3 -left-32 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
@@ -65,10 +65,10 @@ export default function About() {
           description="A quick look at who I am and what drives me."
         />
 
-        <div className="grid lg:grid-cols-2 gap-10 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
           <Reveal>
-            <div className="glass rounded-3xl p-7 sm:p-9">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="glass rounded-3xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-5">
                 <span className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center font-display font-bold text-white text-xl shadow-[0_8px_30px_-8px_rgb(99_102_241/0.7)]">
                   PA
                 </span>
@@ -85,8 +85,8 @@ export default function About() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="glass rounded-3xl p-7 sm:p-9">
-              <h3 className="font-display font-semibold text-white text-lg mb-6">Areas I'm passionate about</h3>
+            <div className="glass rounded-3xl p-6 sm:p-8">
+              <h3 className="font-display font-semibold text-white text-lg mb-5">Areas I'm passionate about</h3>
               <ul className="grid sm:grid-cols-2 gap-3">
                 {profile.passions.map((passion, i) => {
                   const Icon = passionIcons[passion] || FaBrain
@@ -110,24 +110,24 @@ export default function About() {
         </div>
 
         {/* Dynamic Stats Counter Cards Section */}
-        <Reveal delay={0.15} className="mt-10">
+        <Reveal delay={0.15} className="mt-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {statsList.map((stat, idx) => (
               <div
                 key={stat.id || idx}
-                className="glass rounded-2xl p-6 text-center hover:border-indigo-400/40 hover:-translate-y-1 transition-all duration-300"
+                className="glass rounded-2xl p-5 text-center hover:border-indigo-400/40 hover:-translate-y-1 transition-all duration-300"
               >
                 <p className="font-display text-3xl sm:text-4xl font-bold text-gradient">
                   <Counter value={Number(stat.value) || 0} suffix={stat.suffix || '+'} />
                 </p>
-                <p className="mt-2 text-xs sm:text-sm text-slate-400 font-medium">{stat.label}</p>
+                <p className="mt-1.5 text-xs sm:text-sm text-slate-400 font-medium">{stat.label}</p>
               </div>
             ))}
           </div>
         </Reveal>
 
-        <Reveal delay={0.1} className="mt-10 flex justify-center">
-          <p className="inline-flex items-center gap-2 text-sm text-slate-500">
+        <Reveal delay={0.1} className="mt-6 flex justify-center">
+          <p className="inline-flex items-center gap-2 text-xs sm:text-sm text-slate-500">
             <FaCheckCircle className="text-emerald-400" /> Always learning · Always building
           </p>
         </Reveal>

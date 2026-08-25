@@ -15,7 +15,7 @@ export default function Education() {
   }, [])
 
   return (
-    <section id="education" className="relative py-24 lg:py-28 overflow-hidden">
+    <section id="education" className="relative py-12 lg:py-16 overflow-hidden">
       <div className="absolute top-10 -left-40 w-[26rem] h-[26rem] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 -right-40 w-[26rem] h-[26rem] rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
 

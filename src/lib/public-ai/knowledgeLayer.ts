@@ -87,6 +87,19 @@ export interface CertificationMetadata {
   description?: string
 }
 
+export interface SectionConfig {
+  id: string
+  name: string
+  enabled: boolean
+  paddingTopRem: number
+  paddingBottomRem: number
+}
+
+export interface LayoutConfigData {
+  preset: 'compact' | 'balanced' | 'spacious'
+  sections: SectionConfig[]
+}
+
 export interface PublicKnowledgeBase {
   profile: {
     name: string
@@ -104,6 +117,7 @@ export interface PublicKnowledgeBase {
   hero: HeroCMSData
   stats: StatMetadata[]
   certifications: CertificationMetadata[]
+  layoutConfig: LayoutConfigData
   publicContactConfig: {
     showEmail: boolean
     showPhone: boolean
@@ -205,6 +219,21 @@ export const PUBLIC_KNOWLEDGE: PublicKnowledgeBase = {
       description: 'Advanced web engineering with React, Node.js, REST APIs, and relational database schema architectures.',
     },
   ],
+
+  layoutConfig: {
+    preset: 'compact',
+    sections: [
+      { id: 'hero', name: 'Hero Section', enabled: true, paddingTopRem: 2, paddingBottomRem: 2 },
+      { id: 'about', name: 'About & Stats Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'skills', name: 'Technical Skills Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'projects', name: 'Projects Catalog Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'experience', name: 'Work Experience Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'education', name: 'Academic Journey Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'certifications', name: 'Certifications Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'github', name: 'GitHub Activity Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+      { id: 'contact', name: 'Contact Form Section', enabled: true, paddingTopRem: 2.5, paddingBottomRem: 2.5 },
+    ],
+  },
 
   publicContactConfig: {
     showEmail: true,

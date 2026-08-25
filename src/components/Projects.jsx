@@ -120,7 +120,7 @@ export default function Projects() {
   const filtered = projectList.filter((p) => filter === 'all' || p.category === filter || filter.toUpperCase() === p.category)
 
   return (
-    <section id="projects" className="relative py-24 lg:py-28 overflow-hidden">
+    <section id="projects" className="relative py-12 lg:py-16 overflow-hidden">
       <div className="absolute -top-20 left-1/3 w-[30rem] h-[30rem] rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
@@ -131,7 +131,7 @@ export default function Projects() {
           description="Real projects with real users in mind — from the web to Android."
         />
 
-        <Reveal className="mb-10">
+        <Reveal className="mb-8">
           <div className="flex flex-wrap justify-center gap-2">
             {projectCategories.map((cat) => (
               <button

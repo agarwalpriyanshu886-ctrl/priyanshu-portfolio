@@ -55,7 +55,7 @@ export default function Skills() {
   }, [])
 
   return (
-    <section id="skills" className="relative py-24 lg:py-28 overflow-hidden">
+    <section id="skills" className="relative py-12 lg:py-16 overflow-hidden">
       <div className="absolute top-20 -right-40 w-[28rem] h-[28rem] rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
