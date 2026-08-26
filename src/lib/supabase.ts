@@ -56,12 +56,21 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(url && key)
 }
 
+let clientInstance: ReturnType<typeof createClient> | null = null
+
 export function getSupabaseClient() {
   const { url, key } = getSupabaseCredentials()
-  if (url && key) {
-    return createClient(url, key)
+  if (!url || !key) return null
+
+  if (!clientInstance) {
+    clientInstance = createClient(url, key, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
   }
-  return null
+  return clientInstance
 }
 
-export const supabase = getSupabaseClient()
+export const supabase = getSupabaseClient()!

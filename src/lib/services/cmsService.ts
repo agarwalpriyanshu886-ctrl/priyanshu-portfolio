@@ -381,10 +381,11 @@ export const cmsService = {
       intro_mode: 'FIRST_VISIT',
       transition_duration_ms: 1000,
     }
-    if (!isSupabaseConfigured()) return defaultSettings
+    if (!isSupabaseConfigured() || !supabase) return defaultSettings
     try {
-      const { data } = await supabase.from('mode_settings').select('*').limit(1).single()
-      return data || defaultSettings
+      const { data, error } = await supabase.from('mode_settings').select('*').limit(1).maybeSingle()
+      if (error || !data) return defaultSettings
+      return data
     } catch {
       return defaultSettings
     }

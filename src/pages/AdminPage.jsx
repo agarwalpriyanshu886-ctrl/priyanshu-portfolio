@@ -2981,7 +2981,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      const sql = `CREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    subject TEXT,\n    message TEXT NOT NULL,\n    read BOOLEAN DEFAULT false,\n    created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Allow public insert" ON public.contact_messages FOR INSERT TO public, anon WITH CHECK (true);\nCREATE POLICY "Allow admin access" ON public.contact_messages FOR ALL USING (true);\n\nCREATE TABLE IF NOT EXISTS portfolio_cms (\n  id TEXT PRIMARY KEY DEFAULT 'active_cms',\n  data JSONB NOT NULL,\n  updated_at TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);\nCREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`
+                      const sql = `CREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    subject TEXT,\n    message TEXT NOT NULL,\n    read BOOLEAN DEFAULT false,\n    created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Allow public insert" ON public.contact_messages FOR INSERT TO public, anon WITH CHECK (true);\nCREATE POLICY "Allow admin access" ON public.contact_messages FOR ALL USING (true);\n\nCREATE TABLE IF NOT EXISTS public.mode_settings (\n    id TEXT PRIMARY KEY DEFAULT 'default',\n    default_mode TEXT DEFAULT 'DEVELOPER',\n    enable_mode_persistence BOOLEAN DEFAULT true,\n    intro_mode TEXT DEFAULT 'FIRST_VISIT',\n    transition_duration_ms INTEGER DEFAULT 1000,\n    created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.mode_settings ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read mode_settings" ON public.mode_settings FOR SELECT USING (true);\nCREATE POLICY "Public write mode_settings" ON public.mode_settings FOR ALL USING (true);\n\nCREATE TABLE IF NOT EXISTS portfolio_cms (\n  id TEXT PRIMARY KEY DEFAULT 'active_cms',\n  data JSONB NOT NULL,\n  updated_at TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);\nCREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`
                       navigator.clipboard.writeText(sql)
                       setSqlCopied(true)
                       setTimeout(() => setSqlCopied(false), 2500)
@@ -3012,7 +3012,21 @@ ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public insert" ON public.contact_messages FOR INSERT TO public, anon WITH CHECK (true);
 CREATE POLICY "Allow admin access" ON public.contact_messages FOR ALL USING (true);
 
--- 2. Master Portfolio CMS Table
+-- 2. Dual Mode Settings Table
+CREATE TABLE IF NOT EXISTS public.mode_settings (
+    id TEXT PRIMARY KEY DEFAULT 'default',
+    default_mode TEXT DEFAULT 'DEVELOPER',
+    enable_mode_persistence BOOLEAN DEFAULT true,
+    intro_mode TEXT DEFAULT 'FIRST_VISIT',
+    transition_duration_ms INTEGER DEFAULT 1000,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.mode_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read mode_settings" ON public.mode_settings FOR SELECT USING (true);
+CREATE POLICY "Public write mode_settings" ON public.mode_settings FOR ALL USING (true);
+
+-- 3. Master Portfolio CMS Table
 CREATE TABLE IF NOT EXISTS portfolio_cms (
   id TEXT PRIMARY KEY DEFAULT 'active_cms',
   data JSONB NOT NULL,
