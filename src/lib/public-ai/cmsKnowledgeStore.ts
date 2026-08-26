@@ -166,7 +166,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
 
       // Clean old deleted projects
       if (activeIds.length > 0) {
-        await client.from('projects').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+        try {
+          await client.from('projects').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`)
+        } catch (_) {}
       }
       const { error: projErr } = await client.from('projects').upsert(projRows)
       if (projErr) syncErrors.push(`projects (${projErr.message})`)
@@ -190,7 +192,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
       }))
 
       if (activeIds.length > 0) {
-        await client.from('work_experience').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+        try {
+          await client.from('work_experience').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`)
+        } catch (_) {}
       }
       const { error: expErr } = await client.from('work_experience').upsert(expRows)
       if (expErr) syncErrors.push(`work_experience (${expErr.message})`)
@@ -215,7 +219,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
       }))
 
       if (activeIds.length > 0) {
-        await client.from('academic_journey').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+        try {
+          await client.from('academic_journey').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`)
+        } catch (_) {}
       }
       const { error: eduErr } = await client.from('academic_journey').upsert(eduRows)
       if (eduErr) syncErrors.push(`academic_journey (${eduErr.message})`)
@@ -235,7 +241,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
       }))
 
       if (activeIds.length > 0) {
-        await client.from('certifications').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+        try {
+          await client.from('certifications').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`)
+        } catch (_) {}
       }
       const { error: certErr } = await client.from('certifications').upsert(certRows)
       if (certErr) syncErrors.push(`certifications (${certErr.message})`)
@@ -254,7 +262,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
       }))
 
       if (activeIds.length > 0) {
-        await client.from('skill_categories').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+        try {
+          await client.from('skill_categories').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`)
+        } catch (_) {}
       }
       const { error: catErr } = await client.from('skill_categories').upsert(catRows)
       if (catErr) syncErrors.push(`skill_categories (${catErr.message})`)
