@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const LOCAL_CRED_KEY = 'priyanshu_supabase_credentials'
+const DEFAULT_SUPABASE_URL = 'https://bcgbzpnhsubddtpzwutl.supabase.co'
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_OWvWgcO7JoIWCnuuadoevQ_kjyj9ztI'
 
 export interface SupabaseCreds {
   url: string
@@ -9,8 +10,8 @@ export interface SupabaseCreds {
 
 export function getSupabaseCredentials(): SupabaseCreds {
   try {
-    const envUrl = import.meta.env.VITE_SUPABASE_URL || ''
-    const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+    const envUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
+    const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY
     if (envUrl && envKey) {
       return { url: envUrl, key: envKey }
     }
