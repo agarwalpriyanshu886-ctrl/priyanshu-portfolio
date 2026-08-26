@@ -117,7 +117,7 @@ export default function Hero() {
             <GradientButton href={heroData.primaryCtaHref} variant="primary">
               <FaRocket className="text-sm" /> {heroData.primaryCtaLabel}
             </GradientButton>
-            <GradientButton href={heroData.secondaryCtaHref}>
+            <GradientButton href={heroData.secondaryCtaHref} variant="secondary">
               <FaEnvelope className="text-sm" /> {heroData.secondaryCtaLabel}
             </GradientButton>
 

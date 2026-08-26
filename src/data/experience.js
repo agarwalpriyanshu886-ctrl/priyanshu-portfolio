@@ -3,7 +3,7 @@ export const experience = [
   {
     id: 'graphic-design-intern',
     role: 'Graphic Design Intern',
-    company: 'JALDIRIDE CONNECT PVT LTD',
+    company: 'Jaldiride Connect Pvt Ltd',
     companyUrl: 'https://jaldiride.com',
     logo: 'https://jaldiride.com/favicon.ico',
     duration: '3 Months',

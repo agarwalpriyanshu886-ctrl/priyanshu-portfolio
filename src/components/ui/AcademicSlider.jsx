@@ -11,6 +11,16 @@ import {
   FaFlask,
 } from 'react-icons/fa'
 
+function getShortDegreeLabel(item) {
+  if (!item) return ''
+  const deg = item.degree || item.badge || ''
+  if (deg.includes('M.Tech')) return 'M.Tech'
+  if (deg.includes('B.Tech')) return 'B.Tech'
+  if (deg.includes('JEE')) return 'IIT-JEE'
+  if (deg.includes('Schooling') || deg.includes('Primary')) return 'Schooling'
+  return deg.slice(0, 10)
+}
+
 export default function AcademicSlider({ items }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(1) // 1 for right, -1 for left
@@ -104,18 +114,18 @@ export default function AcademicSlider({ items }) {
                 className="group flex flex-col items-center gap-2 outline-none"
               >
                 <div
-                  className={`w-10 h-10 rounded-2xl flex items-center justify-center font-mono text-xs font-bold transition-all duration-300 ${
+                  className={`px-3 py-2 rounded-2xl flex items-center justify-center font-mono text-xs font-bold transition-all duration-300 ${
                     isActive
-                      ? 'bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 scale-125 shadow-[0_0_25px_rgba(34,211,238,0.6)] ring-4 ring-cyan-400/20'
+                      ? 'bg-gradient-to-r from-indigo-500 to-cyan-400 text-slate-950 scale-110 shadow-[0_0_25px_rgba(34,211,238,0.6)] ring-4 ring-cyan-400/20'
                       : isPassed
                       ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-                      : 'bg-slate-900 text-slate-500 border border-white/10'
+                      : 'bg-slate-900 text-slate-400 border border-white/10'
                   }`}
                 >
-                  {idx + 1}
+                  {getShortDegreeLabel(item)}
                 </div>
                 <span
-                  className={`text-[11px] font-mono font-bold transition-colors ${
+                  className={`text-xs font-mono font-semibold transition-colors ${
                     isActive ? 'text-cyan-300' : 'text-slate-500'
                   }`}
                 >
@@ -185,7 +195,7 @@ export default function AcademicSlider({ items }) {
                     <FaGraduationCap />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 font-bold block mb-0.5">
+                    <span className="text-xs font-mono tracking-wider text-cyan-400 font-bold block mb-0.5">
                       {activeItem.badge || `Stage ${currentIndex + 1} of ${total}`}
                     </span>
                     <h3 className="font-display font-extrabold text-white text-xl sm:text-2xl leading-tight">
@@ -230,7 +240,7 @@ export default function AcademicSlider({ items }) {
               {/* Highlights tags */}
               {activeItem.highlights && activeItem.highlights.length > 0 && (
                 <div className="pt-3 border-t border-white/10 space-y-2">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 block font-semibold">
+                  <span className="text-xs font-mono tracking-wider text-slate-400 block font-semibold">
                     Key Highlights & Subjects
                   </span>
                   <div className="flex flex-wrap gap-2">

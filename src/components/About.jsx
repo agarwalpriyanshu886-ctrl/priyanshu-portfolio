@@ -75,46 +75,50 @@ export default function About() {
           description="A quick look at who I am and what drives me."
         />
 
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          <Reveal>
-            <div className="glass rounded-3xl p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center font-display font-bold text-white text-xl shadow-[0_8px_30px_-8px_rgb(99_102_241/0.7)]">
-                  PA
-                </span>
-                <div>
-                  <h3 className="font-display font-semibold text-white text-lg">{profile.name}</h3>
-                  <p className="text-sm text-cyan-300/90">{profile.title}</p>
+        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+          <Reveal className="h-full">
+            <div className="glass rounded-3xl p-6 sm:p-8 h-full flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center font-display font-bold text-white text-xl shadow-[0_8px_30px_-8px_rgb(99_102_241/0.7)]">
+                    PA
+                  </span>
+                  <div>
+                    <h3 className="font-display font-semibold text-white text-lg">{profile.name}</h3>
+                    <p className="text-sm text-cyan-300/90">{profile.title}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="text-slate-400 leading-relaxed space-y-4 whitespace-pre-wrap">
-                {profile.bio}
+                <div className="text-slate-400 leading-relaxed space-y-4 whitespace-pre-wrap">
+                  {profile.bio}
+                </div>
               </div>
             </div>
           </Reveal>
 
-          <Reveal delay={0.1}>
-            <div className="glass rounded-3xl p-6 sm:p-8">
-              <h3 className="font-display font-semibold text-white text-lg mb-5">Areas I'm passionate about</h3>
-              <ul className="grid sm:grid-cols-2 gap-3">
-                {profile.passions.map((passion, i) => {
-                  const Icon = passionIcons[passion] || FaBrain
-                  return (
-                    <motion.li
-                      key={passion}
-                      initial={{ opacity: 0, x: -12 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.06 * i, duration: 0.45 }}
-                      className="flex items-center gap-3 text-sm text-slate-300 glass rounded-xl px-4 py-3 hover:border-cyan-400/30 hover:bg-white/[0.06] transition-all duration-300"
-                    >
-                      <Icon className="text-cyan-400 text-base shrink-0" />
-                      {passion}
-                    </motion.li>
-                  )
-                })}
-              </ul>
+          <Reveal delay={0.1} className="h-full">
+            <div className="glass rounded-3xl p-6 sm:p-8 h-full flex flex-col justify-between">
+              <div>
+                <h3 className="font-display font-semibold text-white text-lg mb-5">Areas I'm passionate about</h3>
+                <ul className="grid sm:grid-cols-2 gap-3">
+                  {profile.passions.map((passion, i) => {
+                    const Icon = passionIcons[passion] || FaBrain
+                    return (
+                      <motion.li
+                        key={passion}
+                        initial={{ opacity: 0, x: -12 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.06 * i, duration: 0.45 }}
+                        className="flex items-center gap-3 text-sm text-slate-300 glass rounded-xl px-4 py-3 hover:border-cyan-400/30 hover:bg-white/[0.06] transition-all duration-300"
+                      >
+                        <Icon className="text-cyan-400 text-base shrink-0" />
+                        {passion}
+                      </motion.li>
+                    )
+                  })}
+                </ul>
+              </div>
             </div>
           </Reveal>
         </div>

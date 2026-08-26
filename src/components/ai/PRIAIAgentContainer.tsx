@@ -53,7 +53,7 @@ export function PRIAIAgentContainer() {
   return (
     <>
       {/* FLOATING 3D ROBOT WIDGET */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end pointer-events-auto">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end pointer-events-auto">
         {/* Speech Bubble Badge */}
         <AnimatePresence>
           <motion.div
@@ -61,24 +61,26 @@ export function PRIAIAgentContainer() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             onClick={() => setIsOpen(true)}
-            className="mb-3 bg-slate-900/95 border border-cyan-400/50 backdrop-blur-xl text-white text-xs font-mono font-bold px-4 py-2 rounded-2xl shadow-[0_0_25px_rgba(34,211,238,0.4)] cursor-pointer flex items-center gap-2.5 hover:border-cyan-300 hover:scale-105 transition-all group"
+            className="mb-2 bg-slate-900/90 border border-cyan-400/40 backdrop-blur-md text-white text-xs font-mono font-medium px-3 py-1.5 rounded-xl shadow-lg cursor-pointer hidden sm:flex items-center gap-2 hover:border-cyan-300 transition-all group"
           >
-            <span className="relative flex h-2.5 w-2.5">
+            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
             </span>
-            <span>Ask Pittu AI 🤖</span>
-            <FaStar className="text-cyan-400 text-xs group-hover:rotate-12 transition-transform" />
+            <span>Pittu AI 🤖</span>
+            <FaStar className="text-cyan-400 text-[10px] group-hover:rotate-12 transition-transform" />
           </motion.div>
         </AnimatePresence>
 
         {/* 3D Robot Floating Canvas Button */}
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
+        <motion.button
+          type="button"
+          aria-label="Toggle Pittu AI Assistant"
+          animate={{ y: [0, -4, 0] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           onClick={() => setIsOpen(true)}
-          className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-slate-950/90 border-2 border-cyan-400/60 shadow-[0_0_40px_rgba(34,211,238,0.5)] cursor-pointer relative group overflow-hidden transition-all duration-300 hover:scale-110 hover:border-cyan-300 hover:shadow-[0_0_60px_rgba(34,211,238,0.8)]"
-          title="Click to interact with Pittu 3D AI Robot Agent"
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-950/90 border border-cyan-400/40 shadow-xl cursor-pointer relative group overflow-hidden transition-all duration-300 hover:scale-105 hover:border-cyan-300"
+          title="Click to interact with Pittu AI Robot Agent"
         >
           <RobotScene
             state={robotState}
@@ -86,7 +88,7 @@ export function PRIAIAgentContainer() {
             onClick={() => setIsOpen(true)}
             className="w-full h-full"
           />
-        </motion.div>
+        </motion.button>
       </div>
 
       {/* CHAT PANEL MODAL */}

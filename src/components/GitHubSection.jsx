@@ -179,12 +179,12 @@ export default function GitHubSection() {
               <div className="flex items-center justify-between pb-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <h3 className="font-mono text-xs uppercase tracking-widest text-cyan-300 font-bold">
-                    Real GitHub Contribution Feed — @{username.toUpperCase()}
+                  <h3 className="font-mono text-xs tracking-wider text-cyan-300 font-bold">
+                    Real GitHub Contribution Feed — @{username}
                   </h3>
                 </div>
 
-                <span className="text-[10px] font-mono text-emerald-300 bg-emerald-400/10 border border-emerald-400/30 px-3 py-1 rounded-full flex items-center gap-1">
+                <span className="text-xs font-mono text-emerald-300 bg-emerald-400/10 border border-emerald-400/30 px-3 py-1 rounded-full flex items-center gap-1">
                   <FaFire className="text-emerald-400" /> Verified Feed
                 </span>
               </div>
@@ -209,7 +209,7 @@ export default function GitHubSection() {
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs font-mono text-slate-400">
-                <span className="text-slate-400 text-[11px]">Real-time REST Activity API Sync</span>
+                <span className="text-slate-400 text-xs">Real-time REST Activity API Sync</span>
                 <span className="text-cyan-300 font-semibold">{reposData.length} Public Repositories</span>
               </div>
             </div>

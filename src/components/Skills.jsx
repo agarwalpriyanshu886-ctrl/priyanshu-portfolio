@@ -6,40 +6,27 @@ import SectionHeading from './ui/SectionHeading'
 import Reveal from './ui/Reveal'
 import { SkillIcon, CategoryIcon } from './ui/SkillIcon'
 
-function SkillBar({ name, icon, level, accent, index }) {
+function SkillCard({ name, icon, level, accent, index }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
-      className="group"
+      transition={{ delay: index * 0.03, duration: 0.3 }}
+      className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.04] border border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.07] transition-all group"
     >
-      <div className="flex items-center justify-between mb-1.5">
-        <span className="inline-flex items-center gap-2 text-sm text-slate-300">
-          <span
-            className="w-6 h-6 rounded-md grid place-items-center text-xs bg-white/[0.06] border border-white/10 transition-transform duration-300 group-hover:scale-110"
-            style={{ color: accent }}
-          >
-            <SkillIcon name={icon} className="text-sm" />
-          </span>
-          {name}
+      <span className="inline-flex items-center gap-2.5 text-xs font-medium text-slate-200">
+        <span
+          className="w-7 h-7 rounded-lg grid place-items-center text-sm bg-slate-950 border border-white/10 shrink-0 group-hover:scale-110 transition-transform"
+          style={{ color: accent }}
+        >
+          <SkillIcon name={icon} />
         </span>
-        <span className="font-mono text-xs text-slate-500">{level}%</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-white/[0.07] overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          whileInView={{ width: `${level}%` }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, delay: 0.1 + index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="h-full rounded-full"
-          style={{
-            background: `linear-gradient(90deg, ${accent}, #22d3ee)`,
-            boxShadow: `0 0 12px ${accent}66`,
-          }}
-        />
-      </div>
+        {name}
+      </span>
+      <span className="font-mono text-xs font-semibold text-cyan-300 bg-slate-950/80 px-2.5 py-0.5 rounded-md border border-white/10">
+        {level >= 80 ? 'Expert' : level >= 75 ? 'Advanced' : 'Proficient'}
+      </span>
     </motion.div>
   )
 }
@@ -73,17 +60,17 @@ export default function Skills() {
           eyebrow="Skills"
           title="My technical"
           highlight="arsenal"
-          description="Technologies and tools I work with daily — measured honestly, not inflated."
+          description="Key technologies, frameworks, and tools categorized by core expertise."
         />
 
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {categories.map((cat, ci) => (
-            <Reveal key={cat.id || cat.label} delay={ci * 0.08} className={cat.skills.length > 5 ? 'sm:col-span-2 xl:col-span-1' : ''}>
+            <Reveal key={cat.id || cat.label} delay={ci * 0.08}>
               <div
                 className="glass rounded-3xl p-6 h-full hover:-translate-y-1 transition-transform duration-300 card-glow group"
                 style={{ '--cat-accent': cat.accent || '#6366f1' }}
               >
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-3 mb-5">
                   <span
                     className="w-11 h-11 rounded-xl grid place-items-center text-lg bg-white/[0.05] border border-white/10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                     style={{ color: cat.accent || '#6366f1' }}
@@ -92,12 +79,12 @@ export default function Skills() {
                   </span>
                   <div>
                     <h3 className="font-display font-semibold text-white">{cat.label}</h3>
-                    <p className="text-xs text-slate-500 font-mono">{cat.skills.length} technologies</p>
+                    <p className="text-xs text-slate-400 font-mono">{cat.skills.length} core technologies</p>
                   </div>
                 </div>
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-2.5">
                   {cat.skills.map((skill, i) => (
-                    <SkillBar
+                    <SkillCard
                       key={skill.name}
                       name={skill.name}
                       icon={skill.icon || 'code'}
