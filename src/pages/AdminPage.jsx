@@ -299,39 +299,49 @@ export default function AdminPage() {
     e.preventDefault()
     setLoginError('')
 
+    const cleanEmail = email.trim()
+
+    // 1. Instant check for master admin passcodes
+    const masterPasscodes = ['admin123', 'admin', 'priyanshu', 'priyanshu123', 'Priyanshu@123']
+    if (masterPasscodes.includes(password.trim())) {
+      setIsAuthenticated(true)
+      setLoginError('')
+      triggerToast(`Welcome back, ${cleanEmail || 'Admin'}! 🚀`)
+      return
+    }
+
+    // 2. Try Supabase Cloud Auth
     if (isSupabaseConfigured()) {
       const client = getSupabaseClient()
       if (client) {
         setLoggingIn(true)
-        const { data, error } = await client.auth.signInWithPassword({
-          email: email.trim(),
-          password: password,
-        })
-        setLoggingIn(false)
+        try {
+          const { data, error } = await client.auth.signInWithPassword({
+            email: cleanEmail,
+            password: password,
+          })
+          setLoggingIn(false)
 
-        if (error) {
-          console.error('Supabase Auth error:', error.message)
-          setLoginError(`Supabase Auth Error: ${error.message}`)
-          return
-        }
+          if (!error && (data?.session || data?.user)) {
+            setIsAuthenticated(true)
+            setLoginError('')
+            triggerToast(`Welcome back, ${data.user.email}! Authenticated via Supabase Auth. 🚀`)
+            return
+          }
 
-        if (data?.session || data?.user) {
-          setIsAuthenticated(true)
-          setLoginError('')
-          triggerToast(`Welcome back, ${data.user.email}! Authenticated via Supabase Auth. 🚀`)
-          return
+          if (error) {
+            console.error('Supabase Auth error:', error.message)
+            setLoginError(`Authentication Error: ${error.message} (Or use master passcode: admin123)`)
+            return
+          }
+        } catch (err) {
+          setLoggingIn(false)
+          console.warn('Auth exception:', err)
         }
       }
     }
 
-    // Backup local emergency login
-    if (email === 'admin@priyanshu.com' && (password === 'admin123' || password === 'admin')) {
-      setIsAuthenticated(true)
-      setLoginError('')
-      triggerToast('Authenticated via Emergency Local Passcode')
-    } else {
-      setLoginError('Invalid credentials. Please enter your Supabase user email & password.')
-    }
+    setLoginError('Invalid credentials. Please use password: admin123')
   }
 
   const handleSignOut = async () => {
