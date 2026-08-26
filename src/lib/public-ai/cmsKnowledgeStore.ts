@@ -97,20 +97,20 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
     const client = getSupabaseClient()
     if (!client) return { success: false, error: 'Supabase client unavailable' }
 
+    const syncErrors: string[] = []
+    const now = new Date().toISOString()
+
     // 1. Sync Master Table (portfolio_cms)
     const { error: masterErr } = await client.from('portfolio_cms').upsert({
       id: 'active_cms',
       data: updated,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     })
-
-    if (masterErr) {
-      console.warn('Master table upsert warning:', masterErr.message)
-    }
+    if (masterErr) syncErrors.push(`portfolio_cms (${masterErr.message})`)
 
     // 2. Sync Profiles Table
     if (updated.profile) {
-      await client.from('profiles').upsert({
+      const { error: profErr } = await client.from('profiles').upsert({
         id: 'primary_profile',
         name: updated.profile.name,
         title: updated.profile.title,
@@ -123,13 +123,14 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         instagram: updated.profile.instagram,
         roles: updated.profile.roles,
         passions: updated.profile.passions,
-        updated_at: new Date().toISOString(),
-      }).catch(() => {})
+        updated_at: now,
+      })
+      if (profErr) syncErrors.push(`profiles (${profErr.message})`)
     }
 
     // 3. Sync Hero Section Table
     if (updated.hero) {
-      await client.from('hero_section').upsert({
+      const { error: heroErr } = await client.from('hero_section').upsert({
         id: 'primary_hero',
         greeting_pill: updated.hero.greetingPill,
         first_name: updated.hero.firstName,
@@ -141,8 +142,9 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         secondary_cta_href: updated.hero.secondaryCtaHref,
         roles: updated.hero.roles,
         code_snippet: updated.hero.codeSnippet,
-        updated_at: new Date().toISOString(),
-      }).catch(() => {})
+        updated_at: now,
+      })
+      if (heroErr) syncErrors.push(`hero_section (${heroErr.message})`)
     }
 
     // 4. Sync Projects Catalog Table
@@ -158,9 +160,10 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         demo_url: p.demoUrl || p.demo,
         github_url: p.githubUrl || p.github,
         image_url: typeof p.image === 'string' ? p.image : p.imageUrl || p.image?.url,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }))
-      await client.from('projects').upsert(projRows).catch(() => {})
+      const { error: projErr } = await client.from('projects').upsert(projRows)
+      if (projErr) syncErrors.push(`projects (${projErr.message})`)
     }
 
     // 5. Sync Work Experience Table
@@ -176,9 +179,10 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         end_date: e.endDate,
         type: e.type,
         points: e.points,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }))
-      await client.from('work_experience').upsert(expRows).catch(() => {})
+      const { error: expErr } = await client.from('work_experience').upsert(expRows)
+      if (expErr) syncErrors.push(`work_experience (${expErr.message})`)
     }
 
     // 6. Sync Academic Journey Table
@@ -195,9 +199,10 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         sgpa: ed.sgpa,
         description: ed.description,
         highlights: ed.highlights,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }))
-      await client.from('academic_journey').upsert(eduRows).catch(() => {})
+      const { error: eduErr } = await client.from('academic_journey').upsert(eduRows)
+      if (eduErr) syncErrors.push(`academic_journey (${eduErr.message})`)
     }
 
     // 7. Sync Certifications Table
@@ -209,9 +214,10 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         date: c.date,
         url: c.url,
         description: c.description,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }))
-      await client.from('certifications').upsert(certRows).catch(() => {})
+      const { error: certErr } = await client.from('certifications').upsert(certRows)
+      if (certErr) syncErrors.push(`certifications (${certErr.message})`)
     }
 
     // 8. Sync Skill Categories Table
@@ -222,9 +228,15 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         icon: sc.icon,
         accent: sc.accent,
         skills: sc.skills,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       }))
-      await client.from('skill_categories').upsert(catRows).catch(() => {})
+      const { error: catErr } = await client.from('skill_categories').upsert(catRows)
+      if (catErr) syncErrors.push(`skill_categories (${catErr.message})`)
+    }
+
+    if (syncErrors.length > 0) {
+      console.warn('Supabase sync warnings:', syncErrors)
+      return { success: false, error: syncErrors.join('; ') }
     }
 
     return { success: true }

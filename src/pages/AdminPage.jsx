@@ -207,9 +207,15 @@ export default function AdminPage() {
     }
   }
 
-  const handleSaveAll = () => {
-    saveActiveKnowledge(kb)
-    triggerToast('All changes saved & live portfolio updated')
+  const handleSaveAll = async () => {
+    saveActiveKnowledge(kb, false)
+    triggerToast('Syncing all changes to Supabase Database...')
+    const result = await syncKnowledgeToSupabase(kb)
+    if (result.success) {
+      triggerToast('✅ All changes saved to LocalStorage & all Supabase Database Tables! 🚀')
+    } else {
+      triggerToast(`⚠️ Saved locally. Supabase write notice: ${result.error}`)
+    }
   }
 
   const handleAddCategory = () => {
