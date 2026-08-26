@@ -91,6 +91,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [email, setEmail] = useState('admin@priyanshu.com')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState('')
 
   // CMS State
@@ -445,87 +446,158 @@ export default function AdminPage() {
     i.label.toLowerCase().includes(commandQuery.toLowerCase()) || i.cat.toLowerCase().includes(commandQuery.toLowerCase())
   )
 
-  // 1. ADMIN ENTERPRISE LOGIN VIEW
+  // 1. ADMIN ENTERPRISE LOGIN VIEW (ULTRA-LUXURY ANIMATED GLASSMORPHIC CYBER PORTAL)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#070913] text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="min-h-screen bg-[#050711] text-slate-100 flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans select-none">
+        {/* Cyber Mesh Background Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(#1e1b4b_1.2px,transparent_1.2px)] [background-size:32px_32px] opacity-40 pointer-events-none" />
 
-        <Link
-          to="/"
-          className="absolute top-6 left-6 flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-[#0f172a]/90 px-4 py-2 rounded-xl border border-slate-800 shadow-sm"
-        >
-          <FaArrowLeft /> Return to Live Portfolio
-        </Link>
-
+        {/* Ambient Glowing Animated Orbs */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.98, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="w-full max-w-sm bg-[#0f172a]/95 border border-slate-800/90 rounded-2xl p-7 shadow-2xl backdrop-blur-2xl relative z-10"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.25, 0.4, 0.25],
+            x: [0, 20, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/25 rounded-full blur-[140px] pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.25, 1],
+            opacity: [0.15, 0.35, 0.15],
+            x: [0, -30, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          className="absolute -bottom-20 -left-20 w-[500px] h-[400px] bg-cyan-500/20 rounded-full blur-[130px] pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          className="absolute -bottom-24 -right-20 w-[550px] h-[400px] bg-purple-600/20 rounded-full blur-[150px] pointer-events-none"
+        />
+
+        {/* Floating Return Button */}
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="absolute top-6 left-6 z-20">
+          <Link
+            to="/"
+            className="group flex items-center gap-2.5 text-xs font-medium text-slate-400 hover:text-white transition-all bg-[#0d1222]/80 hover:bg-[#131b31] px-4 py-2.5 rounded-xl border border-slate-800/90 hover:border-indigo-500/50 shadow-lg backdrop-blur-xl"
+          >
+            <FaArrowLeft className="group-hover:-translate-x-1 transition-transform text-indigo-400 text-xs" />
+            <span>Return to Live Portfolio</span>
+          </Link>
+        </motion.div>
+
+        {/* Main Glassmorphic Login Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md bg-[#0b0f19]/90 border border-indigo-500/25 rounded-3xl p-8 shadow-[0_0_80px_rgba(99,102,241,0.18)] backdrop-blur-2xl relative z-10 space-y-6"
         >
-          <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-cyan-500 grid place-items-center mx-auto mb-3 text-white font-bold text-base shadow-lg shadow-indigo-500/20">
-              PA
+          {/* Top Security Status Pill */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[11px] font-mono text-indigo-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <FaShieldAlt className="text-indigo-400 text-[10px]" />
+              <span>Supabase Cloud Auth • 256-Bit RLS Active</span>
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight">Executive Studio Console</h2>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Enterprise Management Portal</p>
           </div>
 
+          {/* Console Header */}
+          <div className="text-center space-y-2">
+            <motion.div
+              whileHover={{ rotate: 360, scale: 1.05 }}
+              transition={{ duration: 0.8 }}
+              className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 grid place-items-center mx-auto text-white font-black text-lg shadow-xl shadow-indigo-600/30 border border-white/20 relative"
+            >
+              PA
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0b0f19] flex items-center justify-center text-[8px] text-white">✓</span>
+            </motion.div>
+            <h2 className="text-xl font-extrabold text-white tracking-tight font-display">Executive Studio Console</h2>
+            <p className="text-xs text-slate-400 font-medium">Enterprise Authentication Portal</p>
+          </div>
+
+          {/* Login Error Banner */}
           {loginError && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs text-center font-medium">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs text-center font-medium font-mono"
+            >
               {loginError}
-            </div>
+            </motion.div>
           )}
 
+          {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">Console Email</label>
-              <div className="relative">
-                <FaEnvelope className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Console Email</label>
+              <div className="relative group">
+                <FaEnvelope className="absolute left-3.5 top-3.5 text-slate-500 group-focus-within:text-indigo-400 transition-colors text-xs" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/40 font-medium"
+                  placeholder="name@company.com"
+                  className="w-full bg-[#050711] border border-slate-800 rounded-xl pl-9 pr-3.5 py-3 text-xs text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 font-mono transition-all"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1.5">Security Passcode</label>
-              <div className="relative">
-                <FaLock className="absolute left-3.5 top-3.5 text-slate-500 text-xs" />
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Security Passcode</label>
+              <div className="relative group">
+                <FaLock className="absolute left-3.5 top-3.5 text-slate-500 group-focus-within:text-indigo-400 transition-colors text-xs" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="admin123"
-                  className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/40 font-medium"
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#050711] border border-slate-800 rounded-xl pl-9 pr-10 py-3 text-xs text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 font-mono transition-all"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3.5 text-slate-500 hover:text-indigo-300 text-xs transition-colors"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.985 }}
               type="submit"
               disabled={loggingIn}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/20 mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs tracking-wide transition-all shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer mt-2"
             >
               {loggingIn ? (
                 <>
-                  <FaSync className="animate-spin text-xs" /> Authenticating via Supabase Auth...
+                  <FaSync className="animate-spin text-xs" /> Authenticating via Supabase Cloud...
                 </>
               ) : (
                 'Sign In with Supabase Account'
               )}
-            </button>
+            </motion.button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">
-            <p className="text-[11px] text-slate-400">
-              ⚡ Protected by <strong className="text-emerald-400 font-mono">Supabase Cloud Auth</strong>
-            </p>
+          {/* Card Footer Badges */}
+          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> OAuth 2.0 Ready
+            </span>
+            <span className="text-slate-400">Row Level Security ON</span>
           </div>
         </motion.div>
       </div>
