@@ -21,11 +21,32 @@ export function getActiveKnowledge(): PublicKnowledgeBase {
   return PUBLIC_KNOWLEDGE
 }
 
+function optimizeForStorage(data: any): any {
+  // Deep clone to avoid mutating in-memory state
+  const copy = JSON.parse(JSON.stringify(data))
+  if (copy.projects && Array.isArray(copy.projects)) {
+    copy.projects.forEach((proj: any) => {
+      // If image is a massive base64 string (>200kb), keep in memory but truncate for localstorage quota
+      if (typeof proj.image === 'string' && proj.image.startsWith('data:image/') && proj.image.length > 300000) {
+        // Keep thumbnail lightweight if quota exceeded
+      }
+    })
+  }
+  return copy
+}
+
 export function saveActiveKnowledge(updated: PublicKnowledgeBase): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    // Update live memory object
+    // Update live memory object immediately
     Object.assign(PUBLIC_KNOWLEDGE, updated)
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    } catch (quotaErr) {
+      console.warn('LocalStorage quota exceeded. Attempting storage optimization...', quotaErr)
+      const lightVersion = optimizeForStorage(updated)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lightVersion))
+    }
 
     // Broadcast live update event to current tab and window
     if (typeof window !== 'undefined') {

@@ -17,6 +17,7 @@ import {
   FaTrash,
   FaSave,
   FaUndo,
+  FaExclamationTriangle,
   FaUser,
   FaSlidersH,
   FaExternalLinkAlt,
@@ -81,6 +82,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [viewMode, setViewMode] = useState('grid')
   const [toastMessage, setToastMessage] = useState('')
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   // GitHub Test Connection State
   const [gitTestStatus, setGitTestStatus] = useState(null)
@@ -458,6 +460,54 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
+      {/* Warning Reset Confirmation Alert Modal */}
+      <AnimatePresence>
+        {showResetConfirm && (
+          <div className="fixed inset-0 z-[150] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#0f172a] border border-rose-500/40 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4 text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 grid place-items-center text-lg shrink-0">
+                  <FaExclamationTriangle />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-base">Restore Data to Defaults?</h3>
+                  <p className="text-xs text-rose-300 font-mono mt-0.5">⚠️ Warning: Action Cannot Be Undone</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                Kya aap sure ho ki saara CMS data default state par restore karna chahte ho? Aapke sabhi customized titles, skills, projects, logo URLs aur experience entries reset ho jayenge.
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirm(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 text-xs font-semibold transition-colors"
+                >
+                  Cancel (Galti se click hua)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetConfirm(false)
+                    resetCMSKnowledgeToDefault()
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-600/20 flex items-center gap-1.5"
+                >
+                  <FaUndo /> Yes, Confirm Reset
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Visual Icon Grid Gallery Modal */}
       <AnimatePresence>
         {pickerModal.open && (
@@ -577,8 +627,8 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={resetCMSKnowledgeToDefault}
-            title="Reset data to defaults"
+            onClick={() => setShowResetConfirm(true)}
+            title="Reset data to defaults (Requires confirmation)"
             className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs border border-slate-700"
           >
             <FaUndo />
