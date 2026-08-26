@@ -111,6 +111,52 @@ export default function AdminPage() {
   const [sbStatusMsg, setSbStatusMsg] = useState('')
   const [sqlCopied, setSqlCopied] = useState(false)
 
+  // Contact Form Submissions Messages State
+  const [messages, setMessages] = useState([])
+  const [fetchingMessages, setFetchingMessages] = useState(false)
+
+  const fetchContactMessages = async () => {
+    if (!isSupabaseConfigured()) return
+    const client = getSupabaseClient()
+    if (!client) return
+    setFetchingMessages(true)
+    try {
+      const { data, error } = await client
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (!error && data) {
+        setMessages(data)
+      }
+    } catch (err) {
+      console.warn('Notice fetching messages:', err)
+    } finally {
+      setFetchingMessages(false)
+    }
+  }
+
+  const markMessageRead = async (id) => {
+    const client = getSupabaseClient()
+    if (!client) return
+    await client.from('contact_messages').update({ read: true }).eq('id', id)
+    triggerToast('Message marked as read')
+    fetchContactMessages()
+  }
+
+  const deleteMessage = async (id) => {
+    const client = getSupabaseClient()
+    if (!client) return
+    await client.from('contact_messages').delete().eq('id', id)
+    triggerToast('Message deleted')
+    fetchContactMessages()
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchContactMessages()
+    }
+  }, [activeTab, isAuthenticated])
+
   const handleSaveSupabaseCreds = (e) => {
     e.preventDefault()
     saveSupabaseCredentials(sbCreds.url.trim(), sbCreds.key.trim())
@@ -878,6 +924,7 @@ export default function AdminPage() {
               group: 'Overview & Layout',
               items: [
                 { id: 'dashboard', label: 'Console Dashboard', icon: FaTachometerAlt, badge: null },
+                { id: 'messages', label: 'Form Messages', icon: FaEnvelope, badge: messages.filter(m => !m.read).length || (messages.length > 0 ? messages.length : 'NEW') },
                 { id: 'layout', label: 'Section Spacing & Gaps', icon: FaLayerGroup, badge: 'GAP' },
               ],
             },
@@ -1019,6 +1066,108 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* TAB: FORM MESSAGES INBOX */}
+          {activeTab === 'messages' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaEnvelope className="text-cyan-400" /> Contact Form Messages Inbox
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                    Live messages submitted by visitors from your portfolio contact form
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchContactMessages}
+                  disabled={fetchingMessages}
+                  className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                >
+                  <FaSync className={`text-xs ${fetchingMessages ? 'animate-spin' : ''}`} /> Refresh Inbox
+                </button>
+              </div>
+
+              {messages.length === 0 ? (
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-12 text-center space-y-3">
+                  <FaEnvelope className="text-4xl text-slate-600 mx-auto" />
+                  <h3 className="font-bold text-white text-sm">No Messages Yet</h3>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    When visitors submit messages via the Contact section on your live portfolio, they will appear here in real-time.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`bg-[#0f172a] border rounded-2xl p-5 space-y-3 transition-all ${
+                        msg.read ? 'border-slate-800 opacity-80' : 'border-cyan-500/40 shadow-lg shadow-cyan-500/5'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center font-bold text-white text-sm shrink-0">
+                            {msg.name ? msg.name[0].toUpperCase() : 'M'}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-white text-sm">{msg.name}</h4>
+                              {!msg.read && (
+                                <span className="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full font-bold">
+                                  NEW UNREAD
+                                </span>
+                              )}
+                            </div>
+                            <a
+                              href={`mailto:${msg.email}`}
+                              className="text-xs text-indigo-400 hover:text-cyan-300 transition-colors font-mono"
+                            >
+                              {msg.email}
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-slate-500">
+                            {msg.created_at ? new Date(msg.created_at).toLocaleString() : 'Recent'}
+                          </span>
+                          {!msg.read && (
+                            <button
+                              type="button"
+                              onClick={() => markMessageRead(msg.id)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30 transition-all cursor-pointer"
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => deleteMessage(msg.id)}
+                            className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs border border-rose-500/30 transition-all cursor-pointer"
+                            title="Delete message"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+
+                      {msg.subject && (
+                        <p className="text-xs font-semibold text-cyan-300/90 font-mono">
+                          Subject: {msg.subject}
+                        </p>
+                      )}
+
+                      <p className="text-xs text-slate-300 leading-relaxed bg-[#070913] p-3.5 rounded-xl border border-slate-800/80 whitespace-pre-wrap">
+                        {msg.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -2819,12 +2968,12 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      const sql = `CREATE TABLE IF NOT EXISTS portfolio_cms (\n  id TEXT PRIMARY KEY DEFAULT 'active_cms',\n  data JSONB NOT NULL,\n  updated_at TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);\nCREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`
+                      const sql = `CREATE TABLE IF NOT EXISTS public.contact_messages (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    name TEXT NOT NULL,\n    email TEXT NOT NULL,\n    subject TEXT,\n    message TEXT NOT NULL,\n    read BOOLEAN DEFAULT false,\n    created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Allow public insert" ON public.contact_messages FOR INSERT TO public, anon WITH CHECK (true);\nCREATE POLICY "Allow admin access" ON public.contact_messages FOR ALL USING (true);\n\nCREATE TABLE IF NOT EXISTS portfolio_cms (\n  id TEXT PRIMARY KEY DEFAULT 'active_cms',\n  data JSONB NOT NULL,\n  updated_at TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);\nCREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`
                       navigator.clipboard.writeText(sql)
                       setSqlCopied(true)
                       setTimeout(() => setSqlCopied(false), 2500)
                     }}
-                    className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono border border-cyan-500/30 transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono border border-cyan-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <FaCopy /> {sqlCopied ? 'SQL Copied!' : 'Copy SQL Script'}
                   </button>
@@ -2835,14 +2984,28 @@ export default function AdminPage() {
                 </p>
 
                 <div className="bg-[#070913] border border-slate-800 rounded-xl p-4 font-mono text-[11px] text-cyan-300 leading-relaxed overflow-x-auto select-all">
-                  <pre>{`-- Supabase SQL Table Setup for "portfolio" project
+                  <pre>{`-- 1. Contact Form Submissions Table
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT,
+    message TEXT NOT NULL,
+    read BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public insert" ON public.contact_messages FOR INSERT TO public, anon WITH CHECK (true);
+CREATE POLICY "Allow admin access" ON public.contact_messages FOR ALL USING (true);
+
+-- 2. Master Portfolio CMS Table
 CREATE TABLE IF NOT EXISTS portfolio_cms (
   id TEXT PRIMARY KEY DEFAULT 'active_cms',
   data JSONB NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable Row Level Security (RLS) & Public Policies
 ALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);
 CREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`}</pre>
