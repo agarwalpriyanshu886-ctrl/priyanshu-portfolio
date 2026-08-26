@@ -71,6 +71,7 @@ import {
   getSupabaseCredentials,
   saveSupabaseCredentials,
   clearSupabaseCredentials,
+  getSupabaseClient,
 } from '../lib/supabase'
 import { uploadImageToSupabaseStorage } from '../lib/supabaseStorage'
 import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
@@ -178,8 +179,34 @@ export default function AdminPage() {
   const [newEduHighlight, setNewEduHighlight] = useState({})
   const [newProjTech, setNewProjTech] = useState({})
 
+  const [loggingIn, setLoggingIn] = useState(false)
+
   useEffect(() => {
     setKb(getActiveKnowledge())
+
+    // Check active Supabase Auth session on mount
+    if (isSupabaseConfigured()) {
+      const client = getSupabaseClient()
+      if (client) {
+        client.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            setIsAuthenticated(true)
+            if (session.user.email) setEmail(session.user.email)
+          }
+        }).catch(() => {})
+
+        const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            setIsAuthenticated(true)
+            if (session.user.email) setEmail(session.user.email)
+          }
+        })
+
+        return () => {
+          subscription.unsubscribe()
+        }
+      }
+    }
 
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -196,15 +223,54 @@ export default function AdminPage() {
     setTimeout(() => setToastMessage(''), 3000)
   }
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (email === 'admin@priyanshu.com' && (password === 'admin123' || password === 'admin' || password.length >= 4)) {
+    setLoginError('')
+
+    if (isSupabaseConfigured()) {
+      const client = getSupabaseClient()
+      if (client) {
+        setLoggingIn(true)
+        const { data, error } = await client.auth.signInWithPassword({
+          email: email.trim(),
+          password: password,
+        })
+        setLoggingIn(false)
+
+        if (error) {
+          console.error('Supabase Auth error:', error.message)
+          setLoginError(`Supabase Auth Error: ${error.message}`)
+          return
+        }
+
+        if (data?.session || data?.user) {
+          setIsAuthenticated(true)
+          setLoginError('')
+          triggerToast(`Welcome back, ${data.user.email}! Authenticated via Supabase Auth. 🚀`)
+          return
+        }
+      }
+    }
+
+    // Backup local emergency login
+    if (email === 'admin@priyanshu.com' && (password === 'admin123' || password === 'admin')) {
       setIsAuthenticated(true)
       setLoginError('')
-      triggerToast('Authenticated successfully as Executive Admin')
+      triggerToast('Authenticated via Emergency Local Passcode')
     } else {
-      setLoginError('Invalid credentials. Use admin@priyanshu.com / admin123')
+      setLoginError('Invalid credentials. Please enter your Supabase user email & password.')
     }
+  }
+
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured()) {
+      const client = getSupabaseClient()
+      if (client) {
+        await client.auth.signOut().catch(() => {})
+      }
+    }
+    setIsAuthenticated(false)
+    triggerToast('Signed out from Executive Console')
   }
 
   const handleSaveAll = async () => {
@@ -443,16 +509,22 @@ export default function AdminPage() {
 
             <button
               type="submit"
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/20 mt-2"
+              disabled={loggingIn}
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs tracking-wide transition-all shadow-md shadow-indigo-600/20 mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              Authenticate Console Access
+              {loggingIn ? (
+                <>
+                  <FaSync className="animate-spin text-xs" /> Authenticating via Supabase Auth...
+                </>
+              ) : (
+                'Sign In with Supabase Account'
+              )}
             </button>
           </form>
 
           <div className="mt-6 pt-5 border-t border-slate-800/80 text-center">
-            <p className="text-[11px] text-slate-500">
-              Demo Credentials: <br />
-              <span className="text-indigo-400 font-mono">admin@priyanshu.com</span> / <span className="text-indigo-400 font-mono">admin123</span>
+            <p className="text-[11px] text-slate-400">
+              ⚡ Protected by <strong className="text-emerald-400 font-mono">Supabase Cloud Auth</strong>
             </p>
           </div>
         </motion.div>
@@ -710,10 +782,11 @@ export default function AdminPage() {
           </Link>
 
           <button
-            onClick={() => setIsAuthenticated(false)}
-            className="p-2 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all"
+            onClick={handleSignOut}
+            title="Sign Out from Supabase Auth"
+            className="p-2 text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all flex items-center gap-1"
           >
-            <FaSignOutAlt />
+            <FaSignOutAlt /> Sign Out
           </button>
         </div>
       </header>
