@@ -100,7 +100,7 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
     const syncErrors: string[] = []
     const now = new Date().toISOString()
 
-    // 1. Sync Master Table (portfolio_cms)
+    // 1. Sync Master Table (portfolio_cms) - Stores ALL sections A-Z (layout, stats, faqs, theme, etc.)
     const { error: masterErr } = await client.from('portfolio_cms').upsert({
       id: 'active_cms',
       data: updated,
@@ -147,10 +147,11 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
       if (heroErr) syncErrors.push(`hero_section (${heroErr.message})`)
     }
 
-    // 4. Sync Projects Catalog Table
+    // 4. Sync Projects Catalog Table (Handles Adds, Edits, Deletes)
     if (updated.projects && Array.isArray(updated.projects)) {
+      const activeIds = updated.projects.map((p, idx) => p.id || p.slug || `proj_${idx}_${Date.now()}`)
       const projRows = updated.projects.map((p, idx) => ({
-        id: p.id || p.slug || `proj_${idx}_${Date.now()}`,
+        id: activeIds[idx],
         title: p.title,
         category: p.category || 'WEB',
         status: p.status || 'LIVE',
@@ -162,14 +163,20 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         image_url: typeof p.image === 'string' ? p.image : p.imageUrl || p.image?.url,
         updated_at: now,
       }))
+
+      // Clean old deleted projects
+      if (activeIds.length > 0) {
+        await client.from('projects').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+      }
       const { error: projErr } = await client.from('projects').upsert(projRows)
       if (projErr) syncErrors.push(`projects (${projErr.message})`)
     }
 
-    // 5. Sync Work Experience Table
+    // 5. Sync Work Experience Table (Handles Adds, Edits, Deletes)
     if (updated.experience && Array.isArray(updated.experience)) {
+      const activeIds = updated.experience.map((e, idx) => e.id || `exp_${idx}_${Date.now()}`)
       const expRows = updated.experience.map((e, idx) => ({
-        id: e.id || `exp_${idx}_${Date.now()}`,
+        id: activeIds[idx],
         role: e.role,
         company: e.company,
         company_url: e.companyUrl,
@@ -181,14 +188,19 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         points: e.points,
         updated_at: now,
       }))
+
+      if (activeIds.length > 0) {
+        await client.from('work_experience').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+      }
       const { error: expErr } = await client.from('work_experience').upsert(expRows)
       if (expErr) syncErrors.push(`work_experience (${expErr.message})`)
     }
 
-    // 6. Sync Academic Journey Table
+    // 6. Sync Academic Journey Table (Handles Adds, Edits, Deletes)
     if (updated.education && Array.isArray(updated.education)) {
+      const activeIds = updated.education.map((ed, idx) => ed.id || `edu_${idx}_${Date.now()}`)
       const eduRows = updated.education.map((ed, idx) => ({
-        id: ed.id || `edu_${idx}_${Date.now()}`,
+        id: activeIds[idx],
         degree: ed.degree,
         field: ed.field,
         institution: ed.institution,
@@ -201,14 +213,19 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         highlights: ed.highlights,
         updated_at: now,
       }))
+
+      if (activeIds.length > 0) {
+        await client.from('academic_journey').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+      }
       const { error: eduErr } = await client.from('academic_journey').upsert(eduRows)
       if (eduErr) syncErrors.push(`academic_journey (${eduErr.message})`)
     }
 
-    // 7. Sync Certifications Table
+    // 7. Sync Certifications Table (Handles Adds, Edits, Deletes)
     if (updated.certifications && Array.isArray(updated.certifications)) {
+      const activeIds = updated.certifications.map((c, idx) => c.id || `cert_${idx}_${Date.now()}`)
       const certRows = updated.certifications.map((c, idx) => ({
-        id: c.id || `cert_${idx}_${Date.now()}`,
+        id: activeIds[idx],
         title: c.title,
         organization: c.organization,
         date: c.date,
@@ -216,20 +233,29 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
         description: c.description,
         updated_at: now,
       }))
+
+      if (activeIds.length > 0) {
+        await client.from('certifications').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+      }
       const { error: certErr } = await client.from('certifications').upsert(certRows)
       if (certErr) syncErrors.push(`certifications (${certErr.message})`)
     }
 
-    // 8. Sync Skill Categories Table
+    // 8. Sync Skill Categories Table (Handles Adds, Edits, Deletes)
     if (updated.skillCategories && Array.isArray(updated.skillCategories)) {
+      const activeIds = updated.skillCategories.map((sc, idx) => sc.id || `cat_${idx}_${Date.now()}`)
       const catRows = updated.skillCategories.map((sc, idx) => ({
-        id: sc.id || `cat_${idx}_${Date.now()}`,
+        id: activeIds[idx],
         label: sc.label,
         icon: sc.icon,
         accent: sc.accent,
         skills: sc.skills,
         updated_at: now,
       }))
+
+      if (activeIds.length > 0) {
+        await client.from('skill_categories').delete().not('id', 'in', `(${activeIds.map((i) => `"${i}"`).join(',')})`).catch(() => {})
+      }
       const { error: catErr } = await client.from('skill_categories').upsert(catRows)
       if (catErr) syncErrors.push(`skill_categories (${catErr.message})`)
     }
