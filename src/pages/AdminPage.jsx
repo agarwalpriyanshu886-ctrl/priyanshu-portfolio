@@ -155,20 +155,67 @@ export default function AdminPage() {
 
     setUpdatingPassword(true)
     try {
-      const { data, error } = await client.auth.updateUser({ password: newPasswordInput })
+      const { data: { user } } = await client.auth.getUser()
+      
+      if (!user) {
+        const targetEmail = email || 'agarwalpriyanshu886@gmail.com'
+        const { error: resetError } = await client.auth.resetPasswordForEmail(targetEmail, {
+          redirectTo: `${window.location.origin}/admin`,
+        })
+        setUpdatingPassword(false)
+
+        if (resetError) {
+          setPasswordMsg({ type: 'error', text: `Supabase Auth Error: ${resetError.message}` })
+        } else {
+          setPasswordMsg({
+            type: 'success',
+            text: `📩 Password reset email sent to ${targetEmail}! Please check your email inbox.`,
+          })
+          triggerToast('Password reset link sent! 📩')
+        }
+        return
+      }
+
+      const { data, error } = await client.auth.updateUser({ password: newPasswordInput.trim() })
       setUpdatingPassword(false)
 
       if (error) {
         setPasswordMsg({ type: 'error', text: `Password update failed: ${error.message}` })
       } else {
-        setPasswordMsg({ type: 'success', text: '✅ Account password updated successfully in Supabase!' })
-        triggerToast('Password updated successfully! 🔒')
+        setPasswordMsg({
+          type: 'success',
+          text: `✅ Account password updated successfully in Supabase for ${data.user?.email || user.email}!`,
+        })
+        triggerToast('Password updated successfully in Supabase! 🔒')
         setNewPasswordInput('')
         setConfirmPasswordInput('')
       }
     } catch (err) {
       setUpdatingPassword(false)
       setPasswordMsg({ type: 'error', text: err.message || 'Error updating password.' })
+    }
+  }
+
+  const handleSendResetEmail = async () => {
+    if (!isSupabaseConfigured()) return
+    const client = getSupabaseClient()
+    if (!client) return
+    const targetEmail = email || 'agarwalpriyanshu886@gmail.com'
+    setUpdatingPassword(true)
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(targetEmail, {
+        redirectTo: `${window.location.origin}/admin`,
+      })
+      setUpdatingPassword(false)
+      if (error) {
+        setPasswordMsg({ type: 'error', text: `Reset email error: ${error.message}` })
+      } else {
+        setPasswordMsg({ type: 'success', text: `📩 Sent password reset email to ${targetEmail}!` })
+        triggerToast('Reset email sent!')
+      }
+    } catch (err) {
+      setUpdatingPassword(false)
+      setPasswordMsg({ type: 'error', text: err.message })
     }
   }
 
@@ -2954,25 +3001,37 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                     <p className="text-[11px] text-slate-500 font-mono">
                       * Minimum 6 characters. Updates cloud auth credentials immediately.
                     </p>
-                    <button
-                      type="submit"
-                      disabled={updatingPassword}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
-                    >
-                      {updatingPassword ? (
-                        <>
-                          <FaSync className="animate-spin text-xs" /> Updating Password...
-                        </>
-                      ) : (
-                        <>
-                          <FaLock className="text-xs" /> Update Account Password
-                        </>
-                      )}
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSendResetEmail}
+                        disabled={updatingPassword}
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold text-xs border border-cyan-500/30 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                      >
+                        <FaEnvelope className="text-xs" /> Send Email Reset Link
+                      </button>
+
+                      <button
+                        type="submit"
+                        disabled={updatingPassword}
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                      >
+                        {updatingPassword ? (
+                          <>
+                            <FaSync className="animate-spin text-xs" /> Updating Password...
+                          </>
+                        ) : (
+                          <>
+                            <FaLock className="text-xs" /> Update Account Password
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
