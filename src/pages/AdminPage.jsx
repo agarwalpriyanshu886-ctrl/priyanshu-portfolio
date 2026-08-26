@@ -60,6 +60,7 @@ import { Link } from 'react-router-dom'
 import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
 import { isSupabaseConfigured } from '../lib/supabase'
 import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
+import { compressImageFile } from '../utils/imageCompressor'
 
 const COLOR_ACCENTS = [
   { name: 'Indigo', code: '#6366f1' },
@@ -2089,24 +2090,26 @@ export default function AdminPage() {
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
-                                onChange={(e) => {
+                                onChange={async (e) => {
                                   const file = e.target.files?.[0]
                                   if (file) {
-                                    const reader = new FileReader()
-                                    reader.onload = (evt) => {
-                                      const dataUrl = evt.target.result
+                                    try {
+                                      const dataUrl = await compressImageFile(file, 1000, 600, 0.78)
                                       const updated = [...kb.projects]
                                       updated[idx].image = dataUrl
                                       updated[idx].imageUrl = dataUrl
-                                      setKb({ ...kb, projects: updated })
-                                      triggerToast(`Uploaded "${file.name}" for ${proj.title}`)
+                                      const updatedKb = { ...kb, projects: updated }
+                                      setKb(updatedKb)
+                                      saveActiveKnowledge(updatedKb)
+                                      triggerToast(`Uploaded & optimized image for ${proj.title}`)
+                                    } catch (err) {
+                                      console.error('Image compression error:', err)
                                     }
-                                    reader.readAsDataURL(file)
                                   }
                                 }}
                               />
                             </label>
-                            <span className="text-[11px] text-slate-500">Select PNG, JPG, WEBP from your computer</span>
+                            <span className="text-[11px] text-slate-500">Select PNG, JPG, WEBP from your computer (auto-optimized)</span>
                           </div>
 
                           <div>
@@ -2117,7 +2120,9 @@ export default function AdminPage() {
                                 const updated = [...kb.projects]
                                 updated[idx].image = e.target.value
                                 updated[idx].imageUrl = e.target.value
-                                setKb({ ...kb, projects: updated })
+                                const updatedKb = { ...kb, projects: updated }
+                                setKb(updatedKb)
+                                saveActiveKnowledge(updatedKb)
                               }}
                               placeholder="Or paste external Image URL (https://...)..."
                               className="w-full bg-[#0b0f19] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
