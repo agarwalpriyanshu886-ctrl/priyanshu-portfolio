@@ -48,6 +48,8 @@ import {
   FaPaperPlane,
   FaMapMarkerAlt,
   FaListUl,
+  FaUpload,
+  FaImage,
   FaTag,
   FaPhoneAlt,
   FaInstagram,
@@ -1986,6 +1988,93 @@ export default function AdminPage() {
                       >
                         <FaTrash /> Remove
                       </button>
+                    </div>
+
+                    {/* Project Banner Image Upload & URL Card */}
+                    <div className="bg-[#070913] border border-slate-800 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-indigo-400 flex items-center gap-2">
+                          <FaImage /> Project Cover / Banner Image
+                        </label>
+                        { (typeof proj.image === 'string' ? proj.image : proj.image?.url) && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = [...kb.projects]
+                              delete updated[idx].image
+                              delete updated[idx].imageUrl
+                              setKb({ ...kb, projects: updated })
+                              triggerToast('Reset project image')
+                            }}
+                            className="text-rose-400 hover:text-rose-300 text-[11px] font-mono"
+                          >
+                            Remove Custom Image
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                        {/* Live Image Thumbnail Preview */}
+                        <div className="aspect-[16/9] rounded-lg bg-[#0f172a] border border-slate-800 overflow-hidden relative grid place-items-center group">
+                          { (typeof proj.image === 'string' ? proj.image : proj.image?.url) || proj.imageUrl ? (
+                            <img
+                              src={(typeof proj.image === 'string' ? proj.image : proj.image?.url) || proj.imageUrl}
+                              alt="Project Cover Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center p-2">
+                              <FaImage className="text-slate-600 text-lg mx-auto mb-1" />
+                              <span className="text-[10px] text-slate-500 font-mono">No Custom Image</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* File Upload & URL Controls */}
+                        <div className="sm:col-span-2 space-y-3">
+                          <div className="flex items-center gap-2">
+                            <label className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-2 rounded-lg text-xs cursor-pointer flex items-center gap-1.5 shrink-0 shadow-sm">
+                              <FaUpload /> Upload Image File
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    const reader = new FileReader()
+                                    reader.onload = (evt) => {
+                                      const dataUrl = evt.target.result
+                                      const updated = [...kb.projects]
+                                      updated[idx].image = dataUrl
+                                      updated[idx].imageUrl = dataUrl
+                                      setKb({ ...kb, projects: updated })
+                                      triggerToast(`Uploaded "${file.name}" for ${proj.title}`)
+                                    }
+                                    reader.readAsDataURL(file)
+                                  }
+                                }}
+                              />
+                            </label>
+                            <span className="text-[11px] text-slate-500">Select PNG, JPG, WEBP from your computer</span>
+                          </div>
+
+                          <div>
+                            <input
+                              type="text"
+                              value={(typeof proj.image === 'string' ? proj.image : proj.image?.url) || proj.imageUrl || ''}
+                              onChange={(e) => {
+                                const updated = [...kb.projects]
+                                updated[idx].image = e.target.value
+                                updated[idx].imageUrl = e.target.value
+                                setKb({ ...kb, projects: updated })
+                              }}
+                              placeholder="Or paste external Image URL (https://...)..."
+                              className="w-full bg-[#0b0f19] border border-slate-800 rounded-lg px-3 py-2 text-xs text-indigo-300 font-mono outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

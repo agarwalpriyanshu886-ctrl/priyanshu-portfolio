@@ -8,9 +8,10 @@ import Reveal from './ui/Reveal'
 import { gradientThumb } from '../utils/gradientThumb'
 
 function ProjectCard({ project, index }) {
+  const rawImage = project.image || project.imageUrl || project.bannerUrl || project.banner
   const thumb = project.isPlaceholder
     ? null
-    : project.image?.url || gradientThumb({ ...project.image, label: project.title })
+    : (typeof rawImage === 'string' ? rawImage : rawImage?.url) || gradientThumb({ label: project.title })
 
   const title = project.title
   const description = project.shortDescription || project.description
