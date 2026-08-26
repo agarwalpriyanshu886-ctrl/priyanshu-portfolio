@@ -72,6 +72,7 @@ import {
   saveSupabaseCredentials,
   clearSupabaseCredentials,
 } from '../lib/supabase'
+import { uploadImageToSupabaseStorage } from '../lib/supabaseStorage'
 import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
 import { compressImageFile } from '../utils/imageCompressor'
 
@@ -2153,22 +2154,31 @@ export default function AdminPage() {
                                   const file = e.target.files?.[0]
                                   if (file) {
                                     try {
-                                      const dataUrl = await compressImageFile(file, 1000, 600, 0.78)
+                                      let finalImageUrl = ''
+                                      // Try uploading to Supabase S3 Storage Bucket ('portfolio-assets')
+                                      const sbStorageRes = await uploadImageToSupabaseStorage(file, 'projects')
+                                      if (sbStorageRes.url) {
+                                        finalImageUrl = sbStorageRes.url
+                                      } else {
+                                        // Fallback to Canvas compressed data URL
+                                        finalImageUrl = await compressImageFile(file, 1000, 600, 0.78)
+                                      }
+
                                       const updated = [...kb.projects]
-                                      updated[idx].image = dataUrl
-                                      updated[idx].imageUrl = dataUrl
+                                      updated[idx].image = finalImageUrl
+                                      updated[idx].imageUrl = finalImageUrl
                                       const updatedKb = { ...kb, projects: updated }
                                       setKb(updatedKb)
                                       saveActiveKnowledge(updatedKb)
-                                      triggerToast(`Uploaded & optimized image for ${proj.title}`)
+                                      triggerToast(`Uploaded & saved image for ${proj.title}`)
                                     } catch (err) {
-                                      console.error('Image compression error:', err)
+                                      console.error('Image upload error:', err)
                                     }
                                   }
                                 }}
                               />
                             </label>
-                            <span className="text-[11px] text-slate-500">Select PNG, JPG, WEBP from your computer (auto-optimized)</span>
+                            <span className="text-[11px] text-slate-500">Upload PNG/JPG to Supabase S3 Storage Bucket & CDN</span>
                           </div>
 
                           <div>

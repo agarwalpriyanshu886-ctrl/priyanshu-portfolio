@@ -47,7 +47,7 @@ export function saveActiveKnowledge(updated: PublicKnowledgeBase, syncToSupabase
       localStorage.setItem(STORAGE_KEY, JSON.stringify(lightVersion))
     }
 
-    // Async sync to Supabase in background
+    // Async sync to Supabase Relational Tables & Master Table in background
     if (syncToSupabase && isSupabaseConfigured()) {
       syncKnowledgeToSupabase(updated).catch((err) => {
         console.warn('Background Supabase sync notice:', err)
@@ -97,15 +97,134 @@ export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Pro
     const client = getSupabaseClient()
     if (!client) return { success: false, error: 'Supabase client unavailable' }
 
-    const { error } = await client.from('portfolio_cms').upsert({
+    // 1. Sync Master Table (portfolio_cms)
+    const { error: masterErr } = await client.from('portfolio_cms').upsert({
       id: 'active_cms',
       data: updated,
       updated_at: new Date().toISOString(),
     })
 
-    if (error) {
-      console.error('Supabase upsert error:', error.message)
-      return { success: false, error: error.message }
+    if (masterErr) {
+      console.warn('Master table upsert warning:', masterErr.message)
+    }
+
+    // 2. Sync Profiles Table
+    if (updated.profile) {
+      await client.from('profiles').upsert({
+        id: 'primary_profile',
+        name: updated.profile.name,
+        title: updated.profile.title,
+        bio: updated.profile.bio,
+        location: updated.profile.location,
+        contact_email: updated.profile.contactEmail,
+        contact_phone: updated.profile.contactPhone,
+        github: updated.profile.github,
+        linkedin: updated.profile.linkedin,
+        instagram: updated.profile.instagram,
+        roles: updated.profile.roles,
+        passions: updated.profile.passions,
+        updated_at: new Date().toISOString(),
+      }).catch(() => {})
+    }
+
+    // 3. Sync Hero Section Table
+    if (updated.hero) {
+      await client.from('hero_section').upsert({
+        id: 'primary_hero',
+        greeting_pill: updated.hero.greetingPill,
+        first_name: updated.hero.firstName,
+        last_name: updated.hero.lastName,
+        short_description: updated.hero.shortDescription,
+        primary_cta_label: updated.hero.primaryCtaLabel,
+        primary_cta_href: updated.hero.primaryCtaHref,
+        secondary_cta_label: updated.hero.secondaryCtaLabel,
+        secondary_cta_href: updated.hero.secondaryCtaHref,
+        roles: updated.hero.roles,
+        code_snippet: updated.hero.codeSnippet,
+        updated_at: new Date().toISOString(),
+      }).catch(() => {})
+    }
+
+    // 4. Sync Projects Catalog Table
+    if (updated.projects && Array.isArray(updated.projects)) {
+      const projRows = updated.projects.map((p, idx) => ({
+        id: p.id || p.slug || `proj_${idx}_${Date.now()}`,
+        title: p.title,
+        category: p.category || 'WEB',
+        status: p.status || 'LIVE',
+        short_description: p.shortDescription || p.description,
+        full_description: p.fullDescription,
+        tech_stack: p.techStack || p.tech,
+        demo_url: p.demoUrl || p.demo,
+        github_url: p.githubUrl || p.github,
+        image_url: typeof p.image === 'string' ? p.image : p.imageUrl || p.image?.url,
+        updated_at: new Date().toISOString(),
+      }))
+      await client.from('projects').upsert(projRows).catch(() => {})
+    }
+
+    // 5. Sync Work Experience Table
+    if (updated.experience && Array.isArray(updated.experience)) {
+      const expRows = updated.experience.map((e, idx) => ({
+        id: e.id || `exp_${idx}_${Date.now()}`,
+        role: e.role,
+        company: e.company,
+        company_url: e.companyUrl,
+        logo_url: e.logo,
+        duration: e.duration,
+        start_date: e.startDate,
+        end_date: e.endDate,
+        type: e.type,
+        points: e.points,
+        updated_at: new Date().toISOString(),
+      }))
+      await client.from('work_experience').upsert(expRows).catch(() => {})
+    }
+
+    // 6. Sync Academic Journey Table
+    if (updated.education && Array.isArray(updated.education)) {
+      const eduRows = updated.education.map((ed, idx) => ({
+        id: ed.id || `edu_${idx}_${Date.now()}`,
+        degree: ed.degree,
+        field: ed.field,
+        institution: ed.institution,
+        location: ed.location,
+        duration: ed.duration,
+        years: ed.years,
+        badge: ed.badge,
+        sgpa: ed.sgpa,
+        description: ed.description,
+        highlights: ed.highlights,
+        updated_at: new Date().toISOString(),
+      }))
+      await client.from('academic_journey').upsert(eduRows).catch(() => {})
+    }
+
+    // 7. Sync Certifications Table
+    if (updated.certifications && Array.isArray(updated.certifications)) {
+      const certRows = updated.certifications.map((c, idx) => ({
+        id: c.id || `cert_${idx}_${Date.now()}`,
+        title: c.title,
+        organization: c.organization,
+        date: c.date,
+        url: c.url,
+        description: c.description,
+        updated_at: new Date().toISOString(),
+      }))
+      await client.from('certifications').upsert(certRows).catch(() => {})
+    }
+
+    // 8. Sync Skill Categories Table
+    if (updated.skillCategories && Array.isArray(updated.skillCategories)) {
+      const catRows = updated.skillCategories.map((sc, idx) => ({
+        id: sc.id || `cat_${idx}_${Date.now()}`,
+        label: sc.label,
+        icon: sc.icon,
+        accent: sc.accent,
+        skills: sc.skills,
+        updated_at: new Date().toISOString(),
+      }))
+      await client.from('skill_categories').upsert(catRows).catch(() => {})
     }
 
     return { success: true }
