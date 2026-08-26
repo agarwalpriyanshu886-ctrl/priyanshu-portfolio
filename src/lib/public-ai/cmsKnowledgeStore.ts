@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PUBLIC_KNOWLEDGE } from './knowledgeLayer'
 import type { PublicKnowledgeBase } from './knowledgeLayer'
+import { getSupabaseClient, isSupabaseConfigured } from '../supabase'
 
 const STORAGE_KEY = 'priyanshu_portfolio_cms_v1'
 
@@ -22,20 +23,18 @@ export function getActiveKnowledge(): PublicKnowledgeBase {
 }
 
 function optimizeForStorage(data: any): any {
-  // Deep clone to avoid mutating in-memory state
   const copy = JSON.parse(JSON.stringify(data))
   if (copy.projects && Array.isArray(copy.projects)) {
     copy.projects.forEach((proj: any) => {
-      // If image is a massive base64 string (>200kb), keep in memory but truncate for localstorage quota
       if (typeof proj.image === 'string' && proj.image.startsWith('data:image/') && proj.image.length > 300000) {
-        // Keep thumbnail lightweight if quota exceeded
+        // Keep lightweight if quota exceeded
       }
     })
   }
   return copy
 }
 
-export function saveActiveKnowledge(updated: PublicKnowledgeBase): void {
+export function saveActiveKnowledge(updated: PublicKnowledgeBase, syncToSupabase = true): void {
   try {
     // Update live memory object immediately
     Object.assign(PUBLIC_KNOWLEDGE, updated)
@@ -48,12 +47,71 @@ export function saveActiveKnowledge(updated: PublicKnowledgeBase): void {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(lightVersion))
     }
 
+    // Async sync to Supabase in background
+    if (syncToSupabase && isSupabaseConfigured()) {
+      syncKnowledgeToSupabase(updated).catch((err) => {
+        console.warn('Background Supabase sync notice:', err)
+      })
+    }
+
     // Broadcast live update event to current tab and window
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cms_knowledge_updated', { detail: updated }))
     }
   } catch (err) {
     console.error('Error saving CMS knowledge:', err)
+  }
+}
+
+export async function fetchKnowledgeFromSupabase(): Promise<PublicKnowledgeBase | null> {
+  try {
+    if (!isSupabaseConfigured()) return null
+    const client = getSupabaseClient()
+    if (!client) return null
+
+    const { data, error } = await client
+      .from('portfolio_cms')
+      .select('data')
+      .eq('id', 'active_cms')
+      .maybeSingle()
+
+    if (error) {
+      console.warn('Supabase fetch notice:', error.message)
+      return null
+    }
+
+    if (data && data.data) {
+      const merged = { ...PUBLIC_KNOWLEDGE, ...data.data }
+      saveActiveKnowledge(merged, false) // Save locally without re-triggering sync loop
+      return merged
+    }
+  } catch (err) {
+    console.error('Error fetching from Supabase:', err)
+  }
+  return null
+}
+
+export async function syncKnowledgeToSupabase(updated: PublicKnowledgeBase): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!isSupabaseConfigured()) return { success: false, error: 'Supabase credentials not configured' }
+    const client = getSupabaseClient()
+    if (!client) return { success: false, error: 'Supabase client unavailable' }
+
+    const { error } = await client.from('portfolio_cms').upsert({
+      id: 'active_cms',
+      data: updated,
+      updated_at: new Date().toISOString(),
+    })
+
+    if (error) {
+      console.error('Supabase upsert error:', error.message)
+      return { success: false, error: error.message }
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    console.error('Supabase sync exception:', err)
+    return { success: false, error: err.message || 'Supabase sync failed' }
   }
 }
 
@@ -73,6 +131,13 @@ export function useLiveCMSKnowledge(): PublicKnowledgeBase {
   const [data, setData] = useState<PublicKnowledgeBase>(() => getActiveKnowledge())
 
   useEffect(() => {
+    // Initial fetch from Supabase on mount
+    fetchKnowledgeFromSupabase().then((remoteData) => {
+      if (remoteData) {
+        setData(remoteData)
+      }
+    })
+
     const handleUpdate = () => {
       const active = getActiveKnowledge()
       setData(active)

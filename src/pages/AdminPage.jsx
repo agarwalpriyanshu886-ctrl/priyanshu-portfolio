@@ -55,10 +55,23 @@ import {
   FaPhoneAlt,
   FaInstagram,
   FaLinkedin,
+  FaKey,
+  FaCopy,
 } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
-import { getActiveKnowledge, saveActiveKnowledge, resetCMSKnowledgeToDefault } from '../lib/public-ai/cmsKnowledgeStore'
-import { isSupabaseConfigured } from '../lib/supabase'
+import {
+  getActiveKnowledge,
+  saveActiveKnowledge,
+  resetCMSKnowledgeToDefault,
+  syncKnowledgeToSupabase,
+  fetchKnowledgeFromSupabase,
+} from '../lib/public-ai/cmsKnowledgeStore'
+import {
+  isSupabaseConfigured,
+  getSupabaseCredentials,
+  saveSupabaseCredentials,
+  clearSupabaseCredentials,
+} from '../lib/supabase'
 import { SkillIcon, CategoryIcon, AVAILABLE_SKILL_ICONS, AVAILABLE_CATEGORY_ICONS } from '../components/ui/SkillIcon'
 import { compressImageFile } from '../utils/imageCompressor'
 
@@ -88,6 +101,52 @@ export default function AdminPage() {
   // GitHub Test Connection State
   const [gitTestStatus, setGitTestStatus] = useState(null)
   const [gitTesting, setGitTesting] = useState(false)
+
+  // Supabase Connection & Sync State
+  const [sbCreds, setSbCreds] = useState(() => getSupabaseCredentials())
+  const [sbSyncing, setSbSyncing] = useState(false)
+  const [sbStatusMsg, setSbStatusMsg] = useState('')
+  const [sqlCopied, setSqlCopied] = useState(false)
+
+  const handleSaveSupabaseCreds = (e) => {
+    e.preventDefault()
+    saveSupabaseCredentials(sbCreds.url.trim(), sbCreds.key.trim())
+    triggerToast('Supabase credentials saved')
+    window.location.reload()
+  }
+
+  const handleClearSupabaseCreds = () => {
+    clearSupabaseCredentials()
+    setSbCreds({ url: '', key: '' })
+    triggerToast('Supabase credentials cleared')
+  }
+
+  const handleSyncToSupabase = async () => {
+    setSbSyncing(true)
+    setSbStatusMsg('Syncing data to Supabase database...')
+    const result = await syncKnowledgeToSupabase(kb)
+    setSbSyncing(false)
+    if (result.success) {
+      setSbStatusMsg('✅ Successfully synced all CMS data to Supabase table "portfolio_cms"!')
+      triggerToast('Synced all data to Supabase')
+    } else {
+      setSbStatusMsg(`❌ Sync error: ${result.error}`)
+    }
+  }
+
+  const handleFetchFromSupabase = async () => {
+    setSbSyncing(true)
+    setSbStatusMsg('Fetching latest data from Supabase...')
+    const data = await fetchKnowledgeFromSupabase()
+    setSbSyncing(false)
+    if (data) {
+      setKb(data)
+      setSbStatusMsg('✅ Successfully loaded latest data from Supabase!')
+      triggerToast('Loaded data from Supabase')
+    } else {
+      setSbStatusMsg('⚠️ Could not fetch from Supabase. Ensure table "portfolio_cms" exists!')
+    }
+  }
 
   // Pittu AI Test Tool State
   const [pittuTestQuery, setPittuTestQuery] = useState('')
@@ -2470,17 +2529,156 @@ export default function AdminPage() {
 
           {activeTab === 'database' && (
             <div className="space-y-6 max-w-4xl">
-              <h2 className="text-lg font-bold text-white">Database & Infrastructure Overview</h2>
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-white text-xs">Supabase Database Connection</h3>
-                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-                    {isSupabaseConfigured() ? 'Supabase Active' : 'Browser Storage + Local Memory'}
-                  </span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaDatabase className="text-emerald-400" /> Supabase Database & Cloud Infrastructure
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Connect your portfolio console to your Supabase project (Database Name: <code className="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded font-mono">portfolio</code> / table: <code className="text-cyan-400 bg-slate-900 px-1.5 py-0.5 rounded font-mono">portfolio_cms</code>)
+                  </p>
                 </div>
+                <span className={`text-xs font-mono px-3.5 py-1.5 rounded-full flex items-center gap-1.5 border font-semibold ${
+                  isSupabaseConfigured()
+                    ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
+                    : 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                }`}>
+                  <span className={`w-2 h-2 rounded-full ${isSupabaseConfigured() ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                  {isSupabaseConfigured() ? 'Supabase Connected' : 'Local Storage Mode'}
+                </span>
+              </div>
+
+              {/* Live Status Message Banner */}
+              {sbStatusMsg && (
+                <div className="p-4 rounded-xl bg-slate-900 border border-indigo-500/30 text-xs font-mono text-indigo-300">
+                  {sbStatusMsg}
+                </div>
+              )}
+
+              {/* Supabase Credentials Configuration Card */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                  <FaKey className="text-indigo-400" /> Supabase Account Credentials
+                </h3>
+
+                <form onSubmit={handleSaveSupabaseCreds} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                      Supabase Project URL (<span className="text-indigo-400 font-mono">VITE_SUPABASE_URL</span>)
+                    </label>
+                    <input
+                      type="url"
+                      value={sbCreds.url}
+                      onChange={(e) => setSbCreds({ ...sbCreds, url: e.target.value })}
+                      placeholder="https://your-project-ref.supabase.co"
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                      Supabase Anon Public API Key (<span className="text-indigo-400 font-mono">VITE_SUPABASE_ANON_KEY</span>)
+                    </label>
+                    <input
+                      type="password"
+                      value={sbCreds.key}
+                      onChange={(e) => setSbCreds({ ...sbCreds, key: e.target.value })}
+                      placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-md shadow-indigo-600/20"
+                    >
+                      Save Credentials & Connect
+                    </button>
+                    {isSupabaseConfigured() && (
+                      <button
+                        type="button"
+                        onClick={handleClearSupabaseCreds}
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 text-xs font-medium"
+                      >
+                        Disconnect / Clear
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </div>
+
+              {/* Database Sync Actions Card */}
+              {isSupabaseConfigured() && (
+                <div className="bg-[#0f172a] border border-emerald-500/30 rounded-2xl p-6 space-y-4">
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <FaSync className="text-emerald-400" /> Database Live Sync Controls
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Push your current local CMS state directly to your Supabase PostgreSQL database table <code className="text-emerald-400 font-mono bg-slate-900 px-1.5 py-0.5 rounded">portfolio_cms</code> or fetch the latest row!
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      disabled={sbSyncing}
+                      onClick={handleSyncToSupabase}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <FaSync className={sbSyncing ? 'animate-spin' : ''} /> Sync All Data to Supabase Now
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={sbSyncing}
+                      onClick={handleFetchFromSupabase}
+                      className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-all border border-slate-700 flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <FaDatabase /> Fetch Latest Data from Supabase
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 1-Click SQL Setup Script Box */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <FaCode className="text-cyan-400" /> 1-Click SQL Setup Script for Supabase SQL Editor
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sql = `CREATE TABLE IF NOT EXISTS portfolio_cms (\n  id TEXT PRIMARY KEY DEFAULT 'active_cms',\n  data JSONB NOT NULL,\n  updated_at TIMESTAMPTZ DEFAULT NOW()\n);\n\nALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);\nCREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`
+                      navigator.clipboard.writeText(sql)
+                      setSqlCopied(true)
+                      setTimeout(() => setSqlCopied(false), 2500)
+                    }}
+                    className="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono border border-cyan-500/30 transition-all flex items-center gap-1.5"
+                  >
+                    <FaCopy /> {sqlCopied ? 'SQL Copied!' : 'Copy SQL Script'}
+                  </button>
+                </div>
+
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  All changes made in this Executive Console are saved immediately to Local Storage and update the authoritative single source of truth across the live portfolio website and Pittu AI!
+                  Open your Supabase Dashboard (<span className="text-indigo-400 font-mono">SQL Editor</span> tab), paste the script below, and click <strong className="text-white font-mono">Run</strong>:
                 </p>
+
+                <div className="bg-[#070913] border border-slate-800 rounded-xl p-4 font-mono text-[11px] text-cyan-300 leading-relaxed overflow-x-auto select-all">
+                  <pre>{`-- Supabase SQL Table Setup for "portfolio" project
+CREATE TABLE IF NOT EXISTS portfolio_cms (
+  id TEXT PRIMARY KEY DEFAULT 'active_cms',
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security (RLS) & Public Policies
+ALTER TABLE portfolio_cms ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read policy" ON portfolio_cms FOR SELECT USING (true);
+CREATE POLICY "Public write policy" ON portfolio_cms FOR ALL USING (true);`}</pre>
+                </div>
               </div>
             </div>
           )}

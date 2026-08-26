@@ -37,6 +37,8 @@ function Home() {
   const [layout, setLayout] = useState(null)
 
   useEffect(() => {
+    fetchKnowledgeFromSupabase().catch(() => {})
+
     const updateLayout = () => {
       const active = getActiveKnowledge()
       if (active && active.layoutConfig && active.layoutConfig.sections) {
