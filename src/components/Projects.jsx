@@ -128,7 +128,15 @@ export default function Projects() {
     }
   }, [])
 
-  const filtered = projectList.filter((p) => filter === 'all' || p.category === filter || filter.toUpperCase() === p.category)
+  const filtered = projectList.filter((p) => {
+    if (filter === 'all') return true
+    const cat = String(p.category || '').toLowerCase()
+    if (filter === 'ai') return cat.includes('ai') || cat.includes('ml')
+    if (filter === 'web') return cat.includes('web') || cat.includes('hybrid') || cat.includes('code')
+    if (filter === 'mobile') return cat.includes('mobile') || cat.includes('app')
+    if (filter === 'other') return !cat.includes('ai') && !cat.includes('web') && !cat.includes('mobile')
+    return cat === filter || p.category === filter
+  })
 
   return (
     <section id="projects" className="relative py-12 lg:py-16 overflow-hidden">
@@ -169,7 +177,7 @@ export default function Projects() {
         <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout">
             {filtered.map((project, i) => (
-              <ProjectCard key={project.id || project.slug} project={project} index={i} />
+              <ProjectCard key={project.id || project.slug || i} project={project} index={i} />
             ))}
           </AnimatePresence>
         </motion.div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaBars, FaTimes, FaCode, FaPaperPlane } from 'react-icons/fa'
 import { site } from '../data/site'
+import { getActiveKnowledge } from '../lib/public-ai/cmsKnowledgeStore'
 
 const navItems = [
   { id: 'home', label: 'Home' },
@@ -18,6 +19,34 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [active, setActive] = useState('home')
+  const [brand, setBrand] = useState({
+    name: site.name,
+    initials: site.initials,
+  })
+
+  useEffect(() => {
+    const updateBrand = () => {
+      const kb = getActiveKnowledge()
+      if (kb && kb.profile && kb.profile.name) {
+        setBrand({
+          name: kb.profile.name,
+          initials: kb.profile.name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase(),
+        })
+      }
+    }
+
+    updateBrand()
+    window.addEventListener('cms_knowledge_updated', updateBrand)
+    window.addEventListener('storage', updateBrand)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateBrand)
+      window.removeEventListener('storage', updateBrand)
+    }
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,10 +76,10 @@ export default function Navbar() {
       <nav className="mx-auto max-w-7xl px-5 sm:px-8 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-2.5 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 grid place-items-center font-bold text-white text-base shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            {site.initials}
+            {brand.initials}
           </div>
           <span className="font-bold text-white text-lg tracking-tight">
-            {site.name}
+            {brand.name}
             <span className="text-cyan-400">.</span>
           </span>
         </a>

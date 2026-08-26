@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FaPaperPlane,
@@ -13,6 +13,7 @@ import {
   FaSpinner,
 } from 'react-icons/fa'
 import { site } from '../data/site'
+import { getActiveKnowledge } from '../lib/public-ai/cmsKnowledgeStore'
 import SectionHeading from './ui/SectionHeading'
 import Reveal from './ui/Reveal'
 
@@ -28,6 +29,38 @@ export default function Contact() {
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState(null)
+  const [contactInfo, setContactInfo] = useState({
+    email: site.email,
+    phone: site.phone,
+    location: site.location,
+    socials: site.socials,
+  })
+
+  useEffect(() => {
+    const updateContact = () => {
+      const active = getActiveKnowledge()
+      if (active && active.profile) {
+        setContactInfo({
+          email: active.profile.contactEmail || site.email,
+          phone: active.profile.contactPhone || site.phone,
+          location: active.profile.location || site.location,
+          socials: {
+            github: { label: 'GitHub', url: active.profile.github || 'https://github.com/agarwalpriyanshu886-ctrl' },
+            linkedin: { label: 'LinkedIn', url: active.profile.linkedin || 'https://linkedin.com' },
+            instagram: { label: 'Instagram', url: active.profile.instagram || 'https://instagram.com/priyanshu0.112' },
+          },
+        })
+      }
+    }
+
+    updateContact()
+    window.addEventListener('cms_knowledge_updated', updateContact)
+    window.addEventListener('storage', updateContact)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateContact)
+      window.removeEventListener('storage', updateContact)
+    }
+  }, [])
 
   const validate = () => {
     const next = {}
@@ -87,7 +120,7 @@ export default function Contact() {
 
               <div className="space-y-4 mb-8">
                 <a
-                  href={`mailto:${site.email}`}
+                  href={`mailto:${contactInfo.email}`}
                   className="flex items-center gap-4 glass rounded-2xl p-4 hover:border-cyan-400/30 hover:-translate-y-0.5 transition-all duration-300 group"
                 >
                   <span className="w-11 h-11 grid place-items-center rounded-xl bg-gradient-to-br from-indigo-500/30 to-cyan-500/30 text-cyan-300 text-lg group-hover:from-indigo-500 group-hover:to-cyan-500 group-hover:text-white transition-all duration-300">
@@ -95,13 +128,13 @@ export default function Contact() {
                   </span>
                   <div>
                     <p className="text-xs text-slate-500 font-mono uppercase tracking-widest">Email</p>
-                    <p className="text-sm text-white">{site.email}</p>
+                    <p className="text-sm text-white">{contactInfo.email}</p>
                   </div>
                 </a>
 
-                {site.phone && (
+                {contactInfo.phone && (
                   <a
-                    href={`tel:${site.phoneRaw || site.phone}`}
+                    href={`tel:${contactInfo.phone}`}
                     className="flex items-center gap-4 glass rounded-2xl p-4 hover:border-cyan-400/30 hover:-translate-y-0.5 transition-all duration-300 group"
                   >
                     <span className="w-11 h-11 grid place-items-center rounded-xl bg-gradient-to-br from-emerald-500/30 to-cyan-500/30 text-emerald-300 text-lg group-hover:from-emerald-500 group-hover:to-cyan-500 group-hover:text-white transition-all duration-300">
@@ -109,7 +142,7 @@ export default function Contact() {
                     </span>
                     <div>
                       <p className="text-xs text-slate-500 font-mono uppercase tracking-widest">Phone</p>
-                      <p className="text-sm text-white">{site.phone}</p>
+                      <p className="text-sm text-white">{contactInfo.phone}</p>
                     </div>
                   </a>
                 )}
@@ -120,15 +153,15 @@ export default function Contact() {
                   </span>
                   <div>
                     <p className="text-xs text-slate-500 font-mono uppercase tracking-widest">Location</p>
-                    <p className="text-sm text-white">{site.location}</p>
+                    <p className="text-sm text-white">{contactInfo.location}</p>
                   </div>
                 </div>
               </div>
 
               <p className="text-sm text-slate-500 mb-4">Or find me here</p>
               <div className="flex gap-3">
-                {Object.entries(site.socials).map(([key, social]) => {
-                  const Icon = socialIcons[key]
+                {Object.entries(contactInfo.socials).map(([key, social]) => {
+                  const Icon = socialIcons[key] || FaGithub
                   return (
                     <motion.a
                       key={key}
