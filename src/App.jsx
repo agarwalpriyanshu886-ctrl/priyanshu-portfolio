@@ -37,9 +37,19 @@ function Home() {
   const [layout, setLayout] = useState(null)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.layoutConfig && active.layoutConfig.sections) {
-      setLayout(active.layoutConfig)
+    const updateLayout = () => {
+      const active = getActiveKnowledge()
+      if (active && active.layoutConfig && active.layoutConfig.sections) {
+        setLayout(active.layoutConfig)
+      }
+    }
+
+    updateLayout()
+    window.addEventListener('cms_knowledge_updated', updateLayout)
+    window.addEventListener('storage', updateLayout)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateLayout)
+      window.removeEventListener('storage', updateLayout)
     }
   }, [])
 

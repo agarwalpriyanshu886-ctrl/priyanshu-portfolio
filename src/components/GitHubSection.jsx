@@ -16,13 +16,23 @@ export default function GitHubSection() {
   const [chartOk, setChartOk] = useState(true)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.profile && active.profile.github) {
-      const parts = active.profile.github.split('github.com/')
-      if (parts.length > 1) {
-        const rawUser = parts[1].replace(/\/$/, '').trim()
-        if (rawUser) setUsername(rawUser)
+    const updateGit = () => {
+      const active = getActiveKnowledge()
+      if (active && active.profile && active.profile.github) {
+        const parts = active.profile.github.split('github.com/')
+        if (parts.length > 1) {
+          const rawUser = parts[1].replace(/\/$/, '').trim()
+          if (rawUser) setUsername(rawUser)
+        }
       }
+    }
+
+    updateGit()
+    window.addEventListener('cms_knowledge_updated', updateGit)
+    window.addEventListener('storage', updateGit)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateGit)
+      window.removeEventListener('storage', updateGit)
     }
   }, [])
 

@@ -112,9 +112,19 @@ export default function Projects() {
   const [projectList, setProjectList] = useState(defaultProjects)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.projects && active.projects.length > 0) {
-      setProjectList(active.projects)
+    const updateProjects = () => {
+      const active = getActiveKnowledge()
+      if (active && active.projects && active.projects.length > 0) {
+        setProjectList(active.projects)
+      }
+    }
+
+    updateProjects()
+    window.addEventListener('cms_knowledge_updated', updateProjects)
+    window.addEventListener('storage', updateProjects)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateProjects)
+      window.removeEventListener('storage', updateProjects)
     }
   }, [])
 

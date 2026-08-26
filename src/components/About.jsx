@@ -37,19 +37,29 @@ export default function About() {
   const [statsList, setStatsList] = useState(defaultSite.stats)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active) {
-      if (active.profile) {
-        setProfile({
-          name: active.profile.name,
-          title: active.profile.title,
-          bio: active.profile.bio,
-          passions: active.profile.passions || defaultSite.about.passions,
-        })
+    const updateAbout = () => {
+      const active = getActiveKnowledge()
+      if (active) {
+        if (active.profile) {
+          setProfile({
+            name: active.profile.name,
+            title: active.profile.title,
+            bio: active.profile.bio,
+            passions: active.profile.passions || defaultSite.about.passions,
+          })
+        }
+        if (active.stats && active.stats.length > 0) {
+          setStatsList(active.stats)
+        }
       }
-      if (active.stats && active.stats.length > 0) {
-        setStatsList(active.stats)
-      }
+    }
+
+    updateAbout()
+    window.addEventListener('cms_knowledge_updated', updateAbout)
+    window.addEventListener('storage', updateAbout)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateAbout)
+      window.removeEventListener('storage', updateAbout)
     }
   }, [])
 

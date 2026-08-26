@@ -10,9 +10,19 @@ export default function Certifications() {
   const [certList, setCertList] = useState(defaultCertifications)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.certifications && active.certifications.length > 0) {
-      setCertList(active.certifications)
+    const updateCerts = () => {
+      const active = getActiveKnowledge()
+      if (active && active.certifications && active.certifications.length > 0) {
+        setCertList(active.certifications)
+      }
+    }
+
+    updateCerts()
+    window.addEventListener('cms_knowledge_updated', updateCerts)
+    window.addEventListener('storage', updateCerts)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateCerts)
+      window.removeEventListener('storage', updateCerts)
     }
   }, [])
 

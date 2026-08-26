@@ -60,9 +60,19 @@ export default function Experience() {
   const [items, setItems] = useState(defaultExperience)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.experience && active.experience.length > 0) {
-      setItems(active.experience)
+    const updateExperience = () => {
+      const active = getActiveKnowledge()
+      if (active && active.experience && active.experience.length > 0) {
+        setItems(active.experience)
+      }
+    }
+
+    updateExperience()
+    window.addEventListener('cms_knowledge_updated', updateExperience)
+    window.addEventListener('storage', updateExperience)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateExperience)
+      window.removeEventListener('storage', updateExperience)
     }
   }, [])
 

@@ -48,9 +48,19 @@ export default function Skills() {
   const [categories, setCategories] = useState(defaultCategories)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.skillCategories && active.skillCategories.length > 0) {
-      setCategories(active.skillCategories)
+    const updateSkills = () => {
+      const active = getActiveKnowledge()
+      if (active && active.skillCategories && active.skillCategories.length > 0) {
+        setCategories(active.skillCategories)
+      }
+    }
+
+    updateSkills()
+    window.addEventListener('cms_knowledge_updated', updateSkills)
+    window.addEventListener('storage', updateSkills)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateSkills)
+      window.removeEventListener('storage', updateSkills)
     }
   }, [])
 

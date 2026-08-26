@@ -8,9 +8,19 @@ export default function Education() {
   const [items, setItems] = useState(defaultEducation)
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.education && active.education.length > 0) {
-      setItems(active.education)
+    const updateEducation = () => {
+      const active = getActiveKnowledge()
+      if (active && active.education && active.education.length > 0) {
+        setItems(active.education)
+      }
+    }
+
+    updateEducation()
+    window.addEventListener('cms_knowledge_updated', updateEducation)
+    window.addEventListener('storage', updateEducation)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateEducation)
+      window.removeEventListener('storage', updateEducation)
     }
   }, [])
 

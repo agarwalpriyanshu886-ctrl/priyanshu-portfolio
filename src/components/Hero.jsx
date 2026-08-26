@@ -42,22 +42,32 @@ export default function Hero() {
   })
 
   useEffect(() => {
-    const active = getActiveKnowledge()
-    if (active && active.hero) {
-      setHeroData({
-        greetingPill: active.hero.greetingPill || defaultSite.name,
-        firstName: active.hero.firstName || defaultSite.hero.name.split(' ')[0],
-        lastName: active.hero.lastName || defaultSite.hero.name.split(' ').slice(1).join(' '),
-        roles: active.hero.roles || defaultSite.hero.roles,
-        typingSpeed: active.hero.typingSpeed || 70,
-        deletingSpeed: active.hero.deletingSpeed || 40,
-        pauseDuration: active.hero.pauseDuration || 1600,
-        shortDescription: active.hero.shortDescription || defaultSite.shortDescription,
-        primaryCtaLabel: active.hero.primaryCtaLabel || 'View My Projects',
-        primaryCtaHref: active.hero.primaryCtaHref || '#projects',
-        secondaryCtaLabel: active.hero.secondaryCtaLabel || 'Contact Me',
-        secondaryCtaHref: active.hero.secondaryCtaHref || '#contact',
-      })
+    const updateHero = () => {
+      const active = getActiveKnowledge()
+      if (active && active.hero) {
+        setHeroData({
+          greetingPill: active.hero.greetingPill || defaultSite.name,
+          firstName: active.hero.firstName || defaultSite.hero.name.split(' ')[0],
+          lastName: active.hero.lastName || defaultSite.hero.name.split(' ').slice(1).join(' '),
+          roles: active.hero.roles || defaultSite.hero.roles,
+          typingSpeed: active.hero.typingSpeed || 70,
+          deletingSpeed: active.hero.deletingSpeed || 40,
+          pauseDuration: active.hero.pauseDuration || 1600,
+          shortDescription: active.hero.shortDescription || defaultSite.shortDescription,
+          primaryCtaLabel: active.hero.primaryCtaLabel || 'View My Projects',
+          primaryCtaHref: active.hero.primaryCtaHref || '#projects',
+          secondaryCtaLabel: active.hero.secondaryCtaLabel || 'Contact Me',
+          secondaryCtaHref: active.hero.secondaryCtaHref || '#contact',
+        })
+      }
+    }
+
+    updateHero()
+    window.addEventListener('cms_knowledge_updated', updateHero)
+    window.addEventListener('storage', updateHero)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateHero)
+      window.removeEventListener('storage', updateHero)
     }
   }, [])
 
