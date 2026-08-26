@@ -92,7 +92,7 @@ export default function AcademicSlider({ items }) {
       {/* Horizontal Chronological Progression Bar */}
       <div className="relative mx-auto max-w-4xl px-4 py-4">
         {/* Progress Line */}
-        <div className="absolute top-1/2 left-8 right-8 h-1 bg-slate-800 -translate-y-1/2 rounded-full overflow-hidden">
+        <div className="absolute top-[25px] left-8 right-8 h-1 bg-slate-800 rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400"
             initial={{ width: '0%' }}

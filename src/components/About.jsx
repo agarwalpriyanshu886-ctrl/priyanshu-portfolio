@@ -100,7 +100,7 @@ export default function About() {
             <div className="glass rounded-3xl p-6 sm:p-8 h-full flex flex-col justify-between">
               <div>
                 <h3 className="font-display font-semibold text-white text-lg mb-5">Areas I'm passionate about</h3>
-                <ul className="grid sm:grid-cols-2 gap-3">
+                <ul className="flex flex-wrap gap-2.5">
                   {profile.passions.map((passion, i) => {
                     const Icon = passionIcons[passion] || FaBrain
                     return (
@@ -110,9 +110,9 @@ export default function About() {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.06 * i, duration: 0.45 }}
-                        className="flex items-center gap-3 text-sm text-slate-300 glass rounded-xl px-4 py-3 hover:border-cyan-400/30 hover:bg-white/[0.06] transition-all duration-300"
+                        className="inline-flex items-center gap-2.5 text-xs font-medium text-slate-200 bg-white/[0.04] border border-white/10 rounded-xl px-3.5 py-2.5 hover:border-cyan-400/30 hover:bg-white/[0.07] transition-all"
                       >
-                        <Icon className="text-cyan-400 text-base shrink-0" />
+                        <Icon className="text-cyan-400 text-sm shrink-0" />
                         {passion}
                       </motion.li>
                     )

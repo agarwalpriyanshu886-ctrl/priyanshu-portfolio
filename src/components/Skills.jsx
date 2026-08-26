@@ -24,8 +24,11 @@ function SkillCard({ name, icon, level, accent, index }) {
         </span>
         {name}
       </span>
-      <span className="font-mono text-xs font-semibold text-cyan-300 bg-slate-950/80 px-2.5 py-0.5 rounded-md border border-white/10">
-        {level >= 80 ? 'Expert' : level >= 75 ? 'Advanced' : 'Proficient'}
+      <span className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-950/70 border border-white/5" title={`Proficiency: ${level}%`}>
+        <span
+          className="w-2 h-2 rounded-full animate-pulse"
+          style={{ backgroundColor: accent }}
+        />
       </span>
     </motion.div>
   )
