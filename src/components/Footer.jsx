@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { FaGithub, FaLinkedinIn, FaInstagram, FaHeart } from 'react-icons/fa'
 import { site } from '../data/site'
 import { getActiveKnowledge } from '../lib/public-ai/cmsKnowledgeStore'
@@ -80,8 +81,12 @@ export default function Footer() {
             })}
           </div>
 
-          <p className="text-xs text-slate-600">
-            © {new Date().getFullYear()} {profileInfo.name}. All rights reserved.
+          <p className="text-xs text-slate-600 flex items-center justify-center gap-2 flex-wrap">
+            <span>© {new Date().getFullYear()} {profileInfo.name}. All rights reserved.</span>
+            <span>•</span>
+            <Link to="/admin" className="text-slate-500 hover:text-cyan-300 transition-colors font-medium">
+              Admin Console 🔒
+            </Link>
           </p>
 
           <p className="text-xs text-slate-700 flex items-center gap-1.5">
