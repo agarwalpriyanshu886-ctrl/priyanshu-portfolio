@@ -115,6 +115,63 @@ export default function AdminPage() {
   const [messages, setMessages] = useState([])
   const [fetchingMessages, setFetchingMessages] = useState(false)
 
+  // Password Reset / Change State
+  const [newPasswordInput, setNewPasswordInput] = useState('')
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('')
+  const [showPasswordText, setShowPasswordText] = useState(false)
+  const [updatingPassword, setUpdatingPassword] = useState(false)
+  const [passwordMsg, setPasswordMsg] = useState({ type: '', text: '' })
+  const [newPassionInput, setNewPassionInput] = useState('')
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault()
+    setPasswordMsg({ type: '', text: '' })
+
+    if (!newPasswordInput) {
+      setPasswordMsg({ type: 'error', text: 'Please enter a new password.' })
+      return
+    }
+
+    if (newPasswordInput.length < 6) {
+      setPasswordMsg({ type: 'error', text: 'Password must be at least 6 characters long.' })
+      return
+    }
+
+    if (newPasswordInput !== confirmPasswordInput) {
+      setPasswordMsg({ type: 'error', text: 'Passwords do not match. Please verify.' })
+      return
+    }
+
+    if (!isSupabaseConfigured()) {
+      setPasswordMsg({ type: 'error', text: 'Supabase is not connected.' })
+      return
+    }
+
+    const client = getSupabaseClient()
+    if (!client) {
+      setPasswordMsg({ type: 'error', text: 'Supabase client unavailable.' })
+      return
+    }
+
+    setUpdatingPassword(true)
+    try {
+      const { data, error } = await client.auth.updateUser({ password: newPasswordInput })
+      setUpdatingPassword(false)
+
+      if (error) {
+        setPasswordMsg({ type: 'error', text: `Password update failed: ${error.message}` })
+      } else {
+        setPasswordMsg({ type: 'success', text: '✅ Account password updated successfully in Supabase!' })
+        triggerToast('Password updated successfully! 🔒')
+        setNewPasswordInput('')
+        setConfirmPasswordInput('')
+      }
+    } catch (err) {
+      setUpdatingPassword(false)
+      setPasswordMsg({ type: 'error', text: err.message || 'Error updating password.' })
+    }
+  }
+
   const fetchContactMessages = async () => {
     if (!isSupabaseConfigured()) return
     const client = getSupabaseClient()
@@ -2814,44 +2871,311 @@ export default function AdminPage() {
             <div className="space-y-6 max-w-4xl">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-lg font-bold text-white">Profile & Contact Information</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Manage primary bio, role definitions, and public social channels</p>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaUser className="text-indigo-400" /> Executive Profile & Account Security
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                    Manage your personal bio, contact details, social URLs, domain passions, and update account password
+                  </p>
                 </div>
-                <button onClick={handleSaveAll} className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg shadow-sm">
-                  <FaSave /> Save Profile
+                <button
+                  type="button"
+                  onClick={handleSaveAll}
+                  className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <FaSave /> Save Profile Changes
                 </button>
               </div>
 
-              <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4">
+              {/* CARD 1: ACCOUNT SECURITY & PASSWORD RESET (SUPABASE AUTH) */}
+              <div className="bg-[#0f172a] border border-cyan-500/30 rounded-2xl p-6 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                  <div>
+                    <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                      <FaShieldAlt className="text-cyan-400" /> Security & Password Management
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Reset or update your master login password directly in Supabase Auth Cloud
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
+                    SUPABASE AUTH 🔒
+                  </span>
+                </div>
+
+                {passwordMsg.text && (
+                  <div
+                    className={`p-3.5 rounded-xl border text-xs font-medium flex items-center gap-2 ${
+                      passwordMsg.type === 'success'
+                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                        : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                    }`}
+                  >
+                    {passwordMsg.type === 'success' ? <FaCheckCircle /> : <FaExclamationTriangle />}
+                    <span>{passwordMsg.text}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleUpdatePassword} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <FaLock className="text-cyan-400 text-[11px]" /> New Account Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPasswordText ? 'text' : 'password'}
+                          placeholder="Min 6 characters..."
+                          value={newPasswordInput}
+                          onChange={(e) => setNewPasswordInput(e.target.value)}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-xl pl-3.5 pr-10 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-mono transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPasswordText(!showPasswordText)}
+                          className="absolute right-3 top-3 text-slate-500 hover:text-white text-xs cursor-pointer"
+                        >
+                          {showPasswordText ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <FaLock className="text-cyan-400 text-[11px]" /> Confirm New Password
+                      </label>
+                      <input
+                        type={showPasswordText ? 'text' : 'password'}
+                        placeholder="Re-enter new password..."
+                        value={confirmPasswordInput}
+                        onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                        className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-cyan-400 font-mono transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <p className="text-[11px] text-slate-500 font-mono">
+                      * Minimum 6 characters. Updates cloud auth credentials immediately.
+                    </p>
+                    <button
+                      type="submit"
+                      disabled={updatingPassword}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                    >
+                      {updatingPassword ? (
+                        <>
+                          <FaSync className="animate-spin text-xs" /> Updating Password...
+                        </>
+                      ) : (
+                        <>
+                          <FaLock className="text-xs" /> Update Account Password
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* CARD 2: PERSONAL & ACADEMIC DETAILS */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                  <FaUser className="text-indigo-400" /> Personal Identity & Academic Profile
+                </h3>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Full Legal Name</label>
                     <input
                       type="text"
-                      value={kb.profile.name}
+                      value={kb.profile?.name || ''}
                       onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, name: e.target.value } })}
-                      className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-bold"
                     />
                   </div>
+
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Primary Title</label>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Primary Title / Headline</label>
                     <input
                       type="text"
-                      value={kb.profile.title}
+                      value={kb.profile?.title || ''}
                       onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, title: e.target.value } })}
-                      className="w-full bg-[#070913] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-indigo-500"
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">University / Academic Institution</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. NIMS University Jaipur"
+                      value={kb.profile?.institution || 'NIMS University Jaipur'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, institution: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Location / Address</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Jaipur, Rajasthan, India"
+                      value={kb.profile?.location || 'Jaipur, Rajasthan, India'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, location: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Authoritative Public Bio</label>
-                  <textarea
-                    rows={4}
-                    value={kb.profile.bio}
-                    onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, bio: e.target.value } })}
-                    className="w-full bg-[#070913] border border-slate-800 rounded-lg p-3 text-xs text-white outline-none focus:border-indigo-500 leading-relaxed"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Contact Email</label>
+                    <input
+                      type="email"
+                      value={kb.profile?.contactEmail || 'agarwalpriyanshu886@gmail.com'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, contactEmail: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Contact Phone Number</label>
+                    <input
+                      type="text"
+                      value={kb.profile?.contactPhone || '+91 75684 41942'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, contactPhone: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* CARD 3: AUTHORITATIVE PUBLIC BIO */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <FaCode className="text-cyan-400" /> Authoritative Public Bio
+                  </h3>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    {(kb.profile?.bio || '').length} characters
+                  </span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={kb.profile?.bio || ''}
+                  onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, bio: e.target.value } })}
+                  className="w-full bg-[#070913] border border-slate-800 rounded-xl p-3.5 text-xs text-white outline-none focus:border-indigo-500 leading-relaxed font-sans"
+                />
+              </div>
+
+              {/* CARD 4: SOCIAL & ENGINEERING PROFILES */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                  <FaGlobe className="text-emerald-400" /> Social Channels & Developer URLs
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">GitHub Profile URL</label>
+                    <input
+                      type="text"
+                      value={kb.profile?.github || 'https://github.com/agarwalpriyanshu886-ctrl'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, github: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">LinkedIn Profile URL</label>
+                    <input
+                      type="text"
+                      value={kb.profile?.linkedin || 'https://www.linkedin.com/in/'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, linkedin: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Instagram Profile URL</label>
+                    <input
+                      type="text"
+                      value={kb.profile?.instagram || 'https://www.instagram.com/priyanshu0.112'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, instagram: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Resume / CV Download Link</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /resume.pdf"
+                      value={kb.profile?.resumeUrl || '/resume.pdf'}
+                      onChange={(e) => setKb({ ...kb, profile: { ...kb.profile, resumeUrl: e.target.value } })}
+                      className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* CARD 5: CORE PASSIONS & DOMAIN BADGES */}
+              <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 className="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800/80 pb-3">
+                  <FaRocket className="text-purple-400" /> Passions & Technical Expertise Areas
+                </h3>
+
+                <div className="flex flex-wrap gap-2">
+                  {(kb.profile?.passions || []).map((passion, pIdx) => (
+                    <span
+                      key={pIdx}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-medium"
+                    >
+                      <span>{passion}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (kb.profile.passions || []).filter((_, idx) => idx !== pIdx)
+                          setKb({ ...kb, profile: { ...kb.profile, passions: updated } })
+                        }}
+                        className="text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                      >
+                        <FaTimes className="text-[10px]" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <input
+                    type="text"
+                    placeholder="Add a new passion (e.g. Autonomous AI Agents)..."
+                    value={newPassionInput}
+                    onChange={(e) => setNewPassionInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        if (newPassionInput.trim()) {
+                          const current = kb.profile?.passions || []
+                          setKb({ ...kb, profile: { ...kb.profile, passions: [...current, newPassionInput.trim()] } })
+                          setNewPassionInput('')
+                        }
+                      }
+                    }}
+                    className="flex-1 bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newPassionInput.trim()) {
+                        const current = kb.profile?.passions || []
+                        setKb({ ...kb, profile: { ...kb.profile, passions: [...current, newPassionInput.trim()] } })
+                        setNewPassionInput('')
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <FaPlus /> Add
+                  </button>
                 </div>
               </div>
             </div>
