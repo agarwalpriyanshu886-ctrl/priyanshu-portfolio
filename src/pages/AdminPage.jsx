@@ -300,48 +300,51 @@ export default function AdminPage() {
     setLoginError('')
 
     const cleanEmail = email.trim()
+    const cleanPassword = password
 
-    // 1. Instant check for master admin passcodes
-    const masterPasscodes = ['admin123', 'admin', 'priyanshu', 'priyanshu123', 'Priyanshu@123']
-    if (masterPasscodes.includes(password.trim())) {
-      setIsAuthenticated(true)
-      setLoginError('')
-      triggerToast(`Welcome back, ${cleanEmail || 'Admin'}! 🚀`)
+    if (!cleanEmail || !cleanPassword) {
+      setLoginError('Please enter both your email address and password.')
       return
     }
 
-    // 2. Try Supabase Cloud Auth
-    if (isSupabaseConfigured()) {
-      const client = getSupabaseClient()
-      if (client) {
-        setLoggingIn(true)
-        try {
-          const { data, error } = await client.auth.signInWithPassword({
-            email: cleanEmail,
-            password: password,
-          })
-          setLoggingIn(false)
-
-          if (!error && (data?.session || data?.user)) {
-            setIsAuthenticated(true)
-            setLoginError('')
-            triggerToast(`Welcome back, ${data.user.email}! Authenticated via Supabase Auth. 🚀`)
-            return
-          }
-
-          if (error) {
-            console.error('Supabase Auth error:', error.message)
-            setLoginError(`Authentication Error: ${error.message} (Or use master passcode: admin123)`)
-            return
-          }
-        } catch (err) {
-          setLoggingIn(false)
-          console.warn('Auth exception:', err)
-        }
-      }
+    if (!isSupabaseConfigured()) {
+      setLoginError('Supabase is not configured yet. Please check your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file.')
+      return
     }
 
-    setLoginError('Invalid credentials. Please use password: admin123')
+    const client = getSupabaseClient()
+    if (!client) {
+      setLoginError('Could not initialize Supabase client. Please check your credentials.')
+      return
+    }
+
+    setLoggingIn(true)
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email: cleanEmail,
+        password: cleanPassword,
+      })
+      setLoggingIn(false)
+
+      if (error) {
+        console.error('Supabase Auth error:', error.message)
+        setLoginError(error.message || 'Invalid email or password.')
+        return
+      }
+
+      if (data?.session || data?.user) {
+        setIsAuthenticated(true)
+        setLoginError('')
+        triggerToast(`Welcome back, ${data.user.email}! Authenticated via Supabase Cloud Auth 🔒`)
+        return
+      }
+
+      setLoginError('Authentication failed. Please check your Supabase Auth credentials.')
+    } catch (err) {
+      setLoggingIn(false)
+      console.error('Supabase Auth exception:', err)
+      setLoginError(err.message || 'An unexpected error occurred during Supabase authentication.')
+    }
   }
 
   const handleSignOut = async () => {
