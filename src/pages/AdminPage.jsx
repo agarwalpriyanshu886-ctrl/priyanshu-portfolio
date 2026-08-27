@@ -27,6 +27,7 @@ import {
   FaAward,
   FaFilePdf,
   FaUpload,
+  FaClock,
   FaEye,
   FaEyeSlash,
   FaArrowUp,
@@ -449,8 +450,8 @@ export default function AdminPage() {
   const mouseXSpring = useSpring(mouseX, { stiffness: 300, damping: 30 })
   const mouseYSpring = useSpring(mouseY, { stiffness: 300, damping: 30 })
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['10deg', '-10deg'])
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-10deg', '10deg'])
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [10, -10])
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-10, 10])
 
   const handleCardMouseMove = (e) => {
     if (!cardRef.current) return
@@ -473,22 +474,29 @@ export default function AdminPage() {
     if (isSupabaseConfigured()) {
       const client = getSupabaseClient()
       if (client) {
-        client.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user) {
-            setIsAuthenticated(true)
-            if (session.user.email) setEmail(session.user.email)
-          }
-        }).catch(() => {})
+        client.auth
+          .getSession()
+          .then((res) => {
+            const session = res?.data?.session
+            if (session?.user) {
+              setIsAuthenticated(true)
+              if (session.user.email) setEmail(session.user.email)
+            }
+          })
+          .catch((err) => console.warn('Auth session check notice:', err))
 
-        const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+        const authState = client.auth.onAuthStateChange((_event, session) => {
           if (session?.user) {
             setIsAuthenticated(true)
             if (session.user.email) setEmail(session.user.email)
           }
         })
 
+        const subscription = authState?.data?.subscription || authState?.data
         return () => {
-          subscription.unsubscribe()
+          if (subscription && typeof subscription.unsubscribe === 'function') {
+            subscription.unsubscribe()
+          }
         }
       }
     }
