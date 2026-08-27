@@ -1507,33 +1507,57 @@ export default function AdminPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Resume Icon & Badge Status</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <select
-                            value={res.iconName || (res.id.includes('creative') ? 'magic' : res.id.includes('achieve') ? 'award' : res.id.includes('other') ? 'briefcase' : 'pdf')}
-                            onChange={(e) => updateResumeField(res.id, { iconName: e.target.value })}
-                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none"
-                          >
-                            <option value="magic">✨ Magic Wand (Creative Tech)</option>
-                            <option value="award">🎖️ Medal Award (Achievements)</option>
-                            <option value="briefcase">💼 Briefcase (General)</option>
-                            <option value="pdf">📄 Standard PDF File</option>
-                          </select>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Resume Icon & Variant</label>
+                        <select
+                          value={res.iconName || (res.id.includes('creative') ? 'magic' : res.id.includes('achieve') ? 'award' : res.id.includes('other') ? 'briefcase' : 'pdf')}
+                          onChange={(e) => updateResumeField(res.id, { iconName: e.target.value })}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none"
+                        >
+                          <option value="magic">✨ Magic Wand (Creative Tech)</option>
+                          <option value="award">🎖️ Medal Award (Achievements)</option>
+                          <option value="briefcase">💼 Briefcase (General)</option>
+                          <option value="pdf">📄 Standard PDF File</option>
+                        </select>
+                      </div>
 
-                          <select
-                            value={res.badgeType || 'available'}
-                            onChange={(e) => {
-                              const bType = e.target.value
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                          Availability Status Button Toggle
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
                               updateResumeField(res.id, {
-                                badgeType: bType,
-                                badge: bType === 'available' ? 'Available (PDF)' : 'Under Progress ⏳',
+                                badgeType: 'available',
+                                badge: 'Available (PDF)',
                               })
-                            }}
-                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 outline-none font-medium"
+                            }
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              res.badgeType === 'available'
+                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-md font-bold'
+                                : 'bg-[#070913] text-slate-400 border-slate-800 hover:text-white'
+                            }`}
                           >
-                            <option value="available">Available (PDF)</option>
-                            <option value="progress">Under Progress ⏳</option>
-                          </select>
+                            <FaCheckCircle className="text-[10px]" /> Available (PDF)
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateResumeField(res.id, {
+                                badgeType: 'progress',
+                                badge: 'Under Progress ⏳',
+                              })
+                            }
+                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              res.badgeType === 'progress'
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-md font-bold'
+                                : 'bg-[#070913] text-slate-400 border-slate-800 hover:text-white'
+                            }`}
+                          >
+                            <FaClock className="text-[10px]" /> Under Process ⏳
+                          </button>
                         </div>
                       </div>
 
