@@ -33,6 +33,8 @@ import { experience as defaultExperience } from '../../data/experience'
 import { education as defaultEducation } from '../../data/education'
 import { certifications as defaultCertifications } from '../../data/certifications'
 
+let modeSettingsTableExists: boolean | null = null
+
 export const cmsService = {
   // SITE SETTINGS
   async getSiteSettings(): Promise<SiteSettings | null> {
@@ -381,12 +383,27 @@ export const cmsService = {
       intro_mode: 'FIRST_VISIT',
       transition_duration_ms: 1000,
     }
-    if (!isSupabaseConfigured() || !supabase) return defaultSettings
+    if (!isSupabaseConfigured() || !supabase || modeSettingsTableExists === false) {
+      return defaultSettings
+    }
     try {
       const { data, error } = await supabase.from('mode_settings').select('*').limit(1).maybeSingle()
-      if (error || !data) return defaultSettings
+      if (error) {
+        if (
+          error.code === '42P01' ||
+          error.message?.includes('schema cache') ||
+          error.message?.includes('does not exist') ||
+          error.message?.includes('404')
+        ) {
+          modeSettingsTableExists = false
+        }
+        return defaultSettings
+      }
+      if (!data) return defaultSettings
+      modeSettingsTableExists = true
       return data
     } catch {
+      modeSettingsTableExists = false
       return defaultSettings
     }
   },

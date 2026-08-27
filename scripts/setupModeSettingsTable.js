@@ -5,23 +5,20 @@ const SUPABASE_KEY = 'sb_publishable_OWvWgcO7JoIWCnuuadoevQ_kjyj9ztI'
 
 const client = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-async function setupModeSettings() {
-  console.log('⚡ Testing and populating mode_settings table in Supabase...')
-  const defaultModeRow = {
-    id: 'default',
-    default_mode: 'DEVELOPER',
-    enable_mode_persistence: true,
-    intro_mode: 'FIRST_VISIT',
-    transition_duration_ms: 1000,
-  }
+async function setupModeSettingsTable() {
+  console.log('⚡ Checking Supabase table "mode_settings"...')
 
-  const { data, error } = await client.from('mode_settings').upsert([defaultModeRow]).select()
+  try {
+    const { data, error } = await client.from('mode_settings').select('*').limit(1)
 
-  if (error) {
-    console.error('❌ Table notice:', error.message)
-  } else {
-    console.log('✅ mode_settings table exists & populated:', data)
+    if (error) {
+      console.log('ℹ️ Table mode_settings check result:', error.message)
+    } else {
+      console.log('✅ Table "mode_settings" exists and returned data!')
+    }
+  } catch (err) {
+    console.warn('Error checking mode_settings:', err)
   }
 }
 
-setupModeSettings()
+setupModeSettingsTable()
