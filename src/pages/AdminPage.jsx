@@ -1507,18 +1507,29 @@ export default function AdminPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1">Badge Status</label>
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={res.badge || ''}
-                            onChange={(e) => updateResumeField(res.id, { badge: e.target.value })}
-                            className="flex-1 bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
-                          />
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Resume Icon & Badge Status</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <select
+                            value={res.iconName || (res.id.includes('creative') ? 'magic' : res.id.includes('achieve') ? 'award' : res.id.includes('other') ? 'briefcase' : 'pdf')}
+                            onChange={(e) => updateResumeField(res.id, { iconName: e.target.value })}
+                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none"
+                          >
+                            <option value="magic">✨ Magic Wand (Creative Tech)</option>
+                            <option value="award">🎖️ Medal Award (Achievements)</option>
+                            <option value="briefcase">💼 Briefcase (General)</option>
+                            <option value="pdf">📄 Standard PDF File</option>
+                          </select>
+
                           <select
                             value={res.badgeType || 'available'}
-                            onChange={(e) => updateResumeField(res.id, { badgeType: e.target.value })}
-                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 outline-none"
+                            onChange={(e) => {
+                              const bType = e.target.value
+                              updateResumeField(res.id, {
+                                badgeType: bType,
+                                badge: bType === 'available' ? 'Available (PDF)' : 'Under Progress ⏳',
+                              })
+                            }}
+                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 outline-none font-medium"
                           >
                             <option value="available">Available (PDF)</option>
                             <option value="progress">Under Progress ⏳</option>

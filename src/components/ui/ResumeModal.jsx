@@ -79,7 +79,21 @@ export default function ResumeModal({ isOpen, onClose }) {
           {/* Resume Items */}
           <div className="space-y-3">
             {resumes.map((res) => {
-              const isAvailable = res.badgeType === 'available' || Boolean(res.url)
+              const isAvailable = res.badgeType === 'available'
+              const Icon =
+                res.iconName === 'magic'
+                  ? FaMagic
+                  : res.iconName === 'award'
+                  ? FaAward
+                  : res.iconName === 'briefcase'
+                  ? FaBriefcase
+                  : res.id.includes('creative')
+                  ? FaMagic
+                  : res.id.includes('achieve')
+                  ? FaAward
+                  : res.id.includes('other')
+                  ? FaBriefcase
+                  : FaFilePdf
 
               return (
                 <div
@@ -92,7 +106,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <FaFilePdf className={`text-base ${isAvailable ? 'text-cyan-400' : 'text-slate-500'}`} />
+                      <Icon className={`text-base ${isAvailable ? 'text-cyan-400' : 'text-slate-400'}`} />
                       <h4 className="text-sm font-bold text-white">{res.title}</h4>
                     </div>
 
@@ -103,7 +117,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}
                     >
-                      {res.badge || (isAvailable ? 'Available (PDF)' : 'Under Progress ⏳')}
+                      {isAvailable ? (res.badge || 'Available (PDF)') : (res.badge || 'Under Progress ⏳')}
                     </span>
                   </div>
 
