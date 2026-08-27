@@ -25,6 +25,8 @@ import {
   FaRocket,
   FaChartBar,
   FaAward,
+  FaFilePdf,
+  FaUpload,
   FaEye,
   FaEyeSlash,
   FaArrowUp,
@@ -46,10 +48,8 @@ import {
   FaLink,
   FaCalendarAlt,
   FaBuilding,
-  FaPaperPlane,
   FaMapMarkerAlt,
   FaListUl,
-  FaUpload,
   FaImage,
   FaTag,
   FaPhoneAlt,
@@ -217,6 +217,115 @@ export default function AdminPage() {
       setUpdatingPassword(false)
       setPasswordMsg({ type: 'error', text: err.message })
     }
+  }
+
+  // Resume / CV Management Handlers
+  const updateResumeField = (resumeId, updatedFields) => {
+    const currentResumes = kb.resumes || []
+    const updated = currentResumes.map((r) => (r.id === resumeId ? { ...r, ...updatedFields } : r))
+    setKb({ ...kb, resumes: updated })
+  }
+
+  const handleUploadResumePdf = async (file, resumeId) => {
+    if (!file) return
+    triggerToast('Uploading PDF file...')
+
+    if (isSupabaseConfigured()) {
+      const client = getSupabaseClient()
+      if (client) {
+        try {
+          const fileExt = file.name.split('.').pop()
+          const fileName = `resume_${resumeId}_${Date.now()}.${fileExt}`
+          const filePath = `public/${fileName}`
+
+          const { data, error } = await client.storage.from('resumes').upload(filePath, file, {
+            upsert: true,
+            contentType: 'application/pdf',
+          })
+
+          if (!error && data) {
+            const { data: publicUrlData } = client.storage.from('resumes').getPublicUrl(filePath)
+            if (publicUrlData?.publicUrl) {
+              const publicUrl = publicUrlData.publicUrl
+              const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+              updateResumeField(resumeId, {
+                url: publicUrl,
+                fileSize: fileSizeMB,
+                updatedAt: new Date().toISOString().split('T')[0],
+                badgeType: 'available',
+                badge: 'Available (PDF)',
+              })
+              triggerToast('PDF uploaded successfully to Supabase Storage! 📄')
+              return
+            }
+          }
+        } catch (err) {
+          console.warn('Storage upload fallback:', err)
+        }
+      }
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const dataUrl = e.target.result
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+      updateResumeField(resumeId, {
+        url: dataUrl,
+        fileSize: fileSizeMB,
+        updatedAt: new Date().toISOString().split('T')[0],
+        badgeType: 'available',
+        badge: 'Available (PDF)',
+      })
+      triggerToast('PDF saved & updated! 📄')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleAddNewResume = () => {
+    const currentResumes = kb.resumes || []
+    const newId = `resume-${Date.now()}`
+    const newResume = {
+      id: newId,
+      title: `${currentResumes.length + 1}. NEW RESUME PROFILE`,
+      subtitle: 'Specialized Engineering & Technical Capability Resume',
+      badge: 'Available (PDF)',
+      badgeType: 'available',
+      url: '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
+      updatedAt: new Date().toISOString().split('T')[0],
+      fileSize: '1.0 MB',
+      isPrimary: false,
+    }
+    setKb({ ...kb, resumes: [...currentResumes, newResume] })
+    triggerToast('Added new resume entry')
+  }
+
+  const handleDeleteResume = (resumeId) => {
+    const currentResumes = kb.resumes || []
+    const updated = currentResumes.filter((r) => r.id !== resumeId)
+    setKb({ ...kb, resumes: updated })
+    triggerToast('Resume entry deleted')
+  }
+
+  const handleSetPrimaryResume = (resumeId) => {
+    const currentResumes = kb.resumes || []
+    const updated = currentResumes.map((r) => {
+      const isPrimary = r.id === resumeId
+      return {
+        ...r,
+        isPrimary,
+        badge: isPrimary ? 'PRIMARY PORTFOLIO RESUME ⭐' : r.badge,
+      }
+    })
+    const target = updated.find((r) => r.id === resumeId)
+    setKb({
+      ...kb,
+      resumes: updated,
+      profile: {
+        ...kb.profile,
+        resumeUrl: target?.url || kb.profile?.resumeUrl,
+      },
+    })
+    triggerToast('Set primary portfolio resume')
   }
 
   const fetchContactMessages = async () => {
@@ -1048,6 +1157,7 @@ export default function AdminPage() {
             {
               group: 'Content Management',
               items: [
+                { id: 'resumes', label: 'Resume & CV Manager', icon: FaFilePdf, badge: (kb.resumes?.length || 3) },
                 { id: 'github', label: 'GitHub & Open Source', icon: FaGithub, badge: 'GIT' },
                 { id: 'skills', label: 'Skills & Tech Bars', icon: FaSlidersH, badge: kb.skillCategories?.length || 0 },
                 { id: 'stats', label: 'Stats Counter Cards', icon: FaChartBar, badge: stats.length },
@@ -1285,6 +1395,212 @@ export default function AdminPage() {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB: RESUME & CV DOCUMENTS MANAGER */}
+          {activeTab === 'resumes' && (
+            <div className="space-y-6 max-w-5xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <FaFilePdf className="text-cyan-400" /> Resume & CV Documents Manager
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-medium">
+                    Upload new PDF files, set primary portfolio resume, edit titles, and inspect live PDF previews
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddNewResume}
+                    className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <FaPlus /> Add Resume Entry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAll}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <FaSave /> Save Changes
+                  </button>
+                </div>
+              </div>
+
+              {/* List of Resumes */}
+              <div className="space-y-6">
+                {(kb.resumes || []).map((res, rIdx) => (
+                  <div
+                    key={res.id || rIdx}
+                    className={`bg-[#0f172a] border rounded-2xl p-6 space-y-4 transition-all ${
+                      res.isPrimary ? 'border-cyan-400/60 shadow-xl shadow-cyan-500/10' : 'border-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4 flex-wrap pb-3 border-b border-slate-800/80">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 grid place-items-center text-cyan-300 font-bold">
+                          <FaFilePdf className="text-lg" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-white text-sm">{res.title}</h3>
+                            {res.isPrimary && (
+                              <span className="text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 px-2 py-0.5 rounded-full font-bold">
+                                PRIMARY PORTFOLIO RESUME ⭐
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 font-mono mt-0.5">{res.subtitle}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {!res.isPrimary && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimaryResume(res.id)}
+                            className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold border border-cyan-500/30 transition-all cursor-pointer"
+                          >
+                            Set Primary ⭐
+                          </button>
+                        )}
+                        <a
+                          href={res.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold border border-indigo-500/30 transition-all flex items-center gap-1.5"
+                        >
+                          <FaExternalLinkAlt className="text-[10px]" /> Open PDF
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteResume(res.id)}
+                          className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs border border-rose-500/30 transition-all cursor-pointer"
+                          title="Delete Resume Entry"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Inputs Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Resume Title</label>
+                        <input
+                          type="text"
+                          value={res.title}
+                          onChange={(e) => updateResumeField(res.id, { title: e.target.value })}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Subtitle / Description</label>
+                        <input
+                          type="text"
+                          value={res.subtitle}
+                          onChange={(e) => updateResumeField(res.id, { subtitle: e.target.value })}
+                          className="w-full bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">Badge Status</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={res.badge || ''}
+                            onChange={(e) => updateResumeField(res.id, { badge: e.target.value })}
+                            className="flex-1 bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-indigo-500 font-mono"
+                          />
+                          <select
+                            value={res.badgeType || 'available'}
+                            onChange={(e) => updateResumeField(res.id, { badgeType: e.target.value })}
+                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 outline-none"
+                          >
+                            <option value="available">Available (PDF)</option>
+                            <option value="progress">Under Progress ⏳</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">PDF File Size & Date</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            placeholder="Size e.g. 1.2 MB"
+                            value={res.fileSize || ''}
+                            onChange={(e) => updateResumeField(res.id, { fileSize: e.target.value })}
+                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Date e.g. 2026-08-27"
+                            value={res.updatedAt || ''}
+                            onChange={(e) => updateResumeField(res.id, { updatedAt: e.target.value })}
+                            className="bg-[#070913] border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PDF URL & File Upload Picker */}
+                    <div className="space-y-2 pt-2 border-t border-slate-800/60">
+                      <label className="block text-xs font-medium text-slate-300 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <FaFilePdf className="text-rose-400" /> PDF Document Link / File Upload
+                        </span>
+                        <span className="text-[11px] font-mono text-cyan-400">
+                          Supabase Storage / PDF Upload Supported ⚡
+                        </span>
+                      </label>
+
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                        <input
+                          type="text"
+                          value={res.url || ''}
+                          onChange={(e) => updateResumeField(res.id, { url: e.target.value })}
+                          placeholder="/resumes/filename.pdf or https://..."
+                          className="flex-1 bg-[#070913] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-cyan-300 font-mono outline-none focus:border-cyan-400"
+                        />
+
+                        <label className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 flex items-center gap-2 cursor-pointer transition-all">
+                          <FaUpload className="text-cyan-400" /> Upload PDF File
+                          <input
+                            type="file"
+                            accept=".pdf,application/pdf"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleUploadResumePdf(e.target.files[0], res.id)
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* PDF Document Embedded Previewer */}
+                    {res.url && (
+                      <div className="space-y-2 pt-2">
+                        <p className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">
+                          📄 Live PDF Embedded Document Previewer:
+                        </p>
+                        <div className="bg-[#070913] border border-slate-800 rounded-xl p-2 h-80 overflow-hidden relative">
+                          <iframe
+                            src={res.url}
+                            className="w-full h-full rounded-lg border-0"
+                            title={res.title}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

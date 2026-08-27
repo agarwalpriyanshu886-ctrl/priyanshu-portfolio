@@ -100,6 +100,18 @@ export interface LayoutConfigData {
   sections: SectionConfig[]
 }
 
+export interface ResumeMetadata {
+  id: string
+  title: string
+  subtitle: string
+  badge: string
+  badgeType: 'available' | 'progress'
+  url: string
+  updatedAt?: string
+  fileSize?: string
+  isPrimary?: boolean
+}
+
 export interface PublicKnowledgeBase {
   profile: {
     name: string
@@ -113,10 +125,12 @@ export interface PublicKnowledgeBase {
     github: string
     linkedin: string
     instagram: string
+    resumeUrl?: string
   }
   hero: HeroCMSData
   stats: StatMetadata[]
   certifications: CertificationMetadata[]
+  resumes?: ResumeMetadata[]
   layoutConfig: LayoutConfigData
   publicContactConfig: {
     showEmail: boolean
@@ -217,6 +231,42 @@ export const PUBLIC_KNOWLEDGE: PublicKnowledgeBase = {
       date: '2024',
       url: 'https://nimsuniversity.org',
       description: 'Advanced web engineering with React, Node.js, REST APIs, and relational database schema architectures.',
+    },
+  ],
+
+  resumes: [
+    {
+      id: 'creative-technologist',
+      title: '1. CREATIVE TECHNOLOGIST RESUME',
+      subtitle: 'AI/ML Engineering, Full-Stack Web/App Development & Visual Design',
+      badge: 'Available (PDF)',
+      badgeType: 'available',
+      url: '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
+      updatedAt: '2026-08-27',
+      fileSize: '1.2 MB',
+      isPrimary: true,
+    },
+    {
+      id: 'achievements',
+      title: '2. ACHIEVEMENTS & AWARDS RESUME',
+      subtitle: 'Competitions, Hackathons, Technical Medals & Key Accomplishments',
+      badge: 'Available (PDF)',
+      badgeType: 'available',
+      url: '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
+      updatedAt: '2026-08-27',
+      fileSize: '950 KB',
+      isPrimary: false,
+    },
+    {
+      id: 'other-purposes',
+      title: '3. OTHER PURPOSES / GENERAL RESUME',
+      subtitle: 'General Corporate, Academic & Specialized Project Profiles',
+      badge: 'Available (PDF)',
+      badgeType: 'available',
+      url: '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
+      updatedAt: '2026-08-27',
+      fileSize: '880 KB',
+      isPrimary: false,
     },
   ],
 

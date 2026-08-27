@@ -1,35 +1,39 @@
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaDownload, FaTimes, FaFilePdf, FaClock, FaAward, FaBriefcase, FaMagic } from 'react-icons/fa'
-
-const resumeOptions = [
-  {
-    id: 'creative-technologist',
-    title: '1. CREATIVE TECHNOLOGIST RESUME',
-    subtitle: 'AI/ML Engineering, Full-Stack Web/App Development & Visual Design',
-    badge: 'Available (PDF)',
-    badgeType: 'available',
-    url: '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
-    icon: FaMagic,
-  },
-  {
-    id: 'achievements',
-    title: '2. ACHIEVEMENTS & AWARDS RESUME',
-    subtitle: 'Competitions, Hackathons, Technical Medals & Key Accomplishments',
-    badge: 'Under Progress ⏳',
-    badgeType: 'progress',
-    icon: FaAward,
-  },
-  {
-    id: 'other-purposes',
-    title: '3. OTHER PURPOSES / GENERAL RESUME',
-    subtitle: 'General Corporate, Academic & Specialized Project Profiles',
-    badge: 'Under Progress ⏳',
-    badgeType: 'progress',
-    icon: FaBriefcase,
-  },
-]
+import { getActiveKnowledge } from '../../lib/public-ai/cmsKnowledgeStore'
 
 export default function ResumeModal({ isOpen, onClose }) {
+  const [resumes, setResumes] = useState([])
+
+  useEffect(() => {
+    const updateResumes = () => {
+      const active = getActiveKnowledge()
+      if (active && active.resumes && active.resumes.length > 0) {
+        setResumes(active.resumes)
+      } else {
+        setResumes([
+          {
+            id: 'creative-technologist',
+            title: '1. CREATIVE TECHNOLOGIST RESUME',
+            subtitle: 'AI/ML Engineering, Full-Stack Web/App Development & Visual Design',
+            badge: 'Available (PDF)',
+            badgeType: 'available',
+            url: active?.profile?.resumeUrl || '/resumes/Priyanshu_Agarwal_Creative_Technologist_Resume.pdf',
+          },
+        ])
+      }
+    }
+
+    updateResumes()
+    window.addEventListener('cms_knowledge_updated', updateResumes)
+    window.addEventListener('storage', updateResumes)
+    return () => {
+      window.removeEventListener('cms_knowledge_updated', updateResumes)
+      window.removeEventListener('storage', updateResumes)
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
@@ -74,9 +78,8 @@ export default function ResumeModal({ isOpen, onClose }) {
 
           {/* Resume Items */}
           <div className="space-y-3">
-            {resumeOptions.map((res) => {
-              const Icon = res.icon
-              const isAvailable = res.badgeType === 'available'
+            {resumes.map((res) => {
+              const isAvailable = res.badgeType === 'available' || Boolean(res.url)
 
               return (
                 <div
@@ -89,7 +92,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <Icon className={`text-base ${isAvailable ? 'text-cyan-400' : 'text-slate-500'}`} />
+                      <FaFilePdf className={`text-base ${isAvailable ? 'text-cyan-400' : 'text-slate-500'}`} />
                       <h4 className="text-sm font-bold text-white">{res.title}</h4>
                     </div>
 
@@ -100,14 +103,14 @@ export default function ResumeModal({ isOpen, onClose }) {
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}
                     >
-                      {res.badge}
+                      {res.badge || (isAvailable ? 'Available (PDF)' : 'Under Progress ⏳')}
                     </span>
                   </div>
 
                   <p className="text-xs text-slate-400 leading-relaxed mb-3">{res.subtitle}</p>
 
                   {isAvailable && res.url ? (
-                    <div className="flex items-center gap-3 pt-1">
+                    <div className="flex items-center justify-between gap-3 pt-1 flex-wrap">
                       <a
                         href={res.url}
                         target="_blank"
@@ -116,6 +119,9 @@ export default function ResumeModal({ isOpen, onClose }) {
                       >
                         <FaDownload className="text-[10px]" /> View & Download PDF
                       </a>
+                      {res.fileSize && (
+                        <span className="text-[11px] font-mono text-slate-400">Size: {res.fileSize}</span>
+                      )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5 text-[11px] font-mono text-amber-400/90 pt-1">
